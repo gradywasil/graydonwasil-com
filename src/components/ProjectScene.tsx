@@ -33,8 +33,8 @@ function VoxchainScene({ reducedMotion }: { reducedMotion: boolean }) {
         <span className="scene-route-line" />
         <m.span
           className="scene-route-pulse"
-          animate={reducedMotion ? { x: '440%', opacity: 0.8 } : {
-            x: ['0%', '880%'],
+          animate={reducedMotion ? { y: '440%', opacity: 0.8 } : {
+            y: ['0%', '880%'],
             opacity: [0, 1, 1, 0],
           }}
           transition={reducedMotion ? { duration: 0 } : {
@@ -90,9 +90,8 @@ function RhymepageScene({ reducedMotion }: { reducedMotion: boolean }) {
           <m.div
             className="scene-rhyme-line"
             key={`${width}-${index}`}
-            animate={reducedMotion ? { opacity: 0.64, scaleX: 0.82 } : {
+            animate={reducedMotion ? { opacity: 0.64 } : {
               opacity: [0.32, 0.92, 0.42],
-              scaleX: [0.72, 1, 0.84],
             }}
             transition={reducedMotion ? { duration: 0 } : {
               duration: 5.2,
@@ -100,9 +99,8 @@ function RhymepageScene({ reducedMotion }: { reducedMotion: boolean }) {
               repeat: Infinity,
               ease: 'easeInOut',
             }}
-            style={{ width: `${width}%` }}
           >
-            <span />
+            <span style={{ width: `${width}%` }} />
             <i />
           </m.div>
         ))}
@@ -216,19 +214,12 @@ export function ProjectScene({ projectId, reducedMotion }: ProjectSceneProps) {
       transition={reducedMotion ? { duration: 0 } : { duration: 0.72, ease: EASE_OUT }}
     >
       <div className="project-scene-grid" />
-      <m.div
-        className="scene-crossing"
-        animate={reducedMotion ? { x: '440%', opacity: 0.4 } : { x: ['-100%', '1000%'], opacity: [0, 0.7, 0.7, 0] }}
-        transition={reducedMotion ? { duration: 0 } : { duration: 5.2, repeat: Infinity, ease: 'linear' }}
-      />
-      {['left', 'right'].map((edge) => (
-        <div className={`scene-edge scene-edge-${edge}`} key={edge}>
-          {projectId === 'voxchain' && <VoxchainScene reducedMotion={reducedMotion} />}
-          {projectId === 'rhymepage' && <RhymepageScene reducedMotion={reducedMotion} />}
-          {projectId === 'collectible-cars' && <CarsDbScene reducedMotion={reducedMotion} />}
-          {projectId === 'arranged-godly' && <ArrangedGodlyScene reducedMotion={reducedMotion} />}
-        </div>
-      ))}
+      <div className="scene-composition">
+        {projectId === 'voxchain' && <VoxchainScene reducedMotion={reducedMotion} />}
+        {projectId === 'rhymepage' && <RhymepageScene reducedMotion={reducedMotion} />}
+        {projectId === 'collectible-cars' && <CarsDbScene reducedMotion={reducedMotion} />}
+        {projectId === 'arranged-godly' && <ArrangedGodlyScene reducedMotion={reducedMotion} />}
+      </div>
     </m.div>
   );
 }
