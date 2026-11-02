@@ -85,6 +85,19 @@ export function NavPill() {
                 }}
                 transition={reduce ? INSTANT : { duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               >
+              {[{ path: '/', label: 'Current apps', key: 'hero' }, { path: '/games', label: 'Games', key: 'games' }].map((item) => (
+                <li key={item.key}>
+                  <Link
+                    to={item.path}
+                    state={{ dir: directionBetween(location.pathname, item.path) }}
+                    onClick={() => setMenuOpen(false)}
+                    data-on={slide.key === item.key ? '1' : '0'}
+                    aria-current={slide.key === item.key ? 'page' : undefined}
+                  >
+                    <span className="navmenu-title">{item.label}</span>
+                  </Link>
+                </li>
+              ))}
               {PROJECTS.map((p) => {
                 const path = `/projects/${p.id}`;
                 const current = slide.key === p.id;

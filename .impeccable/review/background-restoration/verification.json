@@ -1,0 +1,145 @@
+{
+  "results": [
+    {
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "dark",
+      "moving": true,
+      "horizontalOverflow": false,
+      "clipped": [],
+      "blocked": [],
+      "scrollable": false,
+      "pointerEvents": "none",
+      "decorative": "true"
+    },
+    {
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "moving": true,
+      "horizontalOverflow": false,
+      "clipped": [],
+      "blocked": [],
+      "scrollable": false,
+      "pointerEvents": "none",
+      "decorative": "true"
+    },
+    {
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "dark",
+      "moving": true,
+      "horizontalOverflow": false,
+      "clipped": [],
+      "blocked": [],
+      "scrollable": false,
+      "pointerEvents": "none",
+      "decorative": "true"
+    },
+    {
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "moving": true,
+      "horizontalOverflow": false,
+      "clipped": [],
+      "blocked": [],
+      "scrollable": false,
+      "pointerEvents": "none",
+      "decorative": "true"
+    },
+    {
+      "size": {
+        "width": 390,
+        "height": 667
+      },
+      "theme": "dark",
+      "moving": true,
+      "horizontalOverflow": false,
+      "clipped": [],
+      "blocked": [],
+      "scrollable": false,
+      "pointerEvents": "none",
+      "decorative": "true"
+    },
+    {
+      "size": {
+        "width": 390,
+        "height": 667
+      },
+      "theme": "light",
+      "moving": true,
+      "horizontalOverflow": false,
+      "clipped": [],
+      "blocked": [],
+      "scrollable": false,
+      "pointerEvents": "none",
+      "decorative": "true"
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "theme": "dark",
+      "moving": true,
+      "horizontalOverflow": false,
+      "clipped": [],
+      "blocked": [],
+      "scrollable": false,
+      "pointerEvents": "none",
+      "decorative": "true"
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "theme": "light",
+      "moving": true,
+      "horizontalOverflow": false,
+      "clipped": [],
+      "blocked": [],
+      "scrollable": false,
+      "pointerEvents": "none",
+      "decorative": "true"
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "theme": "dark",
+      "moving": true,
+      "horizontalOverflow": false,
+      "clipped": [],
+      "blocked": [],
+      "scrollable": true,
+      "pointerEvents": "none",
+      "decorative": "true"
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "theme": "light",
+      "moving": true,
+      "horizontalOverflow": false,
+      "clipped": [],
+      "blocked": [],
+      "scrollable": true,
+      "pointerEvents": "none",
+      "decorative": "true"
+    }
+  ],
+  "reducedMotion": "passed"
+}

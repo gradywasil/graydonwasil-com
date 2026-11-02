@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
 import { NavPill } from './NavPill';
@@ -13,6 +13,7 @@ import { isKnownPath } from '../lib/deck';
 export function Shell() {
   const navigate = useNavigate();
   const { go, detailOpen } = useDeck();
+  const [scrollable, setScrollable] = useState(false);
 
   useKeyNav(go);
 
@@ -30,8 +31,8 @@ export function Shell() {
 
       <NavPill />
 
-      <SwipeArea onStep={go} enabled={!detailOpen}>
-        <Deck />
+      <SwipeArea onStep={go} enabled={!detailOpen && !scrollable}>
+        <Deck scrollable={scrollable} onScrollModeChange={setScrollable} />
       </SwipeArea>
 
       <AnimatePresence>{detailOpen && <DetailOverlay key="detail" />}</AnimatePresence>

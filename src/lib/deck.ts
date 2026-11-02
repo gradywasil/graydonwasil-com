@@ -5,7 +5,7 @@ import { PROJECTS, type Project } from '../data/projects';
  * doing the same thing — moving an index — rather than three different
  * navigation models wearing the same chrome. */
 
-export type SlideKind = 'hero' | 'project' | 'experiments' | 'about' | 'contact';
+export type SlideKind = 'hero' | 'games' | 'project' | 'experiments' | 'about' | 'contact';
 
 export interface Slide {
   kind: SlideKind;
@@ -16,7 +16,8 @@ export interface Slide {
 }
 
 export const SLIDES: Slide[] = [
-  { kind: 'hero', key: 'hero', path: '/', label: 'Intro' },
+  { kind: 'hero', key: 'hero', path: '/', label: 'Current work' },
+  { kind: 'games', key: 'games', path: '/games', label: 'Games' },
   ...PROJECTS.map(
     (p): Slide => ({
       kind: 'project',
@@ -70,7 +71,9 @@ export function isKnownPath(pathname: string): boolean {
 export function slideNote(slide: Slide): string {
   switch (slide.kind) {
     case 'hero':
-      return 'Use the wheel, arrow keys, or a swipe to move through the site.';
+      return 'Explore the apps, then scroll or swipe for games and project stories.';
+    case 'games':
+      return 'Two collections of my browser games. Pick one to start playing in a new tab.';
     case 'project':
       return 'Screens rotate automatically. Open the project to see how it works and why I built it.';
     case 'experiments':
@@ -84,7 +87,7 @@ export function slideNote(slide: Slide): string {
 
 /** Which nav item reads as current for a given slide. */
 export function navKeyFor(slide: Slide): string | null {
-  if (slide.kind === 'project' || slide.kind === 'experiments') return 'work';
+  if (['hero', 'games', 'project', 'experiments'].includes(slide.kind)) return 'work';
   if (slide.kind === 'about') return 'about';
   if (slide.kind === 'contact') return 'contact';
   return null;

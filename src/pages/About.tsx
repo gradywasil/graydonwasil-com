@@ -1,7 +1,8 @@
 import { Shot } from '../components/Shot';
 
 const CURRENTLY = [
-  'Tightening the lyric-sync workflow in Rhymepage',
+  'Preparing KiloPixel, Morse and RhymePage for Google Play',
+  'Building out Gurpy Games and the Infinite Monkey Industries world',
   'Trying to understand what my sourdough starter wants',
   'Spending as much time with my son as I can',
   'Waiting, impatiently, for Enter the Gungeon 2',

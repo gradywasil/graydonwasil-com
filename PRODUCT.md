@@ -36,6 +36,8 @@ The site does not require an account. A visitor can contact Graydon through the 
 
 ## Capabilities and Constraints
 
+- Lead with KiloPixel, Morse, and RhymePage, with real previews and an explicit statement that Google Play releases are in development.
+- Introduce Gurpy Games and Infinite Monkey Industries on the opening view and in a dedicated games slide before the existing project stories.
 - Present four featured projects: Rhymepage, Collectible Cars DB, Arranged Godly, and VOXCHAIN.
 - Present the current collection of 17 smaller browser experiments with direct selection and multiple sort orders.
 - Keep project details, screenshots, live links, and source links available wherever the underlying evidence exists.

@@ -14,6 +14,8 @@ This repository powers [graydonwasil.com](https://graydonwasil.com): featured so
 
 The current data defines **four featured projects**: VOXCHAIN, Rhymepage, CarsDB, and Arranged Godly. A separate collection holds **17 experiments**, covering creative tools, simulations, music, utilities, and other browser projects.
 
+The opening introduces KiloPixel, Morse, and RhymePage as apps being prepared for Google Play, followed by the Gurpy Games and Infinite Monkey Industries collections at `/games`. The existing project stories and experiments follow. Current app and game links live in `src/data/currentWork.ts`; Google Play preparation is a development status, not a store-availability claim.
+
 | Surface | Purpose |
 |---|---|
 | **Featured deck** | A focused introduction to each major project |
@@ -45,6 +47,8 @@ The deck remains mounted while the URL determines its active slide and any deepe
 Keyboard and wheel handlers defer to text fields and modal dialogs rather than moving the deck underneath the visitor. An open navigation menu also owns its keyboard handling. Nested experiment navigation can consume wheel and touch gestures before handing control back to the outer deck at its endpoints.
 
 The site supports dark/light themes and saves the visitor’s theme choice locally. Reduced-motion preferences replace or simplify motion, including the procedural featured scenes.
+
+When a view is taller than the available space, it scrolls inside the fixed navigation. Wheel input scrolls that view before moving through the deck, touch uses native scrolling, and a focused scrolling view keeps the arrow and page keys for reading.
 
 ## Run locally
 

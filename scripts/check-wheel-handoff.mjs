@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 
-const source = readFileSync(new URL('../src/components/ExperimentsSlide.tsx', import.meta.url), 'utf8');
+const source = readFileSync(new URL('../src/components/ExperimentsSlide.tsx', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
 const wheelHandler = source.slice(source.indexOf('const onWheel ='));
 const keepsBoundaryMomentum = wheelHandler.includes('if (wheelLocked.current) event.preventDefault();');
 const keepsInStackMomentum = wheelHandler.includes('event.preventDefault();\n      if (wheelLocked.current) return;');

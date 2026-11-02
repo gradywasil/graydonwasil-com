@@ -40,6 +40,14 @@ export function useWheelNav(go: (delta: 1 | -1) => void) {
       // outer deck. This lets the experiment stack hand off at its endpoints.
       if (e.defaultPrevented || modalOpen() || inTextField(e.target)) return;
 
+      const stage = document.querySelector<HTMLElement>('.stage[data-scrollable="true"]');
+      if (stage?.contains(e.target as Node)) {
+        const canScroll = e.deltaY > 0
+          ? stage.scrollTop + stage.clientHeight < stage.scrollHeight - 1
+          : stage.scrollTop > 0;
+        if (canScroll) return;
+      }
+
       // Nothing to scroll, so suppress overscroll bounce and rubber-banding.
       e.preventDefault();
       if (locked) return;
@@ -77,6 +85,10 @@ export function useKeyNav(go: (delta: 1 | -1) => void, onEscape?: () => void) {
       // A modal or an open menu handles its own Escape; everything else is
       // inert while one of them is up.
       if (modalOpen() || menuOpen()) return;
+
+      const stage = document.querySelector('.stage[data-scrollable="true"]');
+      if (stage?.contains(document.activeElement)
+        && ['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' '].includes(e.key)) return;
 
       switch (e.key) {
         case 'ArrowDown':

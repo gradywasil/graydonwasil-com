@@ -1,7 +1,6 @@
 import { SLIDES } from '../lib/deck';
 
-/* A deck needs to say where you are and how much is left — without it, moving
- * blind through six slides feels like the site is losing your place. */
+/* Show the current position and let visitors jump directly to any slide. */
 
 export function ProgressRail({
   index,

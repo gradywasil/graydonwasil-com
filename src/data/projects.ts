@@ -104,7 +104,7 @@ const FEATURED_PROJECTS: Project[] = [
     collection: 'featured',
     id: 'rhymepage',
     num: '02',
-    title: 'Rhymepage',
+    title: 'RhymePage',
     url: 'rhymepage.com',
     year: '2025',
     tagline: 'Write with the track, time each line, then rehearse it like a teleprompter.',
