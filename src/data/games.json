@@ -1,0 +1,1539 @@
+[
+ {
+  "id": "brain-splitter",
+  "title": "Brain Splitter",
+  "url": "https://brain-splitter.arrangedgodly.com/",
+  "kicker": "New from Gurpy",
+  "tag": "Two-thumb arcade",
+  "hook": [
+   "Two thumbs.",
+   "Two games.",
+   "One brain."
+  ],
+  "description": "Slide with one thumb, tap with the other, and every few seconds the games trade sides. 52 mini-games, 3 bosses, and a flip timer that shrinks from 20 seconds to 8.",
+  "cta": "Play Brain Splitter",
+  "theme": {
+   "bg": "#1d1030",
+   "a": "#ccff61",
+   "b": "#f560ae"
+  },
+  "frame": "phone",
+  "stats": [
+   [
+    "52",
+    "mini-games"
+   ],
+   [
+    "3",
+    "bosses"
+   ],
+   [
+    "4",
+    "modes"
+   ],
+   [
+    "20s\u21928s",
+    "flip timer"
+   ]
+  ],
+  "chips": [],
+  "comment": "I can do one thumb. Mostly.",
+  "shotAlt": "Brain Splitter mid-game: a Balance game on the left half and a Beat game on the right, split by a jagged seam",
+  "shot": {
+   "file": "shot.webp",
+   "w": 420,
+   "h": 840,
+   "pixel": false
+  },
+  "thumb": {
+   "file": "thumb.webp",
+   "w": 480,
+   "h": 300,
+   "pixel": false
+  },
+  "logo": {
+   "file": "logo.webp",
+   "w": 640,
+   "h": 291,
+   "pixel": false,
+   "alt": "Brain Splitter"
+  },
+  "orbit": {
+   "file": "orbit.webp",
+   "w": 200,
+   "h": 200,
+   "pixel": false
+  },
+  "floaters": [
+   {
+    "file": "f0.webp",
+    "w": 700,
+    "h": 700,
+    "pixel": false,
+    "size": 64,
+    "x": -6,
+    "y": 0,
+    "r": 0,
+    "depth": 1.2,
+    "speed": 5.5,
+    "kind": "sprite"
+   },
+   {
+    "file": "f1.webp",
+    "w": 760,
+    "h": 220,
+    "pixel": false,
+    "size": 56,
+    "x": -2,
+    "y": 80,
+    "r": -3,
+    "depth": 1,
+    "speed": 7,
+    "kind": "sticker"
+   }
+  ]
+ },
+ {
+  "id": "numdrop",
+  "title": "NumDrop",
+  "url": "https://numdrop.arrangedgodly.com/",
+  "kicker": "New from Gurpy",
+  "tag": "Drop & merge",
+  "hook": [
+   "Drop. Bounce. Merge. Repeat."
+  ],
+  "description": "Drop glossy balls onto a board of springs, deflectors and glowing pay zones. Merge two of a color into the next, flick for combos, and set off Frenzy when the coins start rolling.",
+  "cta": "Play NumDrop",
+  "theme": {
+   "bg": "#0e1020",
+   "a": "#ffd23f",
+   "b": "#4ecdc4"
+  },
+  "frame": "browser",
+  "stats": [
+   [
+    "12",
+    "ball colors"
+   ],
+   [
+    "5",
+    "platform kinds"
+   ],
+   [
+    "4",
+    "worlds"
+   ]
+  ],
+  "chips": [],
+  "comment": "One more ball. Really.",
+  "shotAlt": "NumDrop in the Meadow world: a crowded board of colorful balls bouncing over glowing pay-zone floors with a combo counter and Frenzy running",
+  "shot": {
+   "file": "shot.webp",
+   "w": 960,
+   "h": 600,
+   "pixel": false
+  },
+  "thumb": {
+   "file": "thumb.webp",
+   "w": 480,
+   "h": 300,
+   "pixel": false
+  },
+  "logo": null,
+  "orbit": {
+   "file": "orbit.webp",
+   "w": 200,
+   "h": 200,
+   "pixel": false
+  },
+  "floaters": [
+   {
+    "file": "f0.webp",
+    "w": 240,
+    "h": 240,
+    "pixel": false,
+    "size": 11,
+    "x": 1,
+    "y": -4,
+    "r": -6,
+    "depth": 1.5,
+    "speed": 6,
+    "kind": "sprite"
+   },
+   {
+    "file": "f1.webp",
+    "w": 560,
+    "h": 144,
+    "pixel": false,
+    "size": 40,
+    "x": 15,
+    "y": -3,
+    "r": -2,
+    "depth": 1.0,
+    "speed": 8,
+    "kind": "sticker"
+   },
+   {
+    "file": "f2.webp",
+    "w": 240,
+    "h": 119,
+    "pixel": false,
+    "size": 15,
+    "x": 60,
+    "y": -1,
+    "r": 4,
+    "depth": 1.3,
+    "speed": 6,
+    "kind": "sprite"
+   },
+   {
+    "file": "f3.webp",
+    "w": 208,
+    "h": 208,
+    "pixel": false,
+    "size": 9,
+    "x": 86,
+    "y": 0,
+    "r": 8,
+    "depth": 1.8,
+    "speed": 5,
+    "kind": "sprite"
+   },
+   {
+    "file": "f4.webp",
+    "w": 280,
+    "h": 93,
+    "pixel": false,
+    "size": 20,
+    "x": -5,
+    "y": 50,
+    "r": -8,
+    "depth": 1.3,
+    "speed": 7,
+    "kind": "sprite"
+   },
+   {
+    "file": "f5.webp",
+    "w": 240,
+    "h": 240,
+    "pixel": false,
+    "size": 13,
+    "x": 85,
+    "y": 34,
+    "r": 0,
+    "depth": 1.7,
+    "speed": 6,
+    "kind": "sprite"
+   },
+   {
+    "file": "f6.webp",
+    "w": 280,
+    "h": 116,
+    "pixel": false,
+    "size": 20,
+    "x": 80,
+    "y": 62,
+    "r": -10,
+    "depth": 1.3,
+    "speed": 8,
+    "kind": "sprite"
+   }
+  ]
+ },
+ {
+  "id": "imu",
+  "title": "Monkey Universe",
+  "url": "https://imu.arrangedgodly.com/",
+  "kicker": "Gurpy's pick",
+  "tag": "Empire builder",
+  "hook": [
+   "One chimp. Unlimited potential."
+  ],
+  "description": "Harvest office supplies, hire a monkey crew, and build a little empire across floating office platforms. Turn one intern's first assignment into a growing operation.",
+  "cta": "Play Monkey Universe",
+  "theme": {
+   "bg": "#0d2a24",
+   "a": "#f0c75e",
+   "b": "#7fd1b0"
+  },
+  "frame": "browser",
+  "stats": [],
+  "chips": [
+   "Harvest supplies",
+   "Hire a monkey crew",
+   "Build an empire"
+  ],
+  "comment": null,
+  "shotAlt": "Monkey Universe on the Cubicle Prairie floor: a pioneer with a staple pickaxe, an HR desk, a laminator and workers hauling board, on an x4 combo",
+  "shot": {
+   "file": "shot.webp",
+   "w": 960,
+   "h": 600,
+   "pixel": false
+  },
+  "thumb": {
+   "file": "thumb.webp",
+   "w": 480,
+   "h": 300,
+   "pixel": false
+  },
+  "logo": {
+   "file": "logo.webp",
+   "w": 640,
+   "h": 238,
+   "pixel": false,
+   "alt": "Monkey Universe"
+  },
+  "orbit": {
+   "file": "orbit.webp",
+   "w": 164,
+   "h": 188,
+   "pixel": false
+  },
+  "floaters": [
+   {
+    "file": "f0.webp",
+    "w": 812,
+    "h": 142,
+    "pixel": false,
+    "size": 58,
+    "x": 1,
+    "y": -1,
+    "r": -2,
+    "depth": 1.0,
+    "speed": 8,
+    "kind": "sprite"
+   },
+   {
+    "file": "f1.webp",
+    "w": 208,
+    "h": 192,
+    "pixel": true,
+    "size": 17,
+    "x": 80,
+    "y": 1,
+    "r": 8,
+    "depth": 1.6,
+    "speed": 7,
+    "kind": "sprite"
+   },
+   {
+    "file": "f2.webp",
+    "w": 164,
+    "h": 188,
+    "pixel": true,
+    "size": 20,
+    "x": -4,
+    "y": 47,
+    "r": -4,
+    "depth": 1.8,
+    "speed": 6,
+    "kind": "sprite"
+   },
+   {
+    "file": "f3.webp",
+    "w": 292,
+    "h": 356,
+    "pixel": true,
+    "size": 21,
+    "x": 81,
+    "y": 50,
+    "r": 3,
+    "depth": 1.4,
+    "speed": 8,
+    "kind": "sprite"
+   },
+   {
+    "file": "f4.webp",
+    "w": 240,
+    "h": 165,
+    "pixel": false,
+    "size": 13,
+    "x": 63,
+    "y": 0,
+    "r": 4,
+    "depth": 1.4,
+    "speed": 6,
+    "kind": "sprite"
+   },
+   {
+    "file": "f5.webp",
+    "w": 240,
+    "h": 257,
+    "pixel": true,
+    "size": 15,
+    "x": -4,
+    "y": 72,
+    "r": -3,
+    "depth": 1.3,
+    "speed": 8,
+    "kind": "sprite"
+   },
+   {
+    "file": "f6.webp",
+    "w": 160,
+    "h": 148,
+    "pixel": true,
+    "size": 13,
+    "x": 86,
+    "y": 76,
+    "r": 4,
+    "depth": 1.8,
+    "speed": 6,
+    "kind": "sprite"
+   }
+  ]
+ },
+ {
+  "id": "imi",
+  "title": "Infinite Monkey Industries",
+  "url": "https://imi.arrangedgodly.com/",
+  "kicker": "Gurpy's pick",
+  "tag": "Idle publishing",
+  "hook": [
+   "A thousand monkeys. One publishing empire."
+  ],
+  "description": "Hire monkey typists, turn random letters into words, and build a publishing empire one strange manuscript at a time.",
+  "cta": "Play Infinite Monkey Industries",
+  "theme": {
+   "bg": "#0f1530",
+   "a": "#ffd23a",
+   "b": "#6fd08c"
+  },
+  "frame": "browser",
+  "stats": [],
+  "chips": [
+   "Hire typists",
+   "Turn letters into words",
+   "Publish manuscripts"
+  ],
+  "comment": null,
+  "shotAlt": "Infinite Monkey Industries: costumed typists swarming a keyboard with letters flying onto the page",
+  "shot": {
+   "file": "shot.webp",
+   "w": 960,
+   "h": 600,
+   "pixel": false
+  },
+  "thumb": {
+   "file": "thumb.webp",
+   "w": 480,
+   "h": 300,
+   "pixel": false
+  },
+  "logo": {
+   "file": "logo.webp",
+   "w": 640,
+   "h": 110,
+   "pixel": false,
+   "alt": "Infinite Monkey Industries"
+  },
+  "orbit": {
+   "file": "orbit.webp",
+   "w": 160,
+   "h": 148,
+   "pixel": true
+  },
+  "floaters": [
+   {
+    "file": "f0.webp",
+    "w": 132,
+    "h": 148,
+    "pixel": true,
+    "size": 14,
+    "x": 3,
+    "y": -3,
+    "r": -5,
+    "depth": 1.8,
+    "speed": 6,
+    "kind": "sprite"
+   },
+   {
+    "file": "f1.webp",
+    "w": 64,
+    "h": 64,
+    "pixel": true,
+    "size": 7,
+    "x": 47,
+    "y": 2,
+    "r": 8,
+    "depth": 2,
+    "speed": 5,
+    "kind": "sprite"
+   },
+   {
+    "file": "f2.webp",
+    "w": 148,
+    "h": 156,
+    "pixel": true,
+    "size": 16,
+    "x": 78,
+    "y": -3,
+    "r": 5,
+    "depth": 1.5,
+    "speed": 7,
+    "kind": "sprite"
+   },
+   {
+    "file": "f3.webp",
+    "w": 160,
+    "h": 148,
+    "pixel": true,
+    "size": 17,
+    "x": -4,
+    "y": 50,
+    "r": -3,
+    "depth": 1.7,
+    "speed": 6.5,
+    "kind": "sprite"
+   },
+   {
+    "file": "f4.webp",
+    "w": 104,
+    "h": 80,
+    "pixel": true,
+    "size": 15,
+    "x": 82,
+    "y": 62,
+    "r": 4,
+    "depth": 1.3,
+    "speed": 8,
+    "kind": "sprite"
+   },
+   {
+    "file": "f5.webp",
+    "w": 294,
+    "h": 47,
+    "pixel": false,
+    "size": 21,
+    "x": 28,
+    "y": -1,
+    "r": -3,
+    "depth": 1.2,
+    "speed": 7,
+    "kind": "sticker"
+   },
+   {
+    "file": "f6.webp",
+    "w": 124,
+    "h": 116,
+    "pixel": true,
+    "size": 13,
+    "x": 60,
+    "y": -4,
+    "r": 5,
+    "depth": 1.8,
+    "speed": 6,
+    "kind": "sprite"
+   }
+  ]
+ },
+ {
+  "id": "ims",
+  "title": "Monkey Sled",
+  "url": "https://ims.arrangedgodly.com/",
+  "kicker": "Gurpy's pick",
+  "tag": "Downhill arcade",
+  "hook": [
+   "Gravity-assisted logistics."
+  ],
+  "description": "Ride office equipment down the IMI megatower's disposal chutes. Steer through the drop and put gravity to work.",
+  "cta": "Play Monkey Sled",
+  "theme": {
+   "bg": "#0e1a38",
+   "a": "#ff6b57",
+   "b": "#ffd54a"
+  },
+  "frame": "browser",
+  "stats": [],
+  "chips": [
+   "Ride office equipment",
+   "Steer the drop",
+   "Let gravity do the work"
+  ],
+  "comment": "Mind the water cooler.",
+  "shotAlt": "Monkey Sled: boosting at 664 MPH down an office corridor beside a glowing banana ramp",
+  "shot": {
+   "file": "shot.webp",
+   "w": 960,
+   "h": 600,
+   "pixel": false
+  },
+  "thumb": {
+   "file": "thumb.webp",
+   "w": 480,
+   "h": 300,
+   "pixel": false
+  },
+  "logo": {
+   "file": "logo.webp",
+   "w": 640,
+   "h": 70,
+   "pixel": false,
+   "alt": "Monkey Sled"
+  },
+  "orbit": {
+   "file": "orbit.webp",
+   "w": 136,
+   "h": 156,
+   "pixel": true
+  },
+  "floaters": [
+   {
+    "file": "f0.webp",
+    "w": 136,
+    "h": 156,
+    "pixel": true,
+    "size": 14,
+    "x": 2,
+    "y": -3,
+    "r": -5,
+    "depth": 1.6,
+    "speed": 5.5,
+    "kind": "sprite"
+   },
+   {
+    "file": "f1.webp",
+    "w": 232,
+    "h": 308,
+    "pixel": true,
+    "size": 15,
+    "x": 82,
+    "y": 50,
+    "r": 6,
+    "depth": 1.4,
+    "speed": 8,
+    "kind": "sprite"
+   },
+   {
+    "file": "f2.webp",
+    "w": 294,
+    "h": 341,
+    "pixel": true,
+    "size": 21,
+    "x": -5,
+    "y": 50,
+    "r": -3,
+    "depth": 1.2,
+    "speed": 7,
+    "kind": "sprite"
+   },
+   {
+    "file": "f3.webp",
+    "w": 504,
+    "h": 111,
+    "pixel": false,
+    "size": 36,
+    "x": 38,
+    "y": 82,
+    "r": -3,
+    "depth": 1.0,
+    "speed": 8,
+    "kind": "sticker"
+   },
+   {
+    "file": "f4.webp",
+    "w": 240,
+    "h": 109,
+    "pixel": false,
+    "size": 15,
+    "x": 27,
+    "y": 0,
+    "r": -3,
+    "depth": 1.2,
+    "speed": 7,
+    "kind": "sticker"
+   },
+   {
+    "file": "f5.webp",
+    "w": 240,
+    "h": 91,
+    "pixel": false,
+    "size": 17,
+    "x": 46,
+    "y": -3,
+    "r": 3,
+    "depth": 1.3,
+    "speed": 7,
+    "kind": "sticker"
+   },
+   {
+    "file": "f6.webp",
+    "w": 240,
+    "h": 245,
+    "pixel": false,
+    "size": 12,
+    "x": 87,
+    "y": 74,
+    "r": 4,
+    "depth": 1.0,
+    "speed": 8,
+    "kind": "sticker"
+   }
+  ]
+ },
+ {
+  "id": "dungeon-groove",
+  "title": "Dungeon of the Groove",
+  "url": "https://dungeon-groove.arrangedgodly.com/",
+  "kicker": "Gurpy's pick",
+  "tag": "Dungeon crawl",
+  "hook": [
+   "Fight the dungeon. Make the mixtape."
+  ],
+  "description": "Lead a band of musical heroes through a tactical dungeon crawl. Every fight becomes part of a song, and the finished run becomes a track you can replay.",
+  "cta": "Play Dungeon of the Groove",
+  "theme": {
+   "bg": "#140f26",
+   "a": "#ff3fb0",
+   "b": "#38e0ff"
+  },
+  "frame": "browser",
+  "stats": [],
+  "chips": [
+   "Four-hero band",
+   "Tactical dungeon crawl",
+   "Every run becomes a track"
+  ],
+  "comment": null,
+  "shotAlt": "Dungeon of the Groove: a four-hero band in a tactical battle on a neon grid",
+  "shot": {
+   "file": "shot.webp",
+   "w": 960,
+   "h": 600,
+   "pixel": false
+  },
+  "thumb": {
+   "file": "thumb.webp",
+   "w": 480,
+   "h": 300,
+   "pixel": false
+  },
+  "logo": {
+   "file": "logo.webp",
+   "w": 640,
+   "h": 444,
+   "pixel": false,
+   "alt": "Dungeon of the Groove"
+  },
+  "orbit": {
+   "file": "orbit.webp",
+   "w": 144,
+   "h": 136,
+   "pixel": true
+  },
+  "floaters": [
+   {
+    "file": "f0.webp",
+    "w": 100,
+    "h": 144,
+    "pixel": true,
+    "size": 12,
+    "x": 2,
+    "y": -3,
+    "r": -4,
+    "depth": 1.4,
+    "speed": 6,
+    "kind": "sprite"
+   },
+   {
+    "file": "f1.webp",
+    "w": 100,
+    "h": 140,
+    "pixel": true,
+    "size": 12,
+    "x": 19,
+    "y": -5,
+    "r": 3,
+    "depth": 1.8,
+    "speed": 7,
+    "kind": "sprite"
+   },
+   {
+    "file": "f2.webp",
+    "w": 112,
+    "h": 128,
+    "pixel": true,
+    "size": 13,
+    "x": 62,
+    "y": -4,
+    "r": -3,
+    "depth": 1.8,
+    "speed": 5.5,
+    "kind": "sprite"
+   },
+   {
+    "file": "f3.webp",
+    "w": 96,
+    "h": 132,
+    "pixel": true,
+    "size": 11,
+    "x": 79,
+    "y": -3,
+    "r": 4,
+    "depth": 1.4,
+    "speed": 6.5,
+    "kind": "sprite"
+   },
+   {
+    "file": "f4.webp",
+    "w": 144,
+    "h": 136,
+    "pixel": true,
+    "size": 16,
+    "x": 80,
+    "y": 58,
+    "r": 3,
+    "depth": 1.3,
+    "speed": 8,
+    "kind": "sprite"
+   },
+   {
+    "file": "f5.webp",
+    "w": 160,
+    "h": 104,
+    "pixel": true,
+    "size": 18,
+    "x": 4,
+    "y": 80,
+    "r": -4,
+    "depth": 1.2,
+    "speed": 7,
+    "kind": "sprite"
+   },
+   {
+    "file": "f6.webp",
+    "w": 112,
+    "h": 140,
+    "pixel": true,
+    "size": 11,
+    "x": 40,
+    "y": -5,
+    "r": 3,
+    "depth": 1.8,
+    "speed": 6,
+    "kind": "sprite"
+   }
+  ]
+ },
+ {
+  "id": "im-shred",
+  "title": "Will It Shred?",
+  "url": "https://im-shred.arrangedgodly.com/",
+  "kicker": "Smash & hire",
+  "tag": "Smash & hire",
+  "hook": [
+   "Yes, that copier goes in the shredder."
+  ],
+  "description": "IMI bought an office building and is gutting it floor by floor. Slam junk into brass gears, hire the demolition crew, and keep the pile below the red line.",
+  "cta": "Play Will It Shred?",
+  "theme": {
+   "bg": "#1d1608",
+   "a": "#f2ae46",
+   "b": "#ff6a3d"
+  },
+  "frame": "phone",
+  "stats": [],
+  "chips": [
+   "Slam junk",
+   "Hire the crew",
+   "Stay below the red line"
+  ],
+  "comment": null,
+  "shotAlt": "Will It Shred? mid-game: a brass gear machine shredding office junk with an overdrive combo and the Slam button",
+  "shot": {
+   "file": "shot.webp",
+   "w": 420,
+   "h": 909,
+   "pixel": false
+  },
+  "thumb": {
+   "file": "thumb.webp",
+   "w": 480,
+   "h": 300,
+   "pixel": false
+  },
+  "logo": {
+   "file": "logo.webp",
+   "w": 640,
+   "h": 223,
+   "pixel": false,
+   "alt": "Will It Shred?"
+  },
+  "orbit": {
+   "file": "orbit.webp",
+   "w": 124,
+   "h": 148,
+   "pixel": true
+  },
+  "floaters": [
+   {
+    "file": "f0.webp",
+    "w": 152,
+    "h": 224,
+    "pixel": true,
+    "size": 17,
+    "x": 1,
+    "y": 3,
+    "r": -4,
+    "depth": 1.6,
+    "speed": 6,
+    "kind": "sprite"
+   },
+   {
+    "file": "f1.webp",
+    "w": 272,
+    "h": 136,
+    "pixel": true,
+    "size": 28,
+    "x": 19,
+    "y": 12,
+    "r": 3,
+    "depth": 1.6,
+    "speed": 8,
+    "kind": "sprite"
+   },
+   {
+    "file": "f2.webp",
+    "w": 336,
+    "h": 336,
+    "pixel": true,
+    "size": 27,
+    "x": -5,
+    "y": 40,
+    "r": 0,
+    "depth": 1.2,
+    "speed": 9,
+    "kind": "sprite"
+   },
+   {
+    "file": "f3.webp",
+    "w": 232,
+    "h": 64,
+    "pixel": true,
+    "size": 26,
+    "x": 20,
+    "y": 36,
+    "r": 3,
+    "depth": 1.6,
+    "speed": 5,
+    "kind": "sprite"
+   },
+   {
+    "file": "f4.webp",
+    "w": 124,
+    "h": 148,
+    "pixel": true,
+    "size": 13,
+    "x": 25,
+    "y": 50,
+    "r": -3,
+    "depth": 2,
+    "speed": 5.5,
+    "kind": "sprite"
+   },
+   {
+    "file": "f5.webp",
+    "w": 192,
+    "h": 164,
+    "pixel": true,
+    "size": 24,
+    "x": 2,
+    "y": 72,
+    "r": 3,
+    "depth": 1.6,
+    "speed": 7,
+    "kind": "sprite"
+   },
+   {
+    "file": "f6.webp",
+    "w": 392,
+    "h": 119,
+    "pixel": false,
+    "size": 28,
+    "x": 22,
+    "y": -7,
+    "r": -3,
+    "depth": 1.0,
+    "speed": 8,
+    "kind": "sticker"
+   }
+  ]
+ },
+ {
+  "id": "imt",
+  "title": "Night Shift Security",
+  "url": "https://imt.arrangedgodly.com/",
+  "kicker": "Tower defense",
+  "tag": "Tower defense",
+  "hook": [
+   "Clock out? The invaders just clocked in."
+  ],
+  "description": "Build defenses and hire a monkey supply crew. Every turret needs ammunition carried across the office floor. Keep the invaders away from the vault until morning.",
+  "cta": "Play Night Shift Security",
+  "theme": {
+   "bg": "#0a0f2a",
+   "a": "#ffb02e",
+   "b": "#7ac8ff"
+  },
+  "frame": "browser",
+  "stats": [],
+  "chips": [
+   "Build defenses",
+   "Carry the ammo",
+   "Protect the vault"
+  ],
+  "comment": null,
+  "shotAlt": "Night Shift Security title screen over a night skyline with the office tower",
+  "shot": {
+   "file": "shot.webp",
+   "w": 960,
+   "h": 600,
+   "pixel": false
+  },
+  "thumb": {
+   "file": "thumb.webp",
+   "w": 480,
+   "h": 300,
+   "pixel": false
+  },
+  "logo": {
+   "file": "logo.webp",
+   "w": 640,
+   "h": 120,
+   "pixel": false,
+   "alt": "Night Shift Security"
+  },
+  "orbit": {
+   "file": "orbit.webp",
+   "w": 112,
+   "h": 104,
+   "pixel": true
+  },
+  "floaters": [
+   {
+    "file": "f0.webp",
+    "w": 280,
+    "h": 312,
+    "pixel": true,
+    "size": 21,
+    "x": 76,
+    "y": -5,
+    "r": 4,
+    "depth": 1.6,
+    "speed": 7,
+    "kind": "sprite"
+   },
+   {
+    "file": "f1.webp",
+    "w": 112,
+    "h": 104,
+    "pixel": true,
+    "size": 11,
+    "x": 46,
+    "y": 0,
+    "r": -5,
+    "depth": 1.9,
+    "speed": 5,
+    "kind": "sprite"
+   },
+   {
+    "file": "f2.webp",
+    "w": 132,
+    "h": 148,
+    "pixel": true,
+    "size": 16,
+    "x": -3,
+    "y": 50,
+    "r": -4,
+    "depth": 1.8,
+    "speed": 6,
+    "kind": "sprite"
+   },
+   {
+    "file": "f3.webp",
+    "w": 160,
+    "h": 136,
+    "pixel": true,
+    "size": 18,
+    "x": 79,
+    "y": 58,
+    "r": 3,
+    "depth": 1.4,
+    "speed": 8,
+    "kind": "sprite"
+   },
+   {
+    "file": "f4.webp",
+    "w": 140,
+    "h": 88,
+    "pixel": true,
+    "size": 15,
+    "x": 28,
+    "y": 82,
+    "r": -2,
+    "depth": 1.2,
+    "speed": 7,
+    "kind": "sprite"
+   },
+   {
+    "file": "f5.webp",
+    "w": 308,
+    "h": 74,
+    "pixel": false,
+    "size": 22,
+    "x": 2,
+    "y": 80,
+    "r": -3,
+    "depth": 1.2,
+    "speed": 7,
+    "kind": "sticker"
+   },
+   {
+    "file": "f6.webp",
+    "w": 200,
+    "h": 212,
+    "pixel": true,
+    "size": 15,
+    "x": 85,
+    "y": 22,
+    "r": 4,
+    "depth": 1.4,
+    "speed": 7,
+    "kind": "sprite"
+   }
+  ]
+ },
+ {
+  "id": "imw",
+  "title": "The Backup Generator",
+  "url": "https://imw.arrangedgodly.com/",
+  "kicker": "Idle power plant",
+  "tag": "Idle power plant",
+  "hook": [
+   "The entire power grid runs on bananas."
+  ],
+  "description": "The grid is down. Dangle a golden banana to keep a giant wheel of monkeys running, hire a bigger crew, and light the office tower floor by floor.",
+  "cta": "Play The Backup Generator",
+  "theme": {
+   "bg": "#1a1208",
+   "a": "#ffc933",
+   "b": "#4fd16b"
+  },
+  "frame": "browser",
+  "stats": [],
+  "chips": [
+   "Dangle the banana",
+   "Hire a bigger crew",
+   "Light the tower"
+  ],
+  "comment": null,
+  "shotAlt": "The Backup Generator: a giant wheel packed with sprinting monkeys beside the crew panel",
+  "shot": {
+   "file": "shot.webp",
+   "w": 960,
+   "h": 600,
+   "pixel": false
+  },
+  "thumb": {
+   "file": "thumb.webp",
+   "w": 480,
+   "h": 300,
+   "pixel": false
+  },
+  "logo": {
+   "file": "logo.webp",
+   "w": 640,
+   "h": 179,
+   "pixel": false,
+   "alt": "The Backup Generator"
+  },
+  "orbit": {
+   "file": "orbit.webp",
+   "w": 88,
+   "h": 84,
+   "pixel": true
+  },
+  "floaters": [
+   {
+    "file": "f0.webp",
+    "w": 72,
+    "h": 92,
+    "pixel": true,
+    "size": 12,
+    "x": 2,
+    "y": -3,
+    "r": -5,
+    "depth": 1.8,
+    "speed": 6,
+    "kind": "sprite"
+   },
+   {
+    "file": "f1.webp",
+    "w": 88,
+    "h": 84,
+    "pixel": true,
+    "size": 10,
+    "x": 62,
+    "y": -1,
+    "r": 8,
+    "depth": 2,
+    "speed": 5,
+    "kind": "sprite"
+   },
+   {
+    "file": "f2.webp",
+    "w": 64,
+    "h": 64,
+    "pixel": true,
+    "size": 8,
+    "x": 76,
+    "y": 3,
+    "r": -8,
+    "depth": 2.2,
+    "speed": 6,
+    "kind": "sprite"
+   },
+   {
+    "file": "f3.webp",
+    "w": 64,
+    "h": 72,
+    "pixel": true,
+    "size": 12,
+    "x": -3,
+    "y": 54,
+    "r": -4,
+    "depth": 1.8,
+    "speed": 5.5,
+    "kind": "sprite"
+   },
+   {
+    "file": "f4.webp",
+    "w": 56,
+    "h": 60,
+    "pixel": true,
+    "size": 10,
+    "x": 20,
+    "y": 70,
+    "r": 5,
+    "depth": 2,
+    "speed": 5,
+    "kind": "sprite"
+   },
+   {
+    "file": "f5.webp",
+    "w": 152,
+    "h": 152,
+    "pixel": true,
+    "size": 17,
+    "x": 80,
+    "y": 54,
+    "r": 3,
+    "depth": 1.2,
+    "speed": 8,
+    "kind": "sprite"
+   },
+   {
+    "file": "f6.webp",
+    "w": 476,
+    "h": 127,
+    "pixel": false,
+    "size": 34,
+    "x": 22,
+    "y": -6,
+    "r": -2,
+    "depth": 1.0,
+    "speed": 8,
+    "kind": "sticker"
+   }
+  ]
+ },
+ {
+  "id": "imv",
+  "title": "Pest Control",
+  "url": "https://imv.arrangedgodly.com/",
+  "kicker": "Action roguelite",
+  "tag": "Action roguelite",
+  "hook": [
+   "Your typewriter is now company-issued pest control."
+  ],
+  "description": "Clock in with a typewriter and clear IMI's jungle campus. Dodge the pests, choose upgrades at each promotion, and face district bosses for banana hazard pay.",
+  "cta": "Play Pest Control",
+  "theme": {
+   "bg": "#0f2a17",
+   "a": "#ffd23a",
+   "b": "#ff8a3d"
+  },
+  "frame": "browser",
+  "stats": [],
+  "chips": [
+   "Dodge the pests",
+   "Choose upgrades",
+   "Beat district bosses"
+  ],
+  "comment": null,
+  "shotAlt": "Pest Control: a swarm of pests on a boardwalk with the Queen Yellowjacket boss",
+  "shot": {
+   "file": "shot.webp",
+   "w": 960,
+   "h": 600,
+   "pixel": false
+  },
+  "thumb": {
+   "file": "thumb.webp",
+   "w": 480,
+   "h": 300,
+   "pixel": false
+  },
+  "logo": {
+   "file": "logo.webp",
+   "w": 640,
+   "h": 245,
+   "pixel": false,
+   "alt": "Pest Control"
+  },
+  "orbit": {
+   "file": "orbit.webp",
+   "w": 136,
+   "h": 128,
+   "pixel": true
+  },
+  "floaters": [
+   {
+    "file": "f0.webp",
+    "w": 136,
+    "h": 128,
+    "pixel": true,
+    "size": 10,
+    "x": 45,
+    "y": 0,
+    "r": -6,
+    "depth": 2,
+    "speed": 5,
+    "kind": "sprite"
+   },
+   {
+    "file": "f1.webp",
+    "w": 322,
+    "h": 280,
+    "pixel": true,
+    "size": 23,
+    "x": 76,
+    "y": -6,
+    "r": 5,
+    "depth": 1.3,
+    "speed": 7,
+    "kind": "sprite"
+   },
+   {
+    "file": "f2.webp",
+    "w": 168,
+    "h": 148,
+    "pixel": true,
+    "size": 17,
+    "x": -4,
+    "y": 50,
+    "r": -3,
+    "depth": 1.7,
+    "speed": 6,
+    "kind": "sprite"
+   },
+   {
+    "file": "f3.webp",
+    "w": 152,
+    "h": 144,
+    "pixel": true,
+    "size": 14,
+    "x": 17,
+    "y": 62,
+    "r": 4,
+    "depth": 1.9,
+    "speed": 5.5,
+    "kind": "sprite"
+   },
+   {
+    "file": "f4.webp",
+    "w": 252,
+    "h": 255,
+    "pixel": true,
+    "size": 18,
+    "x": 81,
+    "y": 52,
+    "r": 3,
+    "depth": 1.3,
+    "speed": 8,
+    "kind": "sprite"
+   },
+   {
+    "file": "f5.webp",
+    "w": 240,
+    "h": 101,
+    "pixel": false,
+    "size": 17,
+    "x": 28,
+    "y": -3,
+    "r": -3,
+    "depth": 1.2,
+    "speed": 7,
+    "kind": "sticker"
+   },
+   {
+    "file": "f6.webp",
+    "w": 420,
+    "h": 132,
+    "pixel": false,
+    "size": 30,
+    "x": 60,
+    "y": 84,
+    "r": 2,
+    "depth": 1.0,
+    "speed": 8,
+    "kind": "sticker"
+   }
+  ]
+ },
+ {
+  "id": "im-merger",
+  "title": "Merge Inc.",
+  "url": "https://im-merger.arrangedgodly.com/",
+  "kicker": "Merge game",
+  "tag": "Merge game",
+  "hook": [
+   "From unpaid intern to upper management."
+  ],
+  "description": "Start as an unpaid intern, collect bananas, and merge your way up the corporate ladder. Every little upgrade pushes the next KPI closer.",
+  "cta": "Play Merge Inc.",
+  "theme": {
+   "bg": "#1b0f3a",
+   "a": "#6fd08c",
+   "b": "#ffb347"
+  },
+  "frame": "browser",
+  "stats": [],
+  "chips": [
+   "Collect bananas",
+   "Merge upward",
+   "Hit the KPI"
+  ],
+  "comment": null,
+  "shotAlt": "Merge Inc.: a packed merge board with every chain at several tiers, and the office with Chairman Bigsby",
+  "shot": {
+   "file": "shot.webp",
+   "w": 960,
+   "h": 600,
+   "pixel": false
+  },
+  "thumb": {
+   "file": "thumb.webp",
+   "w": 480,
+   "h": 300,
+   "pixel": false
+  },
+  "logo": {
+   "file": "logo.webp",
+   "w": 640,
+   "h": 246,
+   "pixel": false,
+   "alt": "Merge Inc."
+  },
+  "orbit": {
+   "file": "orbit.webp",
+   "w": 144,
+   "h": 180,
+   "pixel": false
+  },
+  "floaters": [
+   {
+    "file": "f0.webp",
+    "w": 88,
+    "h": 88,
+    "pixel": true,
+    "size": 10,
+    "x": 2,
+    "y": 0,
+    "r": -5,
+    "depth": 1.8,
+    "speed": 6,
+    "kind": "sprite"
+   },
+   {
+    "file": "f1.webp",
+    "w": 88,
+    "h": 88,
+    "pixel": true,
+    "size": 9,
+    "x": 48,
+    "y": 2,
+    "r": 6,
+    "depth": 2,
+    "speed": 5,
+    "kind": "sprite"
+   },
+   {
+    "file": "f2.webp",
+    "w": 336,
+    "h": 247,
+    "pixel": true,
+    "size": 24,
+    "x": 74,
+    "y": -5,
+    "r": 4,
+    "depth": 1.3,
+    "speed": 8,
+    "kind": "sprite"
+   },
+   {
+    "file": "f3.webp",
+    "w": 144,
+    "h": 180,
+    "pixel": true,
+    "size": 16,
+    "x": -4,
+    "y": 46,
+    "r": -4,
+    "depth": 1.6,
+    "speed": 6.5,
+    "kind": "sprite"
+   },
+   {
+    "file": "f4.webp",
+    "w": 88,
+    "h": 88,
+    "pixel": true,
+    "size": 10,
+    "x": 84,
+    "y": 62,
+    "r": 5,
+    "depth": 1.9,
+    "speed": 5.5,
+    "kind": "sprite"
+   },
+   {
+    "file": "f5.webp",
+    "w": 240,
+    "h": 196,
+    "pixel": false,
+    "size": 17,
+    "x": 70,
+    "y": 56,
+    "r": 4,
+    "depth": 1.1,
+    "speed": 8,
+    "kind": "sticker"
+   },
+   {
+    "file": "f6.webp",
+    "w": 72,
+    "h": 84,
+    "pixel": true,
+    "size": 7,
+    "x": 28,
+    "y": -4,
+    "r": -6,
+    "depth": 2.0,
+    "speed": 5,
+    "kind": "sprite"
+   }
+  ]
+ }
+]

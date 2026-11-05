@@ -8,70 +8,66 @@ web
 
 ## Users
 
-The portfolio intentionally serves a mixed audience of people who may find a reason to work with, hire, follow, or recommend Graydon:
+The site now leads with people who might use or play what Graydon makes, while still serving people who might work with him:
 
-- Hiring managers and engineering leads evaluating his software-development judgment, range, and ability to ship complete work.
-- Small-business owners and other potential clients deciding whether he could understand a practical problem and build a useful solution for them.
-- Developer peers and other makers who want to see what he has built lately, try the projects, or inspect the source.
+- Android users and players who arrive from his app and game sites, or who want to try Morse, KiloPixel, or a game right now.
+- Hiring managers, engineering leads, and potential clients looking for evidence that he ships complete, polished products.
+- Developer peers and makers who want to see what he has built lately.
 
-No one of these groups is the exclusive primary audience. The shared visitor job is to establish credible fit by understanding how Graydon approaches problems and by examining real work.
+The shared visitor job: get a quick, memorable sense of what Graydon makes, try something, and know where to go next (Google Play, a game, or the contact form).
 
 ## Product Purpose
 
-The portfolio shows what Graydon builds and how he thinks through software problems. It gives visitors a compact way to browse shipped projects and smaller experiments, see the problem behind each project, inspect live software or source where available, and contact him about employment, client work, or collaboration.
+The site is a fun, interactive advertisement for Graydon's apps and games and for Graydon himself. It should make visitors smile, give them something to play with within seconds, and put the Google Play launch of Morse front and centre. Side projects stay visible but compact.
 
-A successful visit gives someone enough specific evidence to decide on a useful next step: explore a project more deeply, review the code, remember or share Graydon's work, or start a conversation.
+A successful visit ends with someone joining the Morse beta, playing a game, opening one of the app sites, or sending a message.
 
 ## Positioning
 
-The portfolio is grounded in software Graydon built around problems and curiosities he encountered himself. Its case for his work comes from specific friction, working behavior, implementation decisions, live projects, and source code rather than generalized claims about being a developer.
+Graydon builds software you'll want to play with. The case for his work is the work itself, presented so you can touch it: a Morse signal you can send, a pixel camera look you can roll, a reel of games you can spin. Gurpy, his pixel-art mascot, carries the humour.
 
-The range is part of the product: full applications establish depth, while smaller browser experiments show ongoing curiosity, speed, and willingness to test an idea by building it.
+Morse is his first app on Google Play (in closed testing as of November 2026). KiloPixel is next. RhymePage is a web app with Android in the works.
 
 ## Operating Context
 
-Visitors may arrive on desktop or mobile and move through one ordered portfolio deck using visible navigation, a keyboard, a wheel, or touch gestures. Featured projects have deeper views with screenshots, implementation context, live links, and source links. Experiments can be browsed in a curated, alphabetical, or newest-first order and open as separate live projects.
+Visitors arrive on desktop or mobile and scroll one page with anchored sections (`#top`, `#morse`, `#apps`, `#games`, `#more`, `#hello`). Old deck URLs (`/games`, `/projects/*`, `/experiments`, `/about`, `/contact`) redirect to the matching section.
 
 The site does not require an account. A visitor can contact Graydon through the contact form; when no form endpoint is configured, the site hands the prepared message to the visitor's email client instead of claiming it was delivered.
 
 ## Capabilities and Constraints
 
-- Lead with KiloPixel, Morse, and RhymePage, with real previews and an explicit statement that Google Play releases are in development.
-- Introduce Gurpy Games and Infinite Monkey Industries on the opening view and in a dedicated games slide before the existing project stories.
-- Present four featured projects: Rhymepage, Collectible Cars DB, Arranged Godly, and VOXCHAIN.
-- Present the current collection of 17 smaller browser experiments with direct selection and multiple sort orders.
-- Keep project details, screenshots, live links, and source links available wherever the underlying evidence exists.
-- Preserve direct routes to portfolio sections and project-detail views even though the experience is presented as one deck.
-- Support desktop and mobile layouts, keyboard navigation, wheel navigation, touch gestures, dark and light themes, visible focus, and reduced-motion preferences.
-- Remember the visitor's explicit theme choice locally in the browser.
-- Remain deployable as a static client-rendered site; the host must return `index.html` for direct visits to client-side routes.
+- Lead with apps and games. Morse and its Google Play beta come first, then KiloPixel and RhymePage, then the games (Brain Splitter spotlight, all eleven games on a spin reel, both game hubs).
+- Keep VOXCHAIN, CarsDB, Arranged Godly, and the 17 experiments in one compact section; do not bring back per-project story pages without a new decision.
+- Google Play buttons point at the Morse tester opt-in until the listing is public. Do not use Google's official "Get it on Google Play" badge until it links to a public listing.
+- Interactions must have a purpose. The hero orbit navigates the apps and games, the Morse sender demos Morse, the KiloPixel dither and RhymePage rehearse demo those apps, and the reel and splash show each game in its own branding. Gurpy reacts to what you pick.
+- The tone is semi-professional with fun baked in: this is also Graydon's portfolio.
+- Game branding comes from the Gurpy Games data (`arcade-ad/research/games.json`) via `scripts/sync-games.py`; do not hand-edit `src/data/games.json`.
+- Support desktop and mobile, keyboard access, visible focus, and reduced-motion preferences. The site has a single dark-first presentation; there is no light-theme toggle.
+- Remain deployable as a static client-rendered site; the host must return `index.html` for unknown paths.
 - Keep contact delivery honest: use the configured endpoint when present, report rejected requests, retain the visitor's message on failure, and provide the email-client fallback.
-- Do not fabricate clients, testimonials, business outcomes, audience metrics, endorsements, or project capabilities.
+- Do not fabricate clients, testimonials, download counts, ratings, store availability, or project capabilities.
 
 ## Brand Commitments
 
-The product is Graydon Wasil's personal software portfolio and speaks in his first-person voice. The writing is candid, specific, and technically literate. It foregrounds the problem he noticed, the behavior he built, and the implementation decision that mattered.
+The product is Graydon Wasil's personal site and speaks in his first-person voice, with Gurpy as a playful second voice. The writing is short, candid, specific, and funny when it is true. It foregrounds the problem he noticed, the behavior he built, and the implementation decision that mattered.
 
 Personal details and humor are welcome when they are true and help the visitor understand the person behind the work. Meaningful technical language such as TypeScript, REST APIs, Web Audio, authentication, local storage, latency, and game loops should remain when it adds evidence. The voice must not drift into detached resume language, generic agency copy, inflated promotion, or invented proof.
 
 ## Evidence on Hand
 
-- Project records, descriptions, implementation notes, stack information, links, and experiment metadata in `src/data/projects.ts`.
-- Desktop and mobile project captures in `src/assets/screenshots/`.
-- Experiment thumbnails in `src/assets/experiments/`.
-- A real portrait used by the About section at `src/assets/screenshots/about.webp`.
-- Live project URLs and public source-repository URLs recorded alongside the relevant work.
-- An About narrative describing how Graydon moved from solving his own practical problems into full-application development.
+- App, game, and side-project links in `src/data/site.ts`; experiments in `src/data/experiments.ts`.
+- Real art from Graydon's own projects in `src/assets/fun/`: Gurpy, Brain Splitter, game thumbnails, Morse phone plates, the KiloPixel sample photo, and side-project screenshots.
+- App icons in `src/assets/current-work/`, experiment thumbnails in `src/assets/experiments/`, and a real portrait at `src/assets/fun/graydon.webp`.
 
-No testimonials, client roster, verified audience metrics, or quantified business outcomes are currently on hand. Future work must not imply that this evidence exists unless it is supplied and verified.
+No testimonials, client roster, download counts, ratings, or quantified outcomes are on hand. Do not imply that this evidence exists unless it is supplied and verified.
 
 ## Product Principles
 
-1. Show working evidence before making a broad claim.
-2. Explain the path from a real problem to useful behavior and the technical decision behind it.
-3. Give hiring teams, potential small-business clients, and peers credible paths through the same body of work without pretending they have identical reasons for visiting.
-4. Keep exploration direct: reveal deeper context when requested, preserve the visitor's place, and make the next action clear.
-5. Preserve truthful behavior, accessibility, responsive usability, and browser performance as the portfolio evolves.
+1. Let people touch it. Every product section has something to play with within one click.
+2. Apps and games first; everything else stays compact.
+3. Make the next step obvious: join the beta, play a game, open the app site, or say hi.
+4. Be funny, never fake. Humour comes from Gurpy and true details, not invented proof.
+5. Preserve truthful behavior, accessibility, responsive usability, and browser performance as the site evolves.
 
 ## Accessibility & Inclusion
 

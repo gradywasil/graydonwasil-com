@@ -7,15 +7,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview",
-    "capture": "node scripts/capture.mjs",
-    "capture:setup": "npm i --no-save playwright sharp && npx playwright install chromium"
+    "preview": "vite preview"
   },
   "dependencies": {
-    "motion": "^13.1.1",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.2"
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",

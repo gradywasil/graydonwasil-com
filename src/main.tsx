@@ -1,21 +1,30 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import { LazyMotion, domMax } from 'motion/react';
-import './styles/theme.css';
-import './styles/app.css';
+import './styles/site.css';
 import App from './App.tsx';
 
-/* domMax rather than domAnimation because the shared-element open and the nav
- * indicator are layout animations, which domAnimation does not include.
- * `strict` makes the `motion` component throw, so every call site has to use
- * `m` and the smaller feature bundle actually holds. */
+/* The old site was a deck with one URL per slide. Those links still exist
+ * out in the world, so send each to the matching section of the one page. */
+const LEGACY: Array<[RegExp, string]> = [
+  [/^\/games\/?$/, 'games'],
+  [/^\/(experiments|projects(\/.*)?)\/?$/, 'more'],
+  [/^\/(about|contact)\/?$/, 'hello'],
+];
+const path = window.location.pathname;
+if (path !== '/') {
+  const hit = LEGACY.find(([re]) => re.test(path));
+  history.replaceState(null, '', hit ? `/#${hit[1]}` : '/');
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <LazyMotion features={domMax} strict>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </LazyMotion>
+    <App />
   </StrictMode>,
 );
+
+// Hash targets render after React mounts, so jump once they exist.
+if (window.location.hash) {
+  const id = window.location.hash.slice(1);
+  requestAnimationFrame(() => requestAnimationFrame(() =>
+    document.getElementById(id)?.scrollIntoView({ behavior: 'instant' })));
+}
