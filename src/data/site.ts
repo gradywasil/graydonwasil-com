@@ -105,4 +105,4 @@ export const SIDE_PROJECTS = [
 ] as const;
 
 export const EMAIL = 'hello@graydonwasil.com';
-export const GITHUB = 'https://github.com/graydonwasil';
+export const GITHUB = 'https://github.com/gradywasil';

@@ -838,3 +838,134 @@ h1, h2, h3, p { margin: 0; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: 0.01ms !important; }
 }
+
+/* ------------------------------------------------------- phone condense
+ * On phones every section should read in about one to two screens. Same
+ * content, tighter rhythm: smaller stages, side-by-side where it fits,
+ * and secondary detail trimmed rather than stacked. */
+
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  .world { padding: 52px 16px; }
+
+  /* Hero */
+  .hero { padding: 88px 16px 36px; gap: 18px; }
+  .hero-title { margin-top: 14px; font-size: clamp(36px, 10.4vw, 44px); }
+  .hero-lede { margin-top: 16px; font-size: 16px; }
+  .hero-ctas { margin-top: 20px; gap: 10px; flex-wrap: nowrap; }
+  .hero-ctas .play-btn { min-height: 50px; padding: 6px 14px 6px 10px; gap: 9px; }
+  .hero-ctas .play-btn-logo { width: 24px; height: 24px; }
+  .hero-ctas .play-btn-name { font-size: 18px; }
+  .hero-ctas .play-btn-kicker { font-size: 9px; }
+  .hero-ctas .chunky-btn { min-height: 50px; padding: 10px 16px; font-size: 16px; white-space: nowrap; }
+  .hero-sticker { display: none; }
+  .hero-stage { gap: 10px; }
+  .orbit-card { padding: 12px; gap: 10px 12px; }
+  .orbit-card-icon { width: 44px; height: 44px; }
+  .orbit-card-name { font-size: 19px; }
+
+  /* Morse */
+  .morse-grid { gap: 20px; }
+  .morse-stage { height: 230px; max-width: 340px; }
+  .morse-phone { width: 36%; }
+  .morse-phone-send { left: 6%; }
+  .morse-phone-receive { right: 6%; }
+  .morse-readout { left: auto; right: 0; bottom: 0; min-width: 0; padding: 8px 10px; }
+  .morse-readout strong { font-size: 17px; }
+  .morse-title { margin-top: 12px; font-size: clamp(32px, 9.4vw, 40px); }
+  .morse-lede { margin-top: 12px; font-size: 16px; }
+  .morse-demo { margin-top: 18px; padding: 12px; gap: 10px; }
+  .morse-field input { font-size: 22px; }
+  .morse-send { min-height: 52px; }
+  .morse-get { margin-top: 18px; gap: 12px 16px; }
+  .morse-steps { font-size: 13px; gap: 4px; }
+  .morse-steps li::before { width: 18px; height: 18px; font-size: 11px; }
+  .morse-alt { margin-top: 12px; font-size: 14px; }
+
+  /* Apps */
+  .apps-head { margin-bottom: 20px; }
+  .apps-head h2 { font-size: clamp(30px, 8.6vw, 36px); }
+  .apps-grid { gap: 14px; }
+  .app-card { padding: 18px; }
+  .app-desc { margin-top: 10px; font-size: 15px; }
+  .app-actions { margin-top: 16px; gap: 10px; }
+  .kp-card { gap: 16px; }
+  .kp-title { margin-top: 12px; font-size: 28px; }
+  .kp-title img { width: 36px; height: 36px; }
+  .kp-tagline { margin-top: 10px; font-size: 22px; }
+  .kp-looks { margin-top: 14px; gap: 8px; }
+  .kp-swatch { width: 34px; height: 34px; }
+  .kp-btn, .kp-roll { min-height: 46px; padding: 0 16px; font-size: 15px; }
+  .kp-viewer { max-width: 230px; }
+  .rp-title { margin-top: 12px; font-size: 26px; }
+  .rp-sheet { margin-top: 14px; padding: 12px 14px; font-size: 18px; }
+  .rp-card .app-actions { padding-top: 16px; }
+
+  /* Games */
+  .games-title { font-size: clamp(30px, 8.8vw, 38px); }
+  .games-lede { margin-top: 12px; font-size: 16px; }
+  .splash { margin-top: 24px; border-radius: 20px; }
+  .splash-inner { padding: 18px; gap: 6px; min-height: 0; }
+  .splash-title { margin-top: 12px; font-size: 30px; }
+  .splash-title img { max-height: 104px; max-width: 78%; }
+  .splash-hook { margin-top: 10px; font-size: 16px; }
+  .splash-desc {
+    margin-top: 10px; font-size: 15px;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .splash-play { margin-top: 14px; min-height: 46px; font-size: 16px; }
+  .splash-chips { display: none; }
+  .splash-stage { height: 220px; min-height: 0; }
+  .splash-comment { font-size: 12px; padding: 6px 10px 6px 6px; }
+  .splash-comment img { width: 28px; height: 28px; }
+  .roulette { margin-top: 28px; }
+  .roulette-head h3 { font-size: 20px; }
+  .roulette-head .chunky-btn { min-height: 46px; padding: 8px 16px; font-size: 16px; }
+  .reel-window { margin-top: 12px; padding: 18px 0 12px; }
+  .reel { gap: 12px; }
+  .reel-card { width: 138px; }
+  .reel-name { font-size: 12px; padding: 8px 10px 2px; }
+  .reel-genre { font-size: 10px; padding: 0 10px 10px; }
+  .game-hubs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 24px; }
+  .game-hub { padding: 12px 34px 12px 14px; }
+  .game-hub strong { font-size: 14px; }
+  .game-hub span:not(.game-hub-go) { font-size: 13px; line-height: 1.3; }
+  .game-hub-go { right: 12px; font-size: 20px; }
+
+  /* More */
+  .more-head h2 { font-size: clamp(26px, 7.6vw, 32px); }
+  .more-head p { font-size: 15px; }
+  .more-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+  .more-tile { border-radius: 14px; }
+  .more-tile-body { padding: 10px 12px 12px; font-size: 13px; line-height: 1.35; }
+  .more-tile-body strong { font-size: 15px; }
+  .more-tile-body > span {
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .tile-vox, .tile-cars { gap: 10px; }
+  .cars-word { font-size: 15px; }
+  .more-count { font-size: 46px; }
+  .experiments { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+
+  /* Hello: the photo tucks in beside the heading instead of taking a row. */
+  .hello-grid { gap: 24px; }
+  .hello-me { display: block; }
+  .polaroid { float: right; width: 104px; margin: 0 0 10px 14px; padding: 6px 6px 0; }
+  .polaroid figcaption { padding: 5px 0 6px; font-size: 9px; }
+  .hello-title { font-size: clamp(32px, 9.4vw, 40px); }
+  .hello-me p:not(.hello-title) { margin-top: 10px; font-size: 16px; }
+  .hello-links { clear: both; padding-top: 4px; }
+  .note-card { padding: 18px; }
+  .note-card form { gap: 10px; }
+  .note-card h3 { font-size: 24px; }
+  .note-card textarea { min-height: 96px; }
+  .note-row { grid-template-columns: 1fr 1fr; }
+
+  .footer { padding: 22px 16px 88px; font-size: 14px; }
+  .footer-links { margin-left: 0; }
+}
+
+@media (max-width: 370px) {
+  .hero-ctas { flex-wrap: wrap; }
+  .note-row { grid-template-columns: 1fr; }
+}
