@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 import { GAMES, gameById } from '../data/games';
 import { GAME_HUBS } from '../data/site';
-import gurpySrc from '../assets/fun/gurpy.png';
 
 /* The games section. The splash card at the top wears the selected game's
  * branding from the Gurpy Games site: its colours, logo, tagline, screen and
@@ -154,12 +153,6 @@ export function GamesArcade({ still, gameId, onPick }: {
                 <img src={f.src} alt="" />
               </div>
             ))}
-            {game.comment && (
-              <aside className="splash-comment">
-                <img src={gurpySrc} alt="" width="40" height="40" />
-                <p>{game.comment}</p>
-              </aside>
-            )}
           </div>
         </div>
       </article>

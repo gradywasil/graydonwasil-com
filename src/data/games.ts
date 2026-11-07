@@ -33,6 +33,15 @@ export interface Game {
   host: string;
 }
 
+/* Layout fixes for this site's splash stage, applied over the Gurpy Games data
+ * so a re-sync keeps them: keyed by game id, then floater index. Phone-frame
+ * games sit right of centre here, so floaters belong in the space to the left. */
+type FloaterFix = Partial<Pick<Floater, 'x' | 'y' | 'size' | 'r'>> & { hide?: boolean };
+const FLOATER_FIX: Record<string, Record<number, FloaterFix>> = {
+  // The mascot moves beside the phone; the controls strip repeats what the screenshot already shows.
+  'brain-splitter': { 0: { x: -4, y: 14, size: 38 }, 1: { hide: true } },
+};
+
 const img = (id: string, r: RawImage): GameImage => ({
   src: files[`../assets/games/${id}/${r.file}`], w: r.w, h: r.h, pixel: r.pixel,
 });
@@ -51,10 +60,11 @@ export const GAMES: Array<Game & { floaters: Floater[] }> = (raw as unknown as R
   thumb: img(g.id, g.thumb),
   logo: g.logo ? { ...img(g.id, g.logo), alt: g.logo.alt } : null,
   orbit: g.orbit ? img(g.id, g.orbit) : null,
-  floaters: g.floaters.map((f) => ({
-    ...img(g.id, f),
-    x: f.x, y: f.y, size: f.size, r: f.r, depth: f.depth, speed: f.speed,
-  })),
+  floaters: g.floaters.flatMap((f, i) => {
+    const { hide, ...fix } = FLOATER_FIX[g.id]?.[i] ?? {};
+    if (hide) return [];
+    return [{ ...img(g.id, f), x: f.x, y: f.y, size: f.size, r: f.r, depth: f.depth, speed: f.speed, ...fix }];
+  }),
 }));
 
 export const gameById = (id: string) => GAMES.find((g) => g.id === id) ?? GAMES[0];

@@ -148,11 +148,12 @@ A product world uses its own site's colours and type. Do not let one product's p
 
 - **Chunky button:** ginger, orange, or ink face; 3px ink border; 5px solid ink drop shadow; lifts 2px on hover and presses 3px on click.
 - **Store buttons:** the App Store and Google Play always appear together, as equals: same size, black, 1.5px grey border, the store's mark and a two-line label. The label follows the store state in `src/data/site.ts`: "Coming soon to the App Store" (dashed border, "In review" flag, not a link), "Join the beta on Google Play", or "Download on the" / "Get it on" once live. In the orbit card they shrink to pills with a state tag.
+- **Morse phones:** two phones drawn in HTML in the Morse app's own palette, not screenshots. The sender's flashlight is its top-right corner and the beam leaves from there; the receiver is turned toward it and shows its camera view, its tape and the decoded text.
 - **Kilopixel viewfinder:** the app's own engine on a sample photo, with a look rail, group filters, a die, and a lens that shows the original. Look changes wipe down in ten steps.
 - **Speech bubble:** cream with a teal hard shadow and a tail; short lines only.
 - **Sticker:** a tilted cream label with a periwinkle hard shadow for status callouts.
 - **Orbit:** two tilted dashed rings (apps inner, games outer). Items behind Gurpy shrink and dim. The rings slow under the pointer and stop on hover or focus. The selected item gets an accent ring and drives the card below.
-- **Splash:** the games card re-themes to the selected game: background, two accents, logo, tagline in alternating accents, a browser or phone frame, floating sprites with depth parallax, and Gurpy's comment.
+- **Splash:** the games card re-themes to the selected game: background, two accents, logo, tagline in alternating accents, a browser or phone frame (phones sit right of centre so sprites have room on the left), and floating sprites that drift on their own clocks and lean toward the pointer by depth. Sprites frame the screenshot; they never cover it.
 - **Tiles:** rounded 16px night-2 cards with screenshot on top, used only in the compact More strip.
 
 ## Motion

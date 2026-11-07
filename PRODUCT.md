@@ -56,7 +56,7 @@ Personal details and humor are welcome when they are true and help the visitor u
 ## Evidence on Hand
 
 - App, game, and side-project links in `src/data/site.ts`; experiments in `src/data/experiments.ts`.
-- Real art from Graydon's own projects in `src/assets/fun/`: Gurpy, Brain Splitter, game thumbnails, Morse phone plates, and side-project marks. Kilopixel's sample photos, app screenshots and GIF in `src/assets/kilopixel/`, and a snapshot of its engine in `src/vendor/kilopixel/`.
+- Real art from Graydon's own projects in `src/assets/fun/`: Gurpy, Brain Splitter, game thumbnails, and side-project marks. Kilopixel's sample photos, app screenshots and GIF in `src/assets/kilopixel/`, and a snapshot of its engine in `src/vendor/kilopixel/`.
 - App icons in `src/assets/current-work/`, experiment thumbnails in `src/assets/experiments/`, and a real portrait at `src/assets/fun/graydon.webp`.
 
 No testimonials, client roster, download counts, ratings, or quantified outcomes are on hand. Do not imply that this evidence exists unless it is supplied and verified.

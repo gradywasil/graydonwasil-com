@@ -11,10 +11,10 @@ This repository powers [graydonwasil.com](https://graydonwasil.com): one scrolli
 | Section | What it does |
 |---|---|
 | **Hero** (`#top`) | Headline, "Meet the apps" and "Play a game", a "Ships to iPhone, Android, Web" label, and Gurpy with the apps on an inner ring and the games on an outer ring, orbiting around him. Pick anything in orbit and the card below shows it: apps get an App Store and a Google Play pill; for games, "See it below" opens that game's splash. Until you pick something, it gives a slow guided tour. Gurpy's eyes follow the pointer and he comments on each pick. |
-| **Morse** (`#morse`) | App #1, for iPhone and Android. Type a message and the page sends it in real Morse timing: the sender phone's lamp and beam flash, the paper tape punches, and the receiver readout decodes it letter by letter. Optional sound. App Store and Google Play buttons, the testers group, and the web app. |
+| **Morse** (`#morse`) | App #1, for iPhone and Android. Type a message and two phones run a miniature of the app in real Morse timing: the sender's Broadcast screen scrolls its paper tape while the flashlight in its top-right corner fires, and the receiver, turned toward it, shows its camera seeing the light, punches its own tape, and decodes the message letter by letter. Optional sound. App Store and Google Play buttons, the testers group, and the web app. |
 | **Kilopixel** (`#kilopixel`) | App #2, for iPhone and Android, in its own world. A viewfinder runs Kilopixel's real engine on two sample photos: all 49 built-in looks in a filterable rail, a die to roll one, an auto-tour for passive visitors, and a lens that shows the original photo. Below: the real app in its six themes, a GIF it exported, and the feature list. On phones those three tiles swipe sideways. |
 | **RhymePage** (`#rhymepage`) | A slim band for the web app, with a rehearse-in-time lyric toy. |
-| **Games** (`#games`) | A splash card that takes on the selected game's branding from Gurpy Games (colours, logo, tagline, screen, floating sprites, Gurpy's comment), a reel of all eleven games to pick from or spin, and links to the Gurpy Games and Infinite Monkey Industries hubs. |
+| **Games** (`#games`) | A splash card that takes on the selected game's branding from Gurpy Games (colours, logo, tagline, screen, and floating sprites that drift on their own and lean toward the pointer), a reel of all eleven games to pick from or spin, and links to the Gurpy Games and Infinite Monkey Industries hubs. |
 | **More** (`#more`) | VOXCHAIN and CarsDB as logo tiles, Arranged Godly as its dream-device console, plus a drawer holding the 17 browser experiments. |
 | **Hello** (`#hello`) | A short about, a photo, and the contact form. |
 
@@ -63,16 +63,16 @@ npm run dev
 | Location | What belongs there |
 |---|---|
 | `src/data/site.ts` | App store states and links, orbit items, game hubs, side projects |
-| `src/data/games.json` + `src/assets/games/` | Generated game branding. Run `python scripts/sync-games.py` (needs Pillow and the `arcade-ad` repo beside this one) after Gurpy Games changes |
+| `src/data/games.json` + `src/assets/games/` | Generated game branding (per-game floater fixes for this site live in `FLOATER_FIX` in `src/data/games.ts`, so a re-sync keeps them). Run `python scripts/sync-games.py` (needs Pillow and the `arcade-ad` repo beside this one) after Gurpy Games changes |
 | `src/data/experiments.ts` | The 17 experiments |
 | `src/components/` | One component per section, plus `GurpyFace` (the canvas mascot), `Orbit` (the hero rings), and `StoreButtons` (the App Store and Google Play pair) |
 | `src/vendor/kilopixel/` | A snapshot of Kilopixel's engine (renderer, looks, palettes) from `1bit-camera/kilopixel-site/src/engine` at 1bit-camera 02edd55, loaded only when the Kilopixel section comes near. To refresh it, copy those files again; `renderer.ts` has one local change (its constructor parameter property is written out, for `erasableSyntaxOnly`). It is excluded from lint. |
 | `src/lib/morse.ts` | Morse alphabet and signal timing |
 | `src/styles/site.css` | All styles; each section's palette is defined at the top |
-| `src/assets/fun/` | Mascot, Morse phones, side-project marks, and the Arranged Godly device |
+| `src/assets/fun/` | Mascot, side-project marks, and the Arranged Godly device |
 | `src/assets/kilopixel/` | Kilopixel's sample photos, app screenshots in six themes, and the jellyfish GIF |
 
-Art sources: Gurpy and all game art come from the `arcade-ad` (Gurpy Games) repo; the VOXCHAIN mark and wordmark and the CarsDB mark come from those live sites; the Arranged Godly image is a capture of the live site; the Morse phone plates come from `morse-code/assets/plates`; Kilopixel's photos, screenshots and GIF come from `1bit-camera/kilopixel-site/public/assets` (the jellyfish footage is by Fastily, CC BY-SA 4.0, credited on the page).
+Art sources: Gurpy and all game art come from the `arcade-ad` (Gurpy Games) repo; the VOXCHAIN mark and wordmark and the CarsDB mark come from those live sites; the Arranged Godly image is a capture of the live site; Kilopixel's photos, screenshots and GIF come from `1bit-camera/kilopixel-site/public/assets` (the jellyfish footage is by Fastily, CC BY-SA 4.0, credited on the page).
 
 ## Old links
 
