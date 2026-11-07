@@ -31,12 +31,14 @@ export function RhymePageCard() {
   let n = -1;
   return (
     <article className="app-card rp-card" aria-labelledby="rp-title">
+      <div className="rp-copy">
       <p className="app-status"><span className="dot" />Web app &middot; Android in the works</p>
       <h3 className="rp-title" id="rp-title">
         <img src={RHYMEPAGE.icon} alt="" width="40" height="40" />
         RhymePage
       </h3>
       <p className="app-desc">Write lyrics, sync them to a track, then rehearse in time.</p>
+      </div>
       <div className="rp-sheet" aria-hidden="true">
         {BARS.map((bar, bi) => (
           <p key={bi}>

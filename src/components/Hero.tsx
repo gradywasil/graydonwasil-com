@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { MORSE, ORBIT_ITEMS } from '../data/site';
+import { ORBIT_ITEMS } from '../data/site';
 import { GurpyFace, type GurpyMood } from './GurpyFace';
 import { Orbit } from './Orbit';
-import { PlayButton, PlayLogo } from './PlayButton';
+import { AndroidLogo, AppleLogo, StoreButtons } from './StoreButtons';
 
 const POKES = [
   "Hi! I'm Gurpy.",
@@ -60,7 +60,7 @@ export function Hero({ still, onPickGame }: { still: boolean; onPickGame: (id: s
   return (
     <header className="hero" id="top">
       <div className="hero-copy">
-        <p className="hero-kicker">Graydon Wasil &middot; Android &amp; web developer</p>
+        <p className="hero-kicker">Graydon Wasil &middot; iOS &amp; Android developer</p>
         <h1 className="hero-title">
           I build software you&rsquo;ll want to{' '}
           <span className="hero-play-with">
@@ -71,17 +71,20 @@ export function Hero({ still, onPickGame }: { still: boolean; onPickGame: (id: s
           </span>
         </h1>
         <p className="hero-lede">
-          Android apps, browser games, and the occasional weird experiment. My first app,{' '}
-          <a href="#morse">Morse</a>, is almost on Google&nbsp;Play.
+          Apps for iPhone and Android, browser games, and the occasional weird experiment. My first
+          two apps, <a href="#morse">Morse</a> and <a href="#kilopixel">Kilopixel</a>, are on their
+          way to the App&nbsp;Store and Google&nbsp;Play.
         </p>
         <div className="hero-ctas">
-          <PlayButton href={MORSE.betaUrl} kicker="Get Morse early on" />
-          <a className="chunky-btn chunky-ginger" href="#games">Play a game <span aria-hidden="true">&darr;</span></a>
+          <a className="chunky-btn chunky-ginger" href="#morse">Meet the apps <span aria-hidden="true">&darr;</span></a>
+          <a className="chunky-btn chunky-cream" href="#games">Play a game <span aria-hidden="true">&darr;</span></a>
         </div>
-        <a className="hero-sticker" href="#morse">
-          <PlayLogo className="kicker-logo" />
-          Morse is in beta on Google Play <span aria-hidden="true">&rarr;</span>
-        </a>
+        <p className="hero-sticker">
+          <span>Ships to</span>
+          <span className="hero-platform"><AppleLogo className="platform-logo" />iPhone</span>
+          <span className="hero-platform"><AndroidLogo className="platform-logo" />Android</span>
+          <span className="hero-platform">Web</span>
+        </p>
       </div>
 
       <div className="hero-stage">
@@ -97,7 +100,7 @@ export function Hero({ still, onPickGame }: { still: boolean; onPickGame: (id: s
           </button>
         </Orbit>
 
-        <div className="orbit-card" style={{ ['--accent' as string]: item.accent }} aria-live="polite">
+        <div className="orbit-card" data-stores={item.stores ? '' : undefined} style={{ ['--accent' as string]: item.accent }} aria-live="polite">
           <img className="orbit-card-icon" src={item.icon} alt="" data-px={item.pixel || undefined} />
           <div className="orbit-card-body">
             <p className="orbit-card-status"><span className="dot" />{item.ring === 'apps' ? 'App' : 'Game'} &middot; {item.status}</p>
@@ -105,10 +108,13 @@ export function Hero({ still, onPickGame }: { still: boolean; onPickGame: (id: s
             <p className="orbit-card-line">{item.line}</p>
           </div>
           <div className="orbit-card-actions">
-            <a className="orbit-card-go" href={item.href} target="_blank" rel="noopener noreferrer">
-              {item.play && <PlayLogo className="kicker-logo" />}
-              {item.cta} <span aria-hidden="true">&#8599;</span>
-            </a>
+            {item.stores ? (
+              <StoreButtons stores={item.stores} app={item.name} pill />
+            ) : (
+              <a className="orbit-card-go" href={item.href} target="_blank" rel="noopener noreferrer">
+                {item.cta} <span aria-hidden="true">&#8599;</span>
+              </a>
+            )}
             <a
               className="orbit-card-more"
               href={`#${item.section}`}

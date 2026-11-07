@@ -5,8 +5,9 @@ import { GurpyFace } from './GurpyFace';
  * thing about each section as it arrives. Tapping him takes you back up. */
 
 const LINES: Record<string, string> = {
-  morse: 'My first Play Store app! Send it a message.',
-  apps: 'Poke the flower. Trust me.',
+  morse: 'My first app! Send it a message.',
+  kilopixel: "That's the real app engine. Roll it.",
+  rhymepage: 'Press rehearse. Sing along. I won’t tell.',
   games: 'Spin the reel. I dare you.',
   more: 'The stuff from before the apps took over.',
   hello: "Say hi. He really does read them all.",

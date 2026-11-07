@@ -1,6 +1,6 @@
 ---
 name: Graydon Wasil
-description: A navy night sky where apps and games orbit a pixel-art Gurpy, and each product section takes on its own brand world.
+description: An iOS and Android developer's page: a navy night sky where apps and games orbit a pixel-art Gurpy, and each product section takes on its own brand world.
 colors:
   night: "#0e1124"
   night-2: "#171b36"
@@ -19,6 +19,7 @@ colors:
   morse-cream: "#eee0c2"
   morse-dim: "#ab9672"
   kilopixel-bg: "#121212"
+  kilopixel-panel: "#1b1b19"
   kilopixel-orange: "#ff6a1f"
   rhymepage-bg: "#0e1913"
   rhymepage-green: "#4be38f"
@@ -46,9 +47,15 @@ typography:
     lineHeight: 0.95
   kilopixel-display:
     fontFamily: "Pixelify Sans, ui-monospace, monospace"
-    fontSize: "clamp(30px, 3.4vw, 44px)"
+    fontSize: "clamp(44px, 5.6vw, 84px)"
     fontWeight: 700
+    lineHeight: 0.98
+  kilopixel-micro:
+    fontFamily: "Silkscreen, Pixelify Sans, monospace"
+    fontSize: "11px"
+    fontWeight: 400
     lineHeight: 1
+    letterSpacing: "0.06em"
   carsdb-wordmark:
     fontFamily: "Martian Mono, ui-monospace, monospace"
     fontSize: "clamp(22px, 2.2vw, 30px)"
@@ -74,7 +81,7 @@ components:
     padding: "12px 22px"
     border: "3px solid #1a1205"
     shadow: "0 5px 0 #1a1205"
-  play-button:
+  store-button:
     backgroundColor: "#000000"
     textColor: "#ffffff"
     rounded: "12px"
@@ -92,7 +99,7 @@ components:
 
 **Creative North Star: "Everything Orbits Gurpy"**
 
-The site is one scrolling page with a semi-professional home base (a navy night sky, confident sentence-case headlines, ginger and periwinkle accents) and playful product worlds. In the hero, Graydon's apps and games orbit Gurpy, the 64×64 pixel-art mascot. Picking one shows what it is and where to go. Further down, each product section is a poster in that product's own world, borrowing the palette and type of its own site. Gurpy watches the pointer, comments on what you pick, and follows you down the page.
+The site is one scrolling page for an iOS and Android developer, with a semi-professional home base (a navy night sky, confident sentence-case headlines, ginger and periwinkle accents) and playful product worlds. In the hero, Graydon's apps and games orbit Gurpy, the 64×64 pixel-art mascot. Picking one shows what it is and where to go. Further down, each product section is a poster in that product's own world, borrowing the palette and type of its own site. Gurpy watches the pointer, comments on what you pick, and follows you down the page.
 
 Every section has one thing to play with. The goal is a smile in the first five seconds and a clear next step (Google Play, a game, or a message) in every section.
 
@@ -111,7 +118,8 @@ Every section has one thing to play with. The goal is a smile in the first five 
 |---|---|---|---|
 | Hero | Navy night with periwinkle and ginger glows | Ginger, periwinkle; the selected item's own accent on its card | Bricolage Grotesque |
 | Morse | Morse brown `#140d06` with faint vertical lines | Amber `#f7b24c` with glow | Saira Stencil One |
-| Apps | Near-black `#0c0b0f` | KiloPixel orange; RhymePage green | Pixelify Sans (KiloPixel), DM Sans 800 (RhymePage) |
+| Kilopixel | Graphite `#121212` with a faint 12px pixel grid and notched pixel corners | Signal orange `#ff6a1f`; the themes tile takes the selected app theme's colours | Pixelify Sans, Silkscreen for micro labels |
+| RhymePage | Deep green `#0e1913` | Green `#4be38f` | DM Sans 800 |
 | Games | Cream paper texture; the splash card takes the selected game's `theme.bg/a/b` from Gurpy Games | Teal headlines, orange highlights | Bungee |
 | More | Night; each tile shows the project's own mark (VOXCHAIN orange, CarsDB red, the Arranged Godly device) | Ginger | Bricolage Grotesque |
 | Hello | Ginger | Ink, teal on the cream note card | Bricolage Grotesque |
@@ -125,7 +133,7 @@ A product world uses its own site's colours and type. Do not let one product's p
 - **Ginger** (`#ffa552`, from Gurpy's beard) is Graydon's own accent: the highlighted headline phrase, primary buttons, "Say hi", the focus ring, and the Hello ground. **Periwinkle** (`#8f9cff`) is the secondary accent: kickers, sticker shadows, the inner orbit ring.
 - Do not use Brain Splitter's lime and pink outside the Brain Splitter splash. **Orange** (`#ff6b2c`) belongs to the Gurpy Games world (reel highlight, spin button).
 - **Paper** (`#f5ebd3`) with **Paper Ink** (`#0b2b3b`) and **Teal** (`#0d7a85`) is the Gurpy Games world.
-- Google Play buttons stay black with the four-colour Play mark, whatever world they sit in.
+- Store buttons stay black with each store's own mark, whatever world they sit in. Only the "In review" flag takes the world's accent.
 
 ## Typography
 
@@ -134,12 +142,13 @@ A product world uses its own site's colours and type. Do not let one product's p
 - **Martian Mono** 800 only for the CarsDB wordmark tile.
 - **DM Sans** for body, buttons, and UI copy, 400–800.
 - **Spline Sans Mono** for kickers, statuses, and hints: uppercase, tracked 0.08em.
-- **Saira Stencil One** only in the Morse world; **Pixelify Sans** only for KiloPixel's name and tagline.
+- **Saira Stencil One** only in the Morse world; **Pixelify Sans** and **Silkscreen** only in the Kilopixel world.
 
 ## Components
 
 - **Chunky button:** ginger, orange, or ink face; 3px ink border; 5px solid ink drop shadow; lifts 2px on hover and presses 3px on click.
-- **Play button:** black, 1.5px grey border, Play mark, two-line label. While Morse is in testing the kicker reads "Join the beta on" or "Get Morse early on", never the official "Get it on" badge.
+- **Store buttons:** the App Store and Google Play always appear together, as equals: same size, black, 1.5px grey border, the store's mark and a two-line label. The label follows the store state in `src/data/site.ts`: "Coming soon to the App Store" (dashed border, "In review" flag, not a link), "Join the beta on Google Play", or "Download on the" / "Get it on" once live. In the orbit card they shrink to pills with a state tag.
+- **Kilopixel viewfinder:** the app's own engine on a sample photo, with a look rail, group filters, a die, and a lens that shows the original. Look changes wipe down in ten steps.
 - **Speech bubble:** cream with a teal hard shadow and a tail; short lines only.
 - **Sticker:** a tilted cream label with a periwinkle hard shadow for status callouts.
 - **Orbit:** two tilted dashed rings (apps inner, games outer). Items behind Gurpy shrink and dim. The rings slow under the pointer and stop on hover or focus. The selected item gets an accent ring and drives the card below.
@@ -150,8 +159,8 @@ A product world uses its own site's colours and type. Do not let one product's p
 
 - Entrances pop with overshoot (`cubic-bezier(0.2, 1.6, 0.4, 1)`), staggered by about 0.12s.
 - Section content rises in on scroll via `animation-timeline: view()` where supported.
-- Physics, the Morse signal, and the reel are interaction-driven; nothing important moves on its own except Gurpy blinking and the Brain Splitter bob.
-- Under reduced motion: the orbit holds still and there is no guided tour; no pops, float loops, or scroll reveals; the reel jumps; Gurpy stops blinking but still looks at the pointer.
+- Physics, the Morse signal, and the reel are interaction-driven; nothing important moves on its own except Gurpy blinking, the Brain Splitter bob, and the Kilopixel auto-tour (which stops on the first interaction).
+- Under reduced motion: the orbit holds still and there is no guided tour; the Kilopixel viewfinder does not auto-roll, wipe, or animate VHS looks; no pops, float loops, or scroll reveals; the reel jumps; Gurpy stops blinking but still looks at the pointer.
 
 ## Don'ts
 
@@ -160,3 +169,4 @@ A product world uses its own site's colours and type. Do not let one product's p
 - Don't add interactions without a job (throwable toys were tried and cut).
 - Don't smooth-scale pixel art, and don't recolour product screenshots.
 - Don't invent store ratings, download counts, or testimonials for decoration.
+- Don't favour one platform: wherever an app's store link appears, iPhone and Android appear together.

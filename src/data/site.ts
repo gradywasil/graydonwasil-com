@@ -6,19 +6,43 @@ import carsdbMark from '../assets/fun/side/carsdb-mark.svg';
 import arrangedGodlyDevice from '../assets/fun/side/arranged-godly.webp';
 import { GAMES } from './games';
 
-/* Morse is the first app headed to Google Play. While it is in closed
- * testing, the button goes to the tester opt-in. When the listing goes
- * public, point the buttons at MORSE.storeUrl and change the labels. */
+/* Store status for each app, in one place. Each platform is one of:
+ *   'review'  submitted, not yet approved: the button shows "Coming soon"
+ *             and is not a link.
+ *   'beta'    a public tester opt-in (Google Play closed testing, TestFlight).
+ *   'live'    a public listing: the button uses "Get it on" / "Download on".
+ * When Apple approves an app, set ios to { state: 'live', url: <App Store URL> }.
+ * The URL is https://apps.apple.com/app/id<Apple ID>, where the Apple ID is
+ * the number under App Information in App Store Connect. */
+export type StoreState = 'review' | 'beta' | 'live';
+export interface StoreLink { state: StoreState; url?: string }
+export interface AppStores { ios: StoreLink; android: StoreLink }
+const stores = (s: AppStores) => s;
+
 export const MORSE = {
   site: 'https://morse.arrangedgodly.com/',
   webApp: 'https://morse.graydonwasil.com/',
   group: 'https://groups.google.com/g/morse-android-testers',
-  betaUrl: 'https://play.google.com/apps/testing/com.arrangedgodly.morsecode',
-  storeUrl: 'https://play.google.com/store/apps/details?id=com.arrangedgodly.morsecode',
   icon: morseIcon,
+  stores: stores({
+    ios: { state: 'review' },
+    android: { state: 'beta', url: 'https://play.google.com/apps/testing/com.arrangedgodly.morsecode' },
+    // Public listing, once out of testing:
+    // https://play.google.com/store/apps/details?id=com.arrangedgodly.morsecode
+  }),
 };
 
-export const KILOPIXEL = { site: 'https://kilopixel.arrangedgodly.com/', icon: kilopixelIcon };
+export const KILOPIXEL = {
+  site: 'https://kilopixel.arrangedgodly.com/',
+  group: 'https://groups.google.com/g/kilopixel-testers',
+  icon: kilopixelIcon,
+  stores: stores({
+    ios: { state: 'review' },
+    android: { state: 'beta', url: 'https://play.google.com/apps/testing/com.arrangedgodly.kilopixel' },
+    // https://play.google.com/store/apps/details?id=com.arrangedgodly.kilopixel
+  }),
+};
+
 export const RHYMEPAGE = { site: 'https://rhymepage.com/', icon: rhymepageIcon };
 
 /** Everything circling Gurpy in the hero. Apps ride the inner ring, games
@@ -32,9 +56,10 @@ export interface OrbitItem {
   pixel?: boolean;
   status: string;
   line: string;
-  href: string;
-  cta: string;
-  play?: boolean;
+  /** Apps with store listings show a button per store instead of href/cta. */
+  stores?: AppStores;
+  href?: string;
+  cta?: string;
   section: string;
   quip: string;
   accent: string;
@@ -42,21 +67,21 @@ export interface OrbitItem {
 
 const APP_ITEMS: OrbitItem[] = [
   {
-    id: 'morse', ring: 'apps', name: 'Morse', icon: morseIcon, status: 'Beta on Google Play',
+    id: 'morse', ring: 'apps', name: 'Morse', icon: morseIcon, status: 'iPhone & Android',
     line: 'Send a message with light and sound. Another phone reads it back.',
-    href: MORSE.betaUrl, cta: 'Join the beta', play: true, section: 'morse',
-    quip: 'My first Play Store app!', accent: '#f7b24c',
+    stores: MORSE.stores, section: 'morse',
+    quip: 'My first app! iPhone and Android.', accent: '#f7b24c',
   },
   {
-    id: 'kilopixel', ring: 'apps', name: 'KiloPixel', icon: kilopixelIcon, status: 'Android beta',
-    line: 'A live pixel camera. One camera, 49 looks.',
-    href: KILOPIXEL.site, cta: 'Get the beta', section: 'apps',
-    quip: 'Next in line for Google Play.', accent: '#ff6a1f',
+    id: 'kilopixel', ring: 'apps', name: 'Kilopixel', icon: kilopixelIcon, status: 'iPhone & Android',
+    line: 'A live pixel camera for photos, video and GIFs. One camera, 49 looks.',
+    stores: KILOPIXEL.stores, section: 'kilopixel',
+    quip: 'Forty-nine looks. I tried them all.', accent: '#ff6a1f',
   },
   {
     id: 'rhymepage', ring: 'apps', name: 'RhymePage', icon: rhymepageIcon, status: 'Web app',
     line: 'Write lyrics, sync them to a track, rehearse in time.',
-    href: RHYMEPAGE.site, cta: 'Open RhymePage', section: 'apps',
+    href: RHYMEPAGE.site, cta: 'Open RhymePage', section: 'rhymepage',
     quip: 'For when the bars won’t come.', accent: '#4be38f',
   },
 ];

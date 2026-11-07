@@ -4,7 +4,7 @@ import { Buddy } from './components/Buddy';
 import { GamesArcade } from './components/GamesArcade';
 import { Hello } from './components/Hello';
 import { Hero } from './components/Hero';
-import { KiloPixelCard } from './components/KiloPixelCard';
+import { KilopixelLaunch } from './components/KilopixelLaunch';
 import { MoreWork } from './components/MoreWork';
 import { MorseLaunch } from './components/MorseLaunch';
 import { RhymePageCard } from './components/RhymePageCard';
@@ -58,7 +58,7 @@ function App() {
         </a>
         <div className="toplinks">
           <a href="#morse">Morse</a>
-          <a href="#apps">Apps</a>
+          <a href="#kilopixel">Kilopixel</a>
           <a href="#games">Games</a>
           <a href="#hello" className="top-hi">Say hi</a>
         </div>
@@ -67,15 +67,9 @@ function App() {
       <main>
         <Hero still={still} onPickGame={setGameId} />
         <MorseLaunch />
-        <section className="world world-apps" id="apps" aria-labelledby="apps-title">
-          <div className="apps-head">
-            <p className="kicker">Next on Android</p>
-            <h2 id="apps-title">More apps on the launch pad.</h2>
-          </div>
-          <div className="apps-grid">
-            <KiloPixelCard />
-            <RhymePageCard />
-          </div>
+        <KilopixelLaunch still={still} />
+        <section className="world world-rp" id="rhymepage" aria-labelledby="rp-title">
+          <RhymePageCard />
         </section>
         <GamesArcade still={still} gameId={gameId} onPick={setGameId} />
         <MoreWork />

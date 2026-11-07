@@ -3,7 +3,7 @@ import senderImg from '../assets/fun/morse-sender.webp';
 import receiverImg from '../assets/fun/morse-receiver.webp';
 import { MORSE } from '../data/site';
 import { clean, letters, schedule } from '../lib/morse';
-import { PlayButton, PlayLogo } from './PlayButton';
+import { AndroidLogo, AppleLogo, StoreButtons } from './StoreButtons';
 
 const UNIT_MS = 110;
 const MAX = 16;
@@ -93,11 +93,12 @@ export function MorseLaunch() {
       <div className="morse-grid">
         <div className="morse-copy">
           <p className="kicker morse-kicker">
-            <PlayLogo className="kicker-logo" />
-            App #1 &middot; Landing on Google Play
+            <AppleLogo className="kicker-logo" />
+            <AndroidLogo className="kicker-logo" />
+            App #1 &middot; iPhone &amp; Android
           </p>
           <h2 className="morse-title" id="morse-title">
-            My first app is <span>almost on Google&nbsp;Play.</span>
+            My first app is <span>almost in your pocket.</span>
           </h2>
           <p className="morse-lede">
             <strong>Morse</strong> turns a few words into light, sound and vibration. Point another
@@ -148,15 +149,19 @@ export function MorseLaunch() {
           </div>
 
           <div className="morse-get">
-            <PlayButton href={MORSE.betaUrl} />
-            <ol className="morse-steps">
-              <li><a href={MORSE.group} target="_blank" rel="noopener noreferrer">Join the testers group</a></li>
-              <li>Opt in on Google Play</li>
-              <li>Install Morse</li>
-            </ol>
+            <StoreButtons stores={MORSE.stores} app="Morse" />
+            <p className="morse-steps">
+              {MORSE.stores.android.state === 'beta' && (
+                <>
+                  <b>Android beta:</b>{' '}
+                  <a href={MORSE.group} target="_blank" rel="noopener noreferrer">join the testers group</a>, then opt in.{' '}
+                </>
+              )}
+              {MORSE.stores.ios.state === 'review' && 'The iPhone version is in App Store review.'}
+            </p>
           </div>
           <p className="morse-alt">
-            No Android? <a href={MORSE.webApp} target="_blank" rel="noopener noreferrer">Try it in your browser</a>
+            No phone handy? <a href={MORSE.webApp} target="_blank" rel="noopener noreferrer">Try it in your browser</a>
             {' '}or <a href={MORSE.site} target="_blank" rel="noopener noreferrer">see how it works</a>.
           </p>
         </div>
