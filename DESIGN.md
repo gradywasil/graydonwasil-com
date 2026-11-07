@@ -148,7 +148,7 @@ A product world uses its own site's colours and type. Do not let one product's p
 
 - **Chunky button:** ginger, orange, or ink face; 3px ink border; 5px solid ink drop shadow; lifts 2px on hover and presses 3px on click.
 - **Store buttons:** the App Store and Google Play always appear together, as equals: same size, black, 1.5px grey border, the store's mark and a two-line label. The label follows the store state in `src/data/site.ts`: "Coming soon to the App Store" (dashed border, "In review" flag, not a link), "Join the beta on Google Play", or "Download on the" / "Get it on" once live. In the orbit card they shrink to pills with a state tag.
-- **Morse phones:** two phones drawn in HTML in the Morse app's own palette, not screenshots. The sender's flashlight is its top-right corner and the beam leaves from there; the receiver is turned toward it and shows its camera view, its tape and the decoded text.
+- **Morse phones:** two phones running the real Morse interface (the app's own stylesheet and markup, scaled from its 390px phone layout), not screenshots or a redrawing. Keep them in sync with the app via `scripts/sync-morse-ui.py`. The sender's flashlight is its top-right corner and the beam leaves from there; the receiver is turned toward it and shows its camera view, its tape and the decoded text.
 - **Kilopixel viewfinder:** the app's own engine on a sample photo, with a look rail, group filters, a die, and a lens that shows the original. Look changes wipe down in ten steps.
 - **Speech bubble:** cream with a teal hard shadow and a tail; short lines only.
 - **Sticker:** a tilted cream label with a periwinkle hard shadow for status callouts.

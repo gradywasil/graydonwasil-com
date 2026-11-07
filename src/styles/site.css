@@ -428,10 +428,14 @@ a.store-pill:hover { border-color: #fff; }
 
 .mphone {
   container-type: inline-size;
-  position: absolute; z-index: 2; width: 38%; aspect-ratio: 9 / 19; padding: 1.1%;
+  position: absolute; z-index: 2; width: 38%; aspect-ratio: 9 / 19; padding: 2.6% 1.1% 1.1%;
   border-radius: 14% / 6.6%;
   background: linear-gradient(160deg, #3a2f25, #120d09 60%);
   box-shadow: inset 0 0 0 1px #5a4630, 0 30px 50px rgb(0 0 0 / 0.6);
+}
+.mphone::after {
+  content: ''; position: absolute; left: 50%; top: 1.3%; width: 16%; height: 0.9%; transform: translateX(-50%);
+  border-radius: 99px; background: #0a0705; box-shadow: inset 0 0 0 1px #3a2f25;
 }
 .mphone-send { left: 3%; top: 10%; transform: rotate(-5deg); }
 .mphone-receive {
@@ -439,7 +443,7 @@ a.store-pill:hover { border-color: #fff; }
   transform: perspective(900px) rotateY(-24deg) rotateZ(3deg); transform-origin: left center;
 }
 .mphone-torch {
-  position: absolute; z-index: 4; right: 9%; top: 2.4%; width: 7%; aspect-ratio: 1; border-radius: 50%;
+  position: absolute; z-index: 4; right: 11%; top: 0.9%; width: 4.6%; aspect-ratio: 1; border-radius: 50%;
   background: #3a2b19; box-shadow: 0 0 0 2px #120d09, 0 0 0 3px #5a4630;
   transition: background-color 0.04s, box-shadow 0.04s;
 }
@@ -448,104 +452,26 @@ a.store-pill:hover { border-color: #fff; }
   box-shadow: 0 0 0 2px #120d09, 0 0 12px 5px #ffd27a, 0 0 46px 18px rgb(247 178 76 / 0.55);
 }
 
-.mscreen {
-  height: 100%; overflow: hidden; border-radius: 11% / 5.2%;
-  display: flex; flex-direction: column; gap: 3.4cqw; padding: 13cqw 5cqw 6cqw;
-  background: #171008; color: #eee0c2; font-family: var(--mono);
+/* The real Morse interface (src/styles/morse-app.css), scaled into each phone.
+ * These adjust only what a full-screen app assumes: the viewport-wide tape,
+ * the fixed glow layer, and pointer input. */
+.mapp-fit { position: relative; height: 100%; overflow: hidden; border-radius: 4% / 2%; background: #171008; }
+.mapp-fit > .mapp { position: absolute; left: 0; top: 0; width: 390px; transform-origin: 0 0; pointer-events: none; user-select: none; }
+.mapp .tape-window { width: auto; margin-left: -16px; margin-right: -16px; }
+.mapp::before { position: absolute; }
+.mapp .message-input { resize: none; }
+/* What the receiver's camera sees: the sender phone with its flashlight. */
+.mapp .mapp-view {
+  position: relative; width: 100%; height: 100%; aspect-ratio: 3 / 4; overflow: hidden;
+  background: radial-gradient(circle at 55% 35%, #241a10, #080503 72%);
 }
-.ms-head { display: flex; align-items: center; gap: 1.8cqw; font: 600 3.4cqw/1 var(--mono); letter-spacing: 0.04em; text-transform: uppercase; }
-.ms-head b { display: flex; align-items: center; gap: 1.5cqw; margin-right: auto; font-size: 4cqw; }
-.ms-head b i { width: 5cqw; height: 3.2cqw; border: 1px solid currentColor; border-radius: 1cqw; }
-.ms-head span { padding: 1.8cqw 2.2cqw; border: 1px solid rgb(238 224 194 / 0.18); border-radius: 1.4cqw; color: #b3a17c; }
-.ms-head span[data-on] { color: #ffb454; border-color: #ffb454; box-shadow: 0 0 6px rgb(255 180 84 / 0.35); }
-.ms-label { display: flex; justify-content: space-between; font: 500 3.2cqw/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: #b3a17c; }
-.ms-msg {
-  padding: 5cqw 3cqw; border-radius: 2cqw; background: #0f0a05; border: 1px solid rgb(238 224 194 / 0.14);
-  font: 500 6cqw/1.2 var(--mono); letter-spacing: 0.06em; text-align: center; white-space: nowrap; overflow: hidden;
+.mapp .mapp-view[data-on] { background: radial-gradient(circle at 64% 20%, #6a4a20, #120c06 70%); }
+.mapp-view-phone {
+  position: absolute; left: 26%; top: 12%; width: 48%; height: 76%; border-radius: 14px;
+  background: #17110b; box-shadow: 0 0 0 2px #2c2013; transform: rotate(6deg);
 }
-.ms-status { display: flex; align-items: center; gap: 2cqw; font: 500 3.2cqw/1.2 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: #b3a17c; }
-.ms-status i { width: 2.6cqw; height: 2.6cqw; border-radius: 50%; background: #3a2b19; flex: none; }
-.ms-status i[data-on] { background: #ffb454; box-shadow: 0 0 6px #ffb454; }
-.ms-lights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2cqw; }
-.ms-lights span {
-  display: flex; align-items: center; gap: 1.6cqw; padding: 2.6cqw 2cqw; border-radius: 1.6cqw;
-  border: 1px solid rgb(238 224 194 / 0.14); font: 500 3cqw/1 var(--mono); letter-spacing: 0.04em; text-transform: uppercase; color: #8a6c3c;
-}
-.ms-lights span::before { content: ''; width: 2cqw; height: 2cqw; border-radius: 50%; background: currentColor; flex: none; }
-.ms-lights span[data-on] { color: #ffb454; border-color: rgb(255 180 84 / 0.6); }
-.ms-opts {
-  display: flex; justify-content: space-between; padding: 4cqw; border-radius: 2cqw;
-  background: #241a10; border: 1px solid rgb(238 224 194 / 0.14);
-  font: 600 3.4cqw/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase;
-}
-.ms-opts span + span { color: #ffb454; }
-.ms-key {
-  margin-top: auto; padding: 4.5cqw; border-radius: 2cqw; text-align: center;
-  background: linear-gradient(#ffc977, #f7b24c); color: #2a1804;
-  font: 400 5cqw/1 var(--stencil); letter-spacing: 0.08em; text-transform: uppercase;
-}
-.ms-key[data-on] { background: #2c2013; color: #eee0c2; box-shadow: inset 0 0 0 1px rgb(238 224 194 / 0.2); }
-
-/* Paper tape: marks are laid out in Morse units and glide under the head. */
-.mt-tape {
-  --u: 3.4cqw;
-  position: relative; flex: none; height: 22cqw; margin: 0 -5cqw; overflow: hidden;
-  background:
-    radial-gradient(circle, #a8946a 0.7cqw, transparent 0.9cqw) 0 calc(100% - 1.6cqw) / 4cqw 2.2cqw repeat-x,
-    linear-gradient(#e6d7b0, #cbb98b);
-  box-shadow: inset 0 1.5px 0 #f3e7c8, inset 0 -1.5px 0 #453317;
-}
-.mt-strip {
-  position: absolute; left: 50%; top: 0; bottom: 0;
-  transform: translateX(calc(var(--pos) * var(--u) * -1));
-  transition: transform var(--ms) linear;
-}
-.mt-mark {
-  position: absolute; left: calc(var(--x) * var(--u)); top: 10.5cqw;
-  width: calc(var(--w) * var(--u)); height: var(--u); border-radius: 99px;
-  border: 1px solid rgb(43 32 19 / 0.35);
-}
-.mt-mark[data-sent] { background: #2b2013; border-color: #2b2013; }
-.mt-char { position: absolute; left: calc(var(--x) * var(--u)); top: 3.5cqw; font: 600 4cqw/1 var(--mono); color: #645637; }
-.mt-char[data-on] { color: #7a4a0c; }
-.mt-tape [data-hidden] { visibility: hidden; }
-.mt-head {
-  position: absolute; left: 50%; top: 0; bottom: 0; width: 7cqw; transform: translateX(-50%);
-  border-inline: 1.5px solid #2b2013; background: rgb(255 255 255 / 0.14);
-}
-.mt-head::before {
-  content: ''; position: absolute; left: -2.5cqw; right: -2.5cqw; top: 0; height: 2cqw;
-  background: #2b2013; border-radius: 0 0 1cqw 1cqw;
-}
-
-/* Receiver: what its camera sees, and what it has decoded so far. */
-.ms-view {
-  position: relative; aspect-ratio: 1; flex: none; overflow: hidden; border-radius: 2cqw;
-  background: radial-gradient(circle at 55% 35%, #2a2016, #0b0805 70%); border: 1px solid rgb(238 224 194 / 0.2);
-  transition: background-color 0.04s;
-}
-.morse-stage[data-on] .ms-view { background: radial-gradient(circle at 62% 26%, #6a4a20, #140d06 70%); }
-.ms-view-phone {
-  position: absolute; left: 32%; top: 10%; width: 36%; height: 74%; border-radius: 7cqw;
-  background: #1a140e; box-shadow: 0 0 0 1px #3a2b19; transform: rotate(6deg);
-}
-.ms-view-phone i { position: absolute; right: 14%; top: 6%; width: 5cqw; aspect-ratio: 1; border-radius: 50%; background: #3a2b19; }
-.ms-view-phone i[data-on] { background: #fffbe8; box-shadow: 0 0 4cqw 2cqw #ffd27a, 0 0 12cqw 6cqw rgb(247 178 76 / 0.55); }
-.ms-view-box { position: absolute; inset: 7% 22% 14%; border: 1px dashed rgb(255 180 84 / 0.55); border-radius: 2cqw; }
-.ms-meter {
-  position: absolute; left: 3cqw; bottom: 3cqw; padding: 1.6cqw 2.4cqw; border-radius: 1.4cqw; background: rgb(15 10 5 / 0.85);
-  font: 600 3.4cqw/1 var(--mono); letter-spacing: 0.04em; text-transform: uppercase; color: #b3a17c; }
-.morse-stage[data-playing] .ms-meter { color: #ffb454; }
-.ms-recv {
-  margin-top: auto; display: grid; gap: 2.5cqw; padding: 4cqw; border-radius: 2cqw;
-  background: #1e150c; border: 1px solid rgb(238 224 194 / 0.14);
-}
-.ms-recv small { font: 500 3.2cqw/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: #b3a17c; }
-.ms-recv strong { min-height: 1.2em; font: 500 6.6cqw/1.2 var(--mono); letter-spacing: 0.04em; word-break: break-all; }
-.ms-recv strong i { display: inline-block; width: 3cqw; height: 0.9em; margin-left: 1cqw; vertical-align: -0.1em; background: #ffb454; opacity: 0; }
-.ms-recv strong i[data-live] { opacity: 1; animation: caret 0.8s steps(1) infinite; }
-@keyframes caret { 50% { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .mt-strip { transition: none; } }
+.mapp-view-phone i { position: absolute; right: 12%; top: 5%; width: 12px; height: 12px; border-radius: 50%; background: #3a2b19; }
+.mapp-view[data-on] .mapp-view-phone i { background: #fffbe8; box-shadow: 0 0 10px 5px #ffd27a, 0 0 34px 16px rgb(255 180 84 / 0.55); }
 
 @media (max-width: 960px) {
   .morse-grid { grid-template-columns: 1fr; }

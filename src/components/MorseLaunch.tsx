@@ -1,94 +1,45 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { MORSE } from '../data/site';
-import { clean, letters, schedule, type Step } from '../lib/morse';
+import { clean, letters, schedule } from '../lib/morse';
+import { tapeGroups } from '../lib/morse-tape';
+import { ReceiverScreen, SenderScreen } from './MorsePhones';
 import { AndroidLogo, AppleLogo, StoreButtons } from './StoreButtons';
 
-/* Morse, demoed the way it works in real life. Two phones run a miniature of
- * the app: the sender's Broadcast screen punches its tape as its flashlight
- * (top-right corner) fires, and the receiver, turned to face it, shows what
- * its camera sees, punches its own tape and decodes the message. */
+/* Morse, demoed the way it works in real life. Two phones run the real Morse
+ * interface (see MorsePhones): the sender broadcasts with the flashlight in
+ * its top-right corner, and the receiver, turned to face it, shows what its
+ * camera sees, punches its own tape and decodes the message. */
 
-const UNIT_MS = 110;
+const WPM = 8; // the app's STANDARD step
+const UNIT_MS = 1200 / WPM;
 const MAX = 16;
-
-interface Mark { x: number; w: number; step: number }
-interface Label { x: number; char: string; letter: number }
-
-/** Lay the whole message out on tape, in Morse units, the way the app does. */
-function layout(steps: Step[], text: string) {
-  const chars = letters(text);
-  const marks: Mark[] = [];
-  const labels: Label[] = [];
-  const starts: number[] = [];
-  let t = 0;
-  steps.forEach((s, i) => {
-    starts.push(t);
-    if (s.on) {
-      marks.push({ x: t, w: s.units, step: i });
-      if (s.symbol === 0) labels.push({ x: t, char: chars[s.letter].char, letter: s.letter });
-    }
-    t += s.units;
-  });
-  return { marks, labels, starts, total: t };
-}
-
-function Tape({ marks, labels, step, head, ms, receiver, letter }: {
-  marks: Mark[]; labels: Label[]; step: number; head: number; ms: number; receiver?: boolean; letter: number;
-}) {
-  return (
-    <div className="mt-tape" data-receiver={receiver || undefined}>
-      <div className="mt-strip" style={{ '--pos': head, '--ms': `${ms}ms` } as CSSProperties}>
-        {labels.map((l) => (
-          <b
-            key={l.x}
-            className="mt-char"
-            style={{ '--x': l.x } as CSSProperties}
-            data-on={l.letter === letter || undefined}
-            data-hidden={(receiver && l.letter > letter) || undefined}
-          >
-            {l.char}
-          </b>
-        ))}
-        {marks.map((m) => (
-          <i
-            key={m.x}
-            className="mt-mark"
-            style={{ '--x': m.x, '--w': m.w } as CSSProperties}
-            data-sent={m.step <= step || undefined}
-            data-hidden={(receiver && m.step > step) || undefined}
-          />
-        ))}
-      </div>
-      <span className="mt-head" />
-    </div>
-  );
-}
-
-function ScreenHead({ mode }: { mode: 'send' | 'receive' }) {
-  return (
-    <p className="ms-head">
-      <b><i />MORSE</b>
-      <span data-on={mode === 'send' || undefined}>Broadcast</span>
-      <span data-on={mode === 'receive' || undefined}>Receive</span>
-    </p>
-  );
-}
 
 export function MorseLaunch() {
   const [text, setText] = useState('HI GURPY');
   const [playing, setPlaying] = useState(false);
+  const [finished, setFinished] = useState(false);
   const [lamp, setLamp] = useState(false);
-  const [step, setStep] = useState(-1);
-  const [head, setHead] = useState({ pos: 0, ms: 0 });
+  const [fire, setFire] = useState(0);
+  const [letter, setLetter] = useState(-1);
+  const [mark, setMark] = useState(0);
+  const [heard, setHeard] = useState(0);
+  const [liveMarks, setLiveMarks] = useState('');
   const [received, setReceived] = useState('');
   const [sound, setSound] = useState(false);
   const run = useRef(0);
   const audio = useRef<{ ctx: AudioContext; gain: GainNode } | null>(null);
 
-  const steps = useMemo(() => schedule(text), [text]);
-  const tape = useMemo(() => layout(steps, text), [steps, text]);
-  const seconds = Math.round((tape.total * UNIT_MS) / 1000);
-  const letter = step >= 0 ? steps[step]?.letter ?? -1 : -1;
+  const msg = clean(text);
+  const steps = useMemo(() => schedule(msg), [msg]);
+  const chars = useMemo(() => letters(msg), [msg]);
+  const groups = useMemo(() => tapeGroups(chars), [chars]);
+  const totalMarks = steps.filter((x) => x.on).length;
+  const seconds = Math.round((steps.reduce((n, x) => n + x.units, 0) * UNIT_MS) / 1000);
+  // Tape groups skip spaces, so map a letter index to its group.
+  const groupOf = useMemo(() => {
+    let g = -1;
+    return chars.map((c) => (c.char === ' ' ? g : ++g));
+  }, [chars]);
 
   useEffect(() => () => { run.current++; void audio.current?.ctx.close(); }, []);
 
@@ -113,8 +64,11 @@ export function MorseLaunch() {
 
   const reset = () => {
     setLamp(false);
-    setStep(-1);
-    setHead({ pos: 0, ms: 0 });
+    setLetter(-1);
+    setMark(0);
+    setHeard(0);
+    setLiveMarks('');
+    setFinished(false);
     tone(false);
   };
 
@@ -130,26 +84,34 @@ export function MorseLaunch() {
     const id = ++run.current;
     if (sound) { ensureAudio(); void audio.current?.ctx.resume(); }
     reset();
-    setPlaying(true);
     setReceived('');
-    const chars = letters(text);
-    for (let i = 0; i < steps.length; i++) {
-      const s = steps[i];
+    setPlaying(true);
+    let marksSent = 0;
+    let live = '';
+    for (const s of steps) {
       if (run.current !== id) return;
       setLamp(s.on);
       if (sound) tone(s.on);
-      setStep(i);
-      setHead({ pos: tape.starts[i] + s.units, ms: s.units * UNIT_MS });
+      setLetter(groupOf[s.letter]);
+      if (s.on) { marksSent++; setMark(marksSent); setFire(marksSent); }
       await new Promise((r) => setTimeout(r, s.units * UNIT_MS));
       if (run.current !== id) return;
-      // Decode a letter as soon as its last mark ends, with any space before it.
-      if (s.done) setReceived(chars.slice(0, s.letter + 1).map((c) => c.char).join(''));
+      // The receiver punches each mark when its light goes off, and decodes a letter after its last one.
+      if (s.on) { live += chars[s.letter].code[s.symbol]; setLiveMarks(live); }
+      if (s.done) {
+        live = '';
+        setLiveMarks('');
+        setHeard(groupOf[s.letter] + 1);
+        setReceived(chars.slice(0, s.letter + 1).map((c) => c.char).join(''));
+      }
     }
     setLamp(false);
     tone(false);
     setPlaying(false);
+    setFinished(true);
   };
 
+  const sentLetters = groups.length;
   return (
     <section className="world world-morse" id="morse" aria-labelledby="morse-title">
       <div className="morse-grid">
@@ -177,7 +139,7 @@ export function MorseLaunch() {
                 maxLength={MAX}
                 autoComplete="off"
                 spellCheck={false}
-                onChange={(e) => { if (playing) stop(); setText(clean(e.target.value).slice(0, MAX)); }}
+                onChange={(e) => { if (playing || finished) stop(); setText(clean(e.target.value).slice(0, MAX)); }}
                 onKeyDown={(e) => { if (e.key === 'Enter') void send(); }}
               />
             </div>
@@ -186,7 +148,7 @@ export function MorseLaunch() {
               {playing ? 'Stop' : 'Send a signal'}
             </button>
             <div className="morse-meta">
-              <span>{seconds}s at 11 WPM</span>
+              <span>{seconds}s at {WPM} WPM</span>
               <label className="morse-sound">
                 <input type="checkbox" checked={sound} onChange={(e) => setSound(e.target.checked)} />
                 Sound
@@ -217,42 +179,24 @@ export function MorseLaunch() {
                 <stop offset="1" stopColor="#f7b24c" stopOpacity="0" />
               </linearGradient>
             </defs>
-            <polygon points="36,13.5 66,4 68,30" fill="url(#morse-beam-fill)" />
+            <polygon points="34.5,10.5 66,4 68,30" fill="url(#morse-beam-fill)" />
           </svg>
 
           <div className="mphone mphone-send">
             <i className="mphone-torch" />
-            <div className="mscreen">
-              <ScreenHead mode="send" />
-              <p className="ms-label">Your message <span>{seconds}s to send</span></p>
-              <p className="ms-msg">{clean(text) || ' '}</p>
-              <Tape marks={tape.marks} labels={tape.labels} step={step} head={head.pos} ms={head.ms} letter={letter} />
-              <p className="ms-status"><i data-on={lamp || undefined} />{playing ? 'Sending · flashlight on' : 'Ready to send'}</p>
-              <p className="ms-lights">
-                <span data-on={!playing || undefined}>Standby</span>
-                <span>Caution</span>
-                <span data-on={playing || undefined}>Go</span>
-              </p>
-              <p className="ms-opts"><span>Options</span><span>11 WPM</span></p>
-              <p className="ms-key" data-on={playing || undefined}>{playing ? 'Stop' : 'Broadcast'}</p>
-            </div>
+            <SenderScreen v={{
+              state: playing ? 'broadcasting' : finished ? 'done' : 'idle',
+              text: msg, groups, letter: playing || finished ? letter : 0, mark, marks: totalMarks, fire, seconds, wpm: WPM,
+              sent: `${sentLetters} ${sentLetters === 1 ? 'LETTER' : 'LETTERS'} · ${seconds}S`,
+            }} />
           </div>
 
           <div className="mphone mphone-receive">
-            <div className="mscreen">
-              <ScreenHead mode="receive" />
-              <Tape marks={tape.marks} labels={tape.labels} step={step} head={head.pos} ms={head.ms} letter={letter} receiver />
-              <p className="ms-status"><i data-on={playing || undefined} />{playing ? 'Receiving' : 'Listening'}</p>
-              <div className="ms-view">
-                <span className="ms-view-phone"><i data-on={lamp || undefined} /></span>
-                <span className="ms-view-box" />
-                <span className="ms-meter">{playing ? 'Hearing light' : 'Hearing nothing'}</span>
-              </div>
-              <div className="ms-recv">
-                <small>Received message</small>
-                <strong>{received}<i data-live={playing || undefined} /></strong>
-              </div>
-            </div>
+            <ReceiverScreen v={{
+              state: playing ? 'receive-active' : finished ? 'receive-done' : 'receive-armed',
+              meter: playing ? 'decoding' : 'silence',
+              groups, heard, liveMarks, text: received, lamp,
+            }} />
           </div>
         </div>
       </div>

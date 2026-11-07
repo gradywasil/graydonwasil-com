@@ -1,0 +1,145 @@
+"""Copy the Morse app's own stylesheet into this site, scoped for the demo.
+
+The Morse section shows two phones running the real Morse interface. Rather
+than redrawing it, this script takes the app's css/main.css and:
+
+  * scopes every rule under `.mapp` (body/html/:root become `.mapp` itself),
+    so nothing leaks into the rest of the page;
+  * turns `#id` selectors into `[data-id="id"]`, since the demo renders the
+    interface twice and ids must stay unique;
+  * keeps only the @media blocks that apply to a 390 x 823 portrait phone,
+    because the demo is always a phone (prefers-reduced-motion is kept as is);
+  * prefixes @keyframes names so they cannot clash with the site's;
+  * points the logo at a copy of the app's favicon.
+
+Usage (the default path assumes the morse-code repo in your home folder):
+
+    python scripts/sync-morse-ui.py [path/to/morse-code/native-web]
+
+Writes src/styles/morse-app.css and src/assets/morse/logo.svg.
+"""
+import re
+import shutil
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+SRC = Path(sys.argv[1]) if len(sys.argv) > 1 else Path.home() / 'morse-code' / 'native-web'
+OUT_CSS = ROOT / 'src' / 'styles' / 'morse-app.css'
+OUT_LOGO = ROOT / 'src' / 'assets' / 'morse' / 'logo.svg'
+VIEW_W, VIEW_H = 390, 823
+
+
+def strip_comments(css: str) -> str:
+    return re.sub(r'/\*.*?\*/', '', css, flags=re.S)
+
+
+def blocks(css: str):
+    """Yield (prelude, body) for each top-level rule; body is None for `@x ...;`."""
+    i, n = 0, len(css)
+    while i < n:
+        j = i
+        while j < n and css[j] not in '{;':
+            j += 1
+        if j >= n:
+            break
+        prelude = css[i:j].strip()
+        if css[j] == ';':
+            yield prelude, None
+            i = j + 1
+            continue
+        depth, k = 1, j + 1
+        while k < n and depth:
+            depth += {'{': 1, '}': -1}.get(css[k], 0)
+            k += 1
+        yield prelude, css[j + 1:k - 1]
+        i = k
+
+
+def media_applies(query: str) -> bool | None:
+    """True/False for size queries at the phone size; None to keep the block wrapped."""
+    if 'prefers-reduced-motion' in query or 'prefers-color-scheme' in query or 'hover' in query:
+        return None
+    for alt in query.split(','):
+        ok = True
+        for cond in re.findall(r'\(([^)]+)\)', alt):
+            name, _, value = (p.strip() for p in cond.partition(':'))
+            num = float(re.sub(r'[^\d.]', '', value) or 0)
+            ok &= {
+                'min-width': VIEW_W >= num, 'max-width': VIEW_W <= num,
+                'min-height': VIEW_H >= num, 'max-height': VIEW_H <= num,
+                'orientation': value == 'portrait',
+            }.get(name, False)
+        if ok:
+            return True
+    return False
+
+
+def split_selectors(prelude: str):
+    out, depth, cur = [], 0, ''
+    for ch in prelude:
+        depth += {'(': 1, ')': -1}.get(ch, 0)
+        if ch == ',' and depth == 0:
+            out.append(cur)
+            cur = ''
+        else:
+            cur += ch
+    out.append(cur)
+    return [s.strip() for s in out if s.strip()]
+
+
+def scope_selector(sel: str) -> str:
+    sel = re.sub(r"#([A-Za-z][\w-]*)", r'[data-id="\1"]', sel)
+    sel = re.sub(r":root\[data-mode=", '.mapp[data-theme-mode=', sel)
+    sel = re.sub(r'^(:root|html|body)(?=$|[\s.\[:>])', '.mapp', sel)
+    sel = re.sub(r'(?<=[\s>])body(?=$|[\s.\[:>])', '', sel)
+    if sel.startswith('.mapp'):
+        return sel
+    return f'.mapp {sel}'
+
+
+def transform(css: str, keyframes: set[str]) -> str:
+    out = []
+    for prelude, body in blocks(css):
+        if body is None:
+            continue  # @import / @charset: the site loads the fonts itself
+        if prelude.startswith('@media'):
+            verdict = media_applies(prelude[6:])
+            if verdict is False:
+                continue
+            inner = transform(body, keyframes)
+            out.append(inner if verdict else f'{prelude} {{\n{inner}}}\n')
+        elif prelude.startswith('@supports'):
+            out.append(f'{prelude} {{\n{transform(body, keyframes)}}}\n')
+        elif prelude.startswith('@keyframes'):
+            name = prelude.split()[1]
+            keyframes.add(name)
+            out.append(f'@keyframes mapp-{name} {{{body}}}\n')
+        elif prelude.startswith('@font-face'):
+            continue
+        else:
+            sels = ', '.join(scope_selector(s) for s in split_selectors(prelude))
+            out.append(f'{sels} {{{body}}}\n')
+    return ''.join(out)
+
+
+def main() -> None:
+    css = strip_comments((SRC / 'css' / 'main.css').read_text(encoding='utf-8'))
+    keyframes: set[str] = set()
+    scoped = transform(css, keyframes)
+    # Point animations at the renamed keyframes.
+    for name in sorted(keyframes, key=len, reverse=True):
+        scoped = re.sub(rf'(animation(?:-name)?\s*:[^;}}]*?)\b{re.escape(name)}\b', rf'\1mapp-{name}', scoped)
+    scoped = scoped.replace("url('../favicon.svg')", "url('../assets/morse/logo.svg')")
+    header = (
+        '/* Generated by scripts/sync-morse-ui.py from the Morse app\'s css/main.css.\n'
+        ' * Do not edit by hand; demo-only adjustments live in site.css under .mapp. */\n'
+    )
+    OUT_CSS.write_text(header + scoped, encoding='utf-8')
+    OUT_LOGO.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy(SRC / 'favicon.svg', OUT_LOGO)
+    print(f'{OUT_CSS.relative_to(ROOT)}: {len(scoped) // 1024} KB, {len(keyframes)} keyframes')
+
+
+if __name__ == '__main__':
+    main()
