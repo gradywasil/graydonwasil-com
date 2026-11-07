@@ -45,6 +45,11 @@ typography:
     fontSize: "clamp(40px, 5.4vw, 80px)"
     fontWeight: 400
     lineHeight: 0.95
+  morse-app-body:
+    fontFamily: "Barlow, system-ui, sans-serif"
+    fontSize: "16px"
+    fontWeight: 500
+    lineHeight: 1.5
   kilopixel-display:
     fontFamily: "Pixelify Sans, ui-monospace, monospace"
     fontSize: "clamp(44px, 5.6vw, 84px)"
@@ -142,6 +147,7 @@ A product world uses its own site's colours and type. Do not let one product's p
 - **Martian Mono** 800 only for the CarsDB wordmark tile.
 - **DM Sans** for body, buttons, and UI copy, 400–800.
 - **Spline Sans Mono** for kickers, statuses, and hints: uppercase, tracked 0.08em.
+- **Barlow** only inside the Morse demo phones, where the app's own stylesheet uses it.
 - **Saira Stencil One** only in the Morse world; **Pixelify Sans** and **Silkscreen** only in the Kilopixel world.
 
 ## Components
