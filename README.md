@@ -30,7 +30,7 @@ A small Gurpy follows you into the corner once the hero scrolls away and comment
 
 ## Store status
 
-Morse and Kilopixel are in App Store review and in Google Play closed testing. Every store button comes from one place: the `stores` field of `MORSE` and `KILOPIXEL` in `src/data/site.ts`. Each platform has a state:
+Kilopixel is on the App Store; Morse is in App Store review. Both are in Google Play closed testing. Every store button comes from one place: the `stores` field of `MORSE` and `KILOPIXEL` in `src/data/site.ts`. Each platform has a state:
 
 | State | Button |
 |---|---|

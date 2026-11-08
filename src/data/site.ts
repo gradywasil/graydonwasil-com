@@ -37,7 +37,7 @@ export const KILOPIXEL = {
   group: 'https://groups.google.com/g/kilopixel-testers',
   icon: kilopixelIcon,
   stores: stores({
-    ios: { state: 'review' },
+    ios: { state: 'live', url: 'https://apps.apple.com/us/app/kilopixel/id6831792534' },
     android: { state: 'beta', url: 'https://play.google.com/apps/testing/com.arrangedgodly.kilopixel' },
     // https://play.google.com/store/apps/details?id=com.arrangedgodly.kilopixel
   }),

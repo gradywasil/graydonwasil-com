@@ -26,7 +26,7 @@ A successful visit ends with someone getting Morse or Kilopixel (or joining a be
 
 Graydon builds software you'll want to play with. The case for his work is the work itself, presented so you can touch it: a Morse signal you can send, a pixel camera look you can roll, a reel of games you can spin. Gurpy, his pixel-art mascot, carries the humour.
 
-Morse and Kilopixel are his first two apps. As of 7 November 2026 both are in App Store review and in Google Play closed testing. RhymePage is a web app with Android in the works.
+Morse and Kilopixel are his first two apps. As of 8 November 2026 Kilopixel is live on the App Store and Morse is in App Store review; both are in Google Play closed testing. RhymePage is a web app with Android in the works.
 
 ## Operating Context
 
