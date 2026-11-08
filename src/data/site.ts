@@ -4,6 +4,8 @@ import rhymepageIcon from '../assets/current-work/rhymepage-icon.png';
 import voxchainMark from '../assets/fun/side/voxchain-mark.svg';
 import carsdbMark from '../assets/fun/side/carsdb-mark.svg';
 import arrangedGodlyDevice from '../assets/fun/side/arranged-godly.webp';
+import introThumb from '../assets/video/who-is-grady-thumb.webp';
+import introPoster from '../assets/video/who-is-grady.webp';
 import { GAMES } from './games';
 
 /* Store status for each app, in one place. Each platform is one of:
@@ -41,6 +43,16 @@ export const KILOPIXEL = {
     android: { state: 'beta', url: 'https://play.google.com/apps/testing/com.arrangedgodly.kilopixel' },
     // https://play.google.com/store/apps/details?id=com.arrangedgodly.kilopixel
   }),
+};
+
+/** The "Who is Grady?" promo reel on YouTube (see IntroVideo). */
+export const INTRO = {
+  id: 'fXoC3dlrDVc',
+  title: 'Who is Grady?',
+  length: '1:38',
+  url: 'https://youtu.be/fXoC3dlrDVc',
+  thumb: introThumb,
+  poster: introPoster,
 };
 
 export const RHYMEPAGE = { site: 'https://rhymepage.com/', icon: rhymepageIcon };

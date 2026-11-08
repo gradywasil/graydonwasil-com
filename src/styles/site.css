@@ -214,6 +214,70 @@ a.store-pill:hover { border-color: #fff; }
 .hero-lede { margin-top: 26px; max-width: 38ch; font-size: clamp(18px, 1.45vw, 21px); color: var(--muted); }
 .hero-lede a { color: var(--cream); font-weight: 700; text-decoration-color: var(--ginger); text-underline-offset: 4px; }
 .hero-ctas { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 32px; align-items: center; }
+/* "Who is Grady?": a thumbnail you press to watch the intro reel. */
+.hero-watch {
+  display: flex; align-items: center; gap: 14px; margin-top: 26px; padding: 0;
+  background: none; border: 0; color: var(--cream); text-align: left; cursor: pointer;
+  font: inherit;
+}
+.hero-watch-thumb {
+  position: relative; flex: none; width: 120px; aspect-ratio: 16 / 9; overflow: hidden;
+  border: 3px solid #05060f; border-radius: 10px; box-shadow: 0 4px 0 #05060f;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.hero-watch-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hero-watch-play {
+  position: absolute; left: 50%; top: 50%; width: 34px; height: 34px; translate: -50% -50%;
+  border-radius: 50%; background: var(--ginger); box-shadow: 0 0 0 3px #05060f;
+  transition: scale 0.15s;
+}
+.hero-watch-play::after {
+  content: ''; position: absolute; left: 38%; top: 30%; width: 32%; height: 40%;
+  background: #1a0d03; clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+.hero-watch-text { display: grid; gap: 4px; }
+.hero-watch-text strong { font: 800 19px/1.1 var(--display-home); letter-spacing: -0.01em; }
+.hero-watch-text span { font-size: 14px; color: var(--muted); }
+.hero-watch:hover .hero-watch-thumb { transform: translateY(-2px) rotate(-1.5deg); box-shadow: 0 6px 0 #05060f; }
+.hero-watch:hover .hero-watch-play { scale: 1.12; }
+.hero-watch:hover strong { text-decoration: underline; text-decoration-color: var(--ginger); text-decoration-thickness: 3px; text-underline-offset: 4px; }
+
+/* The intro reel overlay (a native modal dialog). */
+.intro {
+  width: min(960px, calc(100vw - 32px)); max-width: none; max-height: calc(100dvh - 32px);
+  margin: auto; padding: 0; overflow: visible;
+  background: none; border: 0; color: var(--cream);
+}
+.intro::backdrop { background: rgb(5 7 18 / 0.84); backdrop-filter: blur(6px); }
+.intro-box {
+  padding: clamp(12px, 2vw, 20px); background: var(--night-2);
+  border: 3px solid #05060f; border-radius: 18px; box-shadow: 8px 8px 0 var(--ginger);
+}
+.intro-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.intro-head h2 { font: 800 clamp(22px, 2.6vw, 30px)/1 var(--display-home); letter-spacing: -0.02em; }
+.intro-close {
+  display: grid; place-items: center; width: 44px; height: 44px; flex: none;
+  background: var(--cream); color: #1a0d03; border: 3px solid #05060f; border-radius: 12px;
+  box-shadow: 0 3px 0 #05060f; cursor: pointer;
+}
+.intro-close:hover { background: var(--ginger); }
+.intro-frame {
+  position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 10px;
+  background: #05060f center / cover no-repeat;
+}
+.intro-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.intro-foot {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; margin-top: 12px;
+  font-size: 14px; color: var(--muted);
+}
+.intro-foot a { color: var(--cream); font-weight: 700; text-decoration-color: var(--ginger); text-underline-offset: 4px; }
+html:has(.intro[open]) { overflow: hidden; }
+@media (prefers-reduced-motion: no-preference) {
+  .intro[open] .intro-box { animation: pop-in 0.35s cubic-bezier(0.2, 1.3, 0.4, 1) both; }
+  .intro[open]::backdrop { animation: fade-in 0.25s both; }
+}
+@keyframes fade-in { from { opacity: 0; } }
+
 .hero-sticker {
   display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 10px;
   margin-top: 28px; padding: 9px 14px;
@@ -916,6 +980,11 @@ a.store-pill:hover { border-color: #fff; }
 .hello-me p:not(.hello-title) { margin-top: 14px; font-size: 18px; font-weight: 500; }
 .hello-links { display: flex; flex-wrap: wrap; gap: 18px; }
 .hello-links a { font-weight: 800; text-decoration-thickness: 3px; text-underline-offset: 4px; }
+.hello-watch {
+  padding: 0; background: none; border: 0; color: inherit; font: inherit; font-weight: 800;
+  text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 4px; cursor: pointer;
+}
+.hello-watch span { font-size: 0.8em; }
 
 .note-card {
   position: relative; padding: clamp(22px, 3vw, 34px);
@@ -1024,6 +1093,11 @@ a.store-pill:hover { border-color: #fff; }
   .hero-lede { margin-top: 16px; font-size: 16px; }
   .hero-ctas { margin-top: 20px; gap: 10px; flex-wrap: nowrap; }
   .hero-ctas .chunky-btn { min-height: 50px; padding: 10px 16px; font-size: 16px; white-space: nowrap; }
+  .hero-watch { margin-top: 18px; gap: 12px; }
+  .hero-watch-thumb { width: 92px; border-radius: 8px; }
+  .hero-watch-play { width: 28px; height: 28px; }
+  .hero-watch-text strong { font-size: 17px; }
+  .hero-watch-text span { font-size: 13px; }
   .hero-stage { gap: 10px; }
   .orbit-card { padding: 12px; gap: 10px 12px; }
   .orbit-card-icon { width: 44px; height: 44px; }

@@ -1,12 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import photo from '../assets/fun/graydon.webp';
-import { EMAIL, GITHUB } from '../data/site';
+import { EMAIL, GITHUB, INTRO } from '../data/site';
 
 const CONTACT_ENDPOINT = import.meta.env.VITE_CONTACT_ENDPOINT as string | undefined;
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 
-export function Hello() {
+export function Hello({ onWatch }: { onWatch: () => void }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [msg, setMsg] = useState('');
@@ -55,7 +55,7 @@ export function Hello() {
             <p>
               I became a developer by solving my own problems: a spreadsheet that quietly became an
               app, a Max for Live delay I couldn&rsquo;t find, a database for a toy-car collection
-              that outgrew my notes. Now it&rsquo;s Android apps and games.
+              that outgrew my notes. Now it&rsquo;s iPhone and Android apps, and games.
             </p>
             <p>
               I like the whole stack, the awkward edge cases, and making things people want to poke
@@ -65,6 +65,9 @@ export function Hello() {
             <p className="hello-links">
               <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
               <a href={GITHUB} target="_blank" rel="noopener noreferrer">GitHub</a>
+              <button type="button" className="hello-watch" onClick={onWatch} aria-haspopup="dialog">
+                <span aria-hidden="true">&#9654;</span> {INTRO.title}
+              </button>
             </p>
           </div>
         </div>

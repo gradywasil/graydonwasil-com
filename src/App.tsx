@@ -4,6 +4,7 @@ import { Buddy } from './components/Buddy';
 import { GamesArcade } from './components/GamesArcade';
 import { Hello } from './components/Hello';
 import { Hero } from './components/Hero';
+import { IntroVideo } from './components/IntroVideo';
 import { KilopixelLaunch } from './components/KilopixelLaunch';
 import { MoreWork } from './components/MoreWork';
 import { MorseLaunch } from './components/MorseLaunch';
@@ -47,6 +48,8 @@ function App() {
   const still = usePrefersReducedMotion();
   const drops = useGurpyRain(!still);
   const [gameId, setGameId] = useState('brain-splitter');
+  const [watching, setWatching] = useState(false);
+  const watch = () => setWatching(true);
 
   return (
     <>
@@ -65,7 +68,7 @@ function App() {
       </nav>
 
       <main>
-        <Hero still={still} onPickGame={setGameId} />
+        <Hero still={still} onPickGame={setGameId} onWatch={watch} />
         <MorseLaunch />
         <KilopixelLaunch still={still} />
         <section className="world world-rp" id="rhymepage" aria-labelledby="rp-title">
@@ -73,7 +76,7 @@ function App() {
         </section>
         <GamesArcade still={still} gameId={gameId} onPick={setGameId} />
         <MoreWork />
-        <Hello />
+        <Hello onWatch={watch} />
       </main>
 
       <footer className="footer">
@@ -87,6 +90,7 @@ function App() {
       </footer>
 
       <Buddy still={still} />
+      <IntroVideo open={watching} onClose={() => setWatching(false)} />
 
       {drops.length > 0 && (
         <div className="rain" aria-hidden="true">
