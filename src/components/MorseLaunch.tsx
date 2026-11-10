@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createAudioContext, unmuteOnIOS } from '../lib/audio';
 import { MORSE } from '../data/site';
 import { clean, letters, schedule } from '../lib/morse';
 import { tapeGroups } from '../lib/morse-tape';
@@ -50,9 +51,10 @@ export function MorseLaunch() {
   };
 
   const ensureAudio = () => {
+    unmuteOnIOS();
     if (audio.current) return;
-    const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    const ctx = new Ctx();
+    const ctx = createAudioContext();
+    if (!ctx) return;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.frequency.value = 620;

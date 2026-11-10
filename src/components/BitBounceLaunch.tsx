@@ -3,6 +3,7 @@ import logo from '../assets/bitbounce/logo.svg';
 import ipadShot from '../assets/bitbounce/ipad-song.webp';
 import phoneShot from '../assets/bitbounce/phone-edit.webp';
 import { BITBOUNCE } from '../data/site';
+import { createAudioContext, unmuteOnIOS } from '../lib/audio';
 import { StoreButtons } from './StoreButtons';
 
 /* BitBounce, the iPhone and iPad app, dressed like bitbounce.app: a cream toy
@@ -109,21 +110,27 @@ export function BitBounceLaunch() {
     return () => {
       document.removeEventListener('visibilitychange', hide);
       stop();
-      audio.current?.ctx.close();
+      void audio.current?.ctx.close();
+      audio.current = null;
     };
   }, []);
 
-  const play = () => {
+  const play = async () => {
     if (playing) { stop(); return; }
+    unmuteOnIOS();
     if (!audio.current) {
-      const ctx = new AudioContext();
+      const ctx = createAudioContext();
+      if (!ctx) return;
       const out = ctx.createGain();
       out.gain.value = 0.5;
       out.connect(ctx.destination);
       audio.current = { ctx, out };
     }
     const { ctx, out } = audio.current;
-    void ctx.resume();
+    // Schedule only once the clock runs. An interrupted session (a call, Siri)
+    // refuses to resume; the next tap tries again.
+    try { await ctx.resume(); } catch { return; }
+    clearInterval(loop.current);
     let next = ctx.currentTime + 0.06;
     let i = 0;
     // Look ahead 120ms on a 30ms tick; the UI catches up with a timeout per step.
@@ -180,7 +187,7 @@ export function BitBounceLaunch() {
 
       <div className="bb-box">
         <div className="bb-transport">
-          <button type="button" className="bb-key bb-key-play" aria-pressed={playing} onClick={play}>
+          <button type="button" className="bb-key bb-key-play" aria-pressed={playing} onClick={() => void play()}>
             <span aria-hidden="true">{playing ? '■' : '▶'}</span> {playing ? 'Stop' : 'Play'}
           </button>
           <div className="bb-lcd" aria-hidden="true">
