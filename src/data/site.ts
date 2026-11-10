@@ -30,7 +30,7 @@ export const MORSE = {
   group: 'https://groups.google.com/g/morse-android-testers',
   icon: morseIcon,
   stores: stores({
-    ios: { state: 'review' },
+    ios: { state: 'live', url: 'https://apps.apple.com/us/app/morse/id6831800624' },
     android: { state: 'beta', url: 'https://play.google.com/apps/testing/com.arrangedgodly.morsecode' },
     // Public listing, once out of testing:
     // https://play.google.com/store/apps/details?id=com.arrangedgodly.morsecode

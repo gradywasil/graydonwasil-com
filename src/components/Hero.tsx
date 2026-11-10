@@ -72,9 +72,9 @@ export function Hero({ still, onPickGame, onWatch }: { still: boolean; onPickGam
           </span>
         </h1>
         <p className="hero-lede">
-          Apps for iPhone and Android, browser games, and the occasional weird experiment. My first
-          app, <a href="#kilopixel">Kilopixel</a>, is out now on the App&nbsp;Store, and{' '}
-          <a href="#morse">Morse</a> is right behind it.
+          Apps for iPhone and Android, browser games, and the occasional weird experiment.{' '}
+          <a href="#morse">Morse</a> and <a href="#kilopixel">Kilopixel</a> are out now on the App&nbsp;Store,
+          and <a href="#bitbounce">BitBounce</a> is in beta.
         </p>
         <div className="hero-ctas">
           <a className="chunky-btn chunky-ginger" href="#morse">Meet the apps <span aria-hidden="true">&darr;</span></a>
