@@ -1,6 +1,7 @@
 import morseIcon from '../assets/current-work/morse-icon.png';
 import kilopixelIcon from '../assets/current-work/kilopixel-icon.png';
 import rhymepageIcon from '../assets/current-work/rhymepage-icon.png';
+import bitbounceIcon from '../assets/current-work/bitbounce-icon.png';
 import voxchainMark from '../assets/fun/side/voxchain-mark.svg';
 import carsdbMark from '../assets/fun/side/carsdb-mark.svg';
 import arrangedGodlyDevice from '../assets/fun/side/arranged-godly.webp';
@@ -9,14 +10,16 @@ import introPoster from '../assets/video/who-is-grady.webp';
 import { GAMES } from './games';
 
 /* Store status for each app, in one place. Each platform is one of:
+ *   'soon'    not submitted yet: "Coming soon", not a link.
  *   'review'  submitted, not yet approved: the button shows "Coming soon"
  *             and is not a link.
  *   'beta'    a public tester opt-in (Google Play closed testing, TestFlight).
+ *             A beta with no url yet shows as "In review", not a link.
  *   'live'    a public listing: the button uses "Get it on" / "Download on".
  * When Apple approves an app, set ios to { state: 'live', url: <App Store URL> }.
  * The URL is https://apps.apple.com/app/id<Apple ID>, where the Apple ID is
  * the number under App Information in App Store Connect. */
-export type StoreState = 'review' | 'beta' | 'live';
+export type StoreState = 'soon' | 'review' | 'beta' | 'live';
 export interface StoreLink { state: StoreState; url?: string }
 export interface AppStores { ios: StoreLink; android: StoreLink }
 const stores = (s: AppStores) => s;
@@ -42,6 +45,16 @@ export const KILOPIXEL = {
     ios: { state: 'live', url: 'https://apps.apple.com/us/app/kilopixel/id6831792534' },
     android: { state: 'beta', url: 'https://play.google.com/apps/testing/com.arrangedgodly.kilopixel' },
     // https://play.google.com/store/apps/details?id=com.arrangedgodly.kilopixel
+  }),
+};
+
+export const BITBOUNCE = {
+  site: 'https://bitbounce.app/',
+  icon: bitbounceIcon,
+  stores: stores({
+    // TestFlight public beta for iPhone and iPad.
+    ios: { state: 'beta', url: 'https://testflight.apple.com/join/y4xDruZr' },
+    android: { state: 'soon' },
   }),
 };
 
@@ -89,6 +102,12 @@ const APP_ITEMS: OrbitItem[] = [
     line: 'A live pixel camera for photos, video and GIFs. One camera, 49 looks.',
     stores: KILOPIXEL.stores, section: 'kilopixel',
     quip: 'Forty-nine looks. I tried them all.', accent: '#ff6a1f',
+  },
+  {
+    id: 'bitbounce', ring: 'apps', name: 'BitBounce', icon: bitbounceIcon, status: 'iPhone & iPad beta',
+    line: 'Make the beat, then make it a song. A music studio built like a toy groovebox.',
+    stores: BITBOUNCE.stores, section: 'bitbounce',
+    quip: 'Beats first. Song second.', accent: '#ff5a1f',
   },
   {
     id: 'rhymepage', ring: 'apps', name: 'RhymePage', icon: rhymepageIcon, status: 'Web app',

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import gurpySrc from './assets/fun/gurpy.png';
+import { BitBounceLaunch } from './components/BitBounceLaunch';
 import { Buddy } from './components/Buddy';
 import { GamesArcade } from './components/GamesArcade';
 import { Hello } from './components/Hello';
@@ -62,6 +63,7 @@ function App() {
         <div className="toplinks">
           <a href="#morse">Morse</a>
           <a href="#kilopixel">Kilopixel</a>
+          <a href="#bitbounce">BitBounce</a>
           <a href="#games">Games</a>
           <a href="#hello" className="top-hi">Say hi</a>
         </div>
@@ -71,6 +73,7 @@ function App() {
         <Hero still={still} onPickGame={setGameId} onWatch={watch} />
         <MorseLaunch />
         <KilopixelLaunch still={still} />
+        <BitBounceLaunch />
         <section className="world world-rp" id="rhymepage" aria-labelledby="rp-title">
           <RhymePageCard />
         </section>

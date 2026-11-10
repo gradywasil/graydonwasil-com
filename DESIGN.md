@@ -21,6 +21,8 @@ colors:
   kilopixel-bg: "#121212"
   kilopixel-panel: "#1b1b19"
   kilopixel-orange: "#ff6a1f"
+  bitbounce-bg: "#f4f1ea"
+  bitbounce-orange: "#ff5a1f"
   rhymepage-bg: "#0e1913"
   rhymepage-green: "#4be38f"
 typography:
@@ -124,6 +126,7 @@ Every section has one thing to play with. The goal is a smile in the first five 
 | Hero | Navy night with periwinkle and ginger glows | Ginger, periwinkle; the selected item's own accent on its card | Bricolage Grotesque |
 | Morse | Morse brown `#140d06` with faint vertical lines | Amber `#f7b24c` with glow | Saira Stencil One |
 | Kilopixel | Graphite `#121212` with a faint 12px pixel grid and notched pixel corners | Signal orange `#ff6a1f`; the themes tile takes the selected app theme's colours | Pixelify Sans, Silkscreen for micro labels |
+| BitBounce | Cream `#f4f1ea` toy groovebox with keycaps on darker skirts and a dark LCD `#17181d` grid (from bitbounce.app, not the old web app) | Orange `#ff5a1f`; lanes drums orange, bass `#ffc400`, chords `#1f6bff`, lead `#ff3d8b`; yellow playhead | Chakra Petch 700, Barlow for text |
 | RhymePage | Deep green `#0e1913` | Green `#4be38f` | DM Sans 800 |
 | Games | Cream paper texture; the splash card takes the selected game's `theme.bg/a/b` from Gurpy Games | Teal headlines, orange highlights | Bungee |
 | More | Night; each tile shows the project's own mark (VOXCHAIN orange, CarsDB red, the Arranged Godly device) | Ginger | Bricolage Grotesque |

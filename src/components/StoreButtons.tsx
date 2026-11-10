@@ -2,6 +2,7 @@ import type { AppStores, StoreLink } from '../data/site';
 
 /* App Store and Google Play calls to action, given equal weight. Each button
  * follows its store's state in src/data/site.ts:
+ *   soon    "Coming soon to Google Play", not a link (not submitted yet)
  *   review  "Coming soon to the App Store", not a link
  *   beta    "Join the beta on Google Play" / "Test it on TestFlight"
  *   live    "Download on the App Store" / "Get it on Google Play"
@@ -48,10 +49,10 @@ export function AndroidLogo({ className }: { className?: string }) {
 }
 
 const KICKER: Record<Platform, Record<StoreLink['state'], string>> = {
-  ios: { review: 'Coming soon to the', beta: 'Test it on', live: 'Download on the' },
-  android: { review: 'Coming soon to', beta: 'Join the beta on', live: 'Get it on' },
+  ios: { soon: 'Coming soon to the', review: 'Coming soon to the', beta: 'Test it on', live: 'Download on the' },
+  android: { soon: 'Coming soon to', review: 'Coming soon to', beta: 'Join the beta on', live: 'Get it on' },
 };
-const SHORT: Record<StoreLink['state'], string> = { review: 'In review', beta: 'Beta', live: 'Get it' };
+const SHORT: Record<StoreLink['state'], string> = { soon: 'Soon', review: 'In review', beta: 'Beta', live: 'Get it' };
 
 const storeName = (platform: Platform, link: StoreLink) =>
   platform === 'android' ? 'Google Play' : link.state === 'beta' ? 'TestFlight' : 'App Store';
@@ -59,14 +60,16 @@ const storeName = (platform: Platform, link: StoreLink) =>
 export function StoreButton({ platform, link, pill }: { platform: Platform; link: StoreLink; pill?: boolean }) {
   const name = storeName(platform, link);
   const Logo = platform === 'ios' ? AppleLogo : PlayLogo;
-  const soon = link.state === 'review' || !link.url;
+  const soon = link.state === 'review' || link.state === 'soon' || !link.url;
+  const flag = link.state === 'soon' ? 'In the works' : 'In review';
+  const short = soon && link.state === 'beta' ? 'In review' : SHORT[link.state];
   const cls = `${pill ? 'store-pill' : 'store-btn'} store-${platform}`;
 
   const body = pill ? (
     <>
       <Logo className="store-logo" />
       <span className="store-pill-name">{name}</span>
-      <span className="store-pill-state">{SHORT[link.state]}</span>
+      <span className="store-pill-state">{short}</span>
     </>
   ) : (
     <>
@@ -82,8 +85,8 @@ export function StoreButton({ platform, link, pill }: { platform: Platform; link
     return (
       <span className={cls} data-soon="">
         {body}
-        {!pill && <span className="store-btn-flag" aria-hidden="true">In review</span>}
-        <span className="sr-only"> (in review, link coming soon)</span>
+        {!pill && <span className="store-btn-flag" aria-hidden="true">{flag}</span>}
+        <span className="sr-only"> ({flag.toLowerCase()}, link coming soon)</span>
       </span>
     );
   }

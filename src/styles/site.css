@@ -32,6 +32,7 @@
   --stencil: 'Saira Stencil One', 'Arial Black', sans-serif;
   --pixel: 'Pixelify Sans', ui-monospace, monospace;
   --micro: 'Silkscreen', 'Pixelify Sans', ui-monospace, monospace;
+  --chakra: 'Chakra Petch', 'Barlow', system-ui, sans-serif;
   --mono: 'Spline Sans Mono', ui-monospace, Menlo, Consolas, monospace;
 
   --gutter: clamp(16px, 4vw, 56px);
@@ -106,6 +107,9 @@ h1, h2, h3, p { margin: 0; }
   .toplinks { gap: 0; }
   .toplinks a { padding: 10px 8px; font-size: 13.5px; }
   .toplinks .top-hi { margin-left: 2px; padding: 10px 11px; }
+}
+@media (max-width: 430px) {
+  .toplinks a[href="#bitbounce"] { display: none; }
 }
 @media (max-width: 350px) {
   .toplinks a[href="#kilopixel"] { display: none; }
@@ -753,6 +757,113 @@ html:has(.intro[open]) { overflow: hidden; }
 .rp-btn:hover { filter: brightness(1.08); }
 .rp-link { font-weight: 600; text-underline-offset: 4px; text-decoration-color: var(--rp-green); }
 
+/* -------------------------------------------------------------- bitbounce
+ * Borrows bitbounce.app: a cream toy groovebox. Keycaps with a darker
+ * "skirt" under them, a dark LCD for the grid, Chakra Petch legends, Barlow
+ * text, and one colour per lane (drums orange, bass yellow, chords blue,
+ * lead pink). */
+
+.world-bb {
+  --bb-body: #f4f1ea;
+  --bb-panel: #e7e2d6;
+  --bb-ink: #16161a;
+  --bb-soft: #57534b;
+  --bb-rule: #cfc8b8;
+  --bb-cap: #fbf9f4;
+  --bb-lcd: #17181d;
+  --bb-cell: #1c1e24;
+  --bb-lcd-line: #2b2e37;
+  --bb-lit: #ff8a3d;
+  --bb-text: #c2410c;
+  --bb-led: #ff2b2b;
+  --bb-playhead: #ffc400;
+  background: var(--bb-body);
+  color: var(--bb-ink);
+  font-family: 'Barlow', var(--body);
+}
+.world-bb .store-btn { --store-flag: var(--bb-playhead); }
+.bb-top {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: clamp(28px, 5vw, 64px); align-items: center;
+}
+.bb-kicker {
+  display: inline-flex; align-items: center; gap: 10px; padding: 9px 16px 9px 13px; border-radius: 999px;
+  background: var(--bb-ink); color: var(--bb-cap);
+  font: 700 12px/1 var(--chakra); letter-spacing: 0.14em; text-transform: uppercase;
+}
+.bb-led { width: 9px; height: 9px; border-radius: 50%; background: var(--bb-led); box-shadow: 0 0 8px var(--bb-led); }
+.bb-brand {
+  display: flex; align-items: center; gap: 14px; margin-top: 22px;
+  font: 700 22px/1 var(--chakra); letter-spacing: 0.16em; text-transform: uppercase;
+}
+.bb-brand img { width: 46px; height: 46px; }
+.bb-headline {
+  margin-top: 18px; text-wrap: balance;
+  font: 700 clamp(42px, 5.4vw, 76px)/0.98 var(--chakra); letter-spacing: -0.02em;
+}
+.bb-headline em { display: block; text-wrap: balance; font-style: normal; color: var(--bb-text); }
+.bb-desc { margin-top: 20px; max-width: 46ch; color: var(--bb-soft); font-size: clamp(17px, 1.4vw, 20px); line-height: 1.6; }
+.bb-stores { margin-top: 26px; }
+.bb-note { margin-top: 16px; color: var(--bb-soft); font-size: 15px; }
+.bb-note a { color: var(--bb-ink); font-weight: 600; text-underline-offset: 4px; text-decoration-color: var(--bb-text); }
+
+/* The real app: an iPad with the phone leaning on it, as on bitbounce.app. */
+.bb-devices { position: relative; padding: 6% 0 10% 18%; }
+.bb-ipad, .bb-phone { background: #1c1d21; box-shadow: 0 26px 50px -26px rgb(22 22 26 / 0.6), 0 0 0 1px #000; }
+.bb-ipad { padding: 2.2%; border-radius: 22px; }
+.bb-ipad img { border-radius: 12px; }
+.bb-phone { position: absolute; left: 0; bottom: 0; width: 34%; padding: 2.4%; border-radius: 30px; }
+.bb-phone img { border-radius: 22px; }
+
+/* Try it: the groovebox. */
+.bb-box {
+  margin-top: clamp(40px, 6vw, 72px); padding: clamp(14px, 2vw, 22px); border-radius: 22px;
+  background: var(--bb-panel); border: 1px solid var(--bb-rule);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7), 0 26px 50px -30px rgb(22 22 26 / 0.45);
+}
+.bb-transport { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+.bb-key {
+  display: inline-flex; align-items: center; gap: 9px; min-height: 46px; padding: 0 22px;
+  border: 0; border-radius: 12px; cursor: pointer;
+  background: #ff5a1f; color: var(--bb-ink); box-shadow: 0 4px 0 #b23a0c;
+  font: 700 15px/1 var(--chakra); letter-spacing: 0.12em; text-transform: uppercase;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.bb-key:hover { filter: brightness(1.05); }
+.bb-key:active, .bb-key[aria-pressed='true'] { transform: translateY(3px); box-shadow: 0 1px 0 #b23a0c; }
+.bb-lcd {
+  display: inline-flex; gap: 16px; padding: 10px 14px; border-radius: 10px;
+  background: var(--bb-lcd); color: var(--bb-lit);
+  font: 700 18px/1 var(--chakra); font-variant-numeric: tabular-nums;
+}
+.bb-lcd small { color: #9096a3; font-size: 10px; letter-spacing: 0.12em; margin-right: 2px; }
+.bb-hint { color: var(--bb-soft); font-size: 15px; }
+
+.bb-grid { display: grid; gap: 6px; padding: 12px; border-radius: 14px; background: var(--bb-lcd); }
+.bb-lane {
+  --c: #ff5a1f; --skirt: #b23a0c;
+  display: grid; grid-template-columns: 76px repeat(8, minmax(0, 1fr)); gap: 6px; align-items: center;
+}
+.bb-lane[data-lane='bass'] { --c: #ffc400; --skirt: #b38900; }
+.bb-lane[data-lane='chords'] { --c: #1f6bff; --skirt: #14469e; }
+.bb-lane[data-lane='lead'] { --c: #ff3d8b; --skirt: #b02a63; }
+.bb-lane-name { color: var(--c); font: 700 12px/1 var(--chakra); letter-spacing: 0.12em; text-transform: uppercase; }
+.bb-cell {
+  height: clamp(34px, 4.2vw, 48px); padding: 0; cursor: pointer;
+  border: 1px solid var(--bb-lcd-line); border-radius: 8px; background: var(--bb-cell);
+  transition: background-color 0.08s, box-shadow 0.08s, transform 0.08s;
+}
+.bb-cell:nth-of-type(4n + 1):not([aria-pressed='true']) { background: #23252d; }
+.bb-cell:hover { border-color: var(--c); }
+.bb-cell[aria-pressed='true'] { background: var(--c); border-color: var(--c); box-shadow: 0 3px 0 var(--skirt); }
+.bb-cell[data-now] { outline: 2px solid var(--bb-playhead); outline-offset: 1px; }
+.bb-cell[aria-pressed='true'][data-now] { transform: translateY(2px); box-shadow: 0 1px 0 var(--skirt), 0 0 16px var(--c); }
+
+@media (max-width: 900px) {
+  .bb-top { grid-template-columns: 1fr; }
+  .bb-devices { max-width: 620px; }
+}
+
 /* ---------------------------------------------------------------- games */
 
 .world-games {
@@ -1170,6 +1281,21 @@ html:has(.intro[open]) { overflow: hidden; }
   .app-actions { margin-top: 16px; gap: 10px; }
   .rp-title { margin-top: 12px; font-size: 26px; }
   .rp-sheet { margin-top: 14px; padding: 12px 14px; font-size: 18px; }
+
+  /* BitBounce */
+  .bb-brand { margin-top: 16px; font-size: 18px; }
+  .bb-brand img { width: 38px; height: 38px; }
+  .bb-headline { margin-top: 14px; font-size: clamp(36px, 10.5vw, 44px); }
+  .bb-desc { margin-top: 14px; font-size: 16px; }
+  .bb-stores { margin-top: 18px; }
+  .bb-devices { padding: 0 0 8% 22%; }
+  .bb-box { padding: 12px; border-radius: 16px; }
+  .bb-transport { gap: 10px; }
+  .bb-hint { flex-basis: 100%; font-size: 14px; }
+  .bb-grid { gap: 4px; padding: 8px; }
+  .bb-lane { grid-template-columns: 50px repeat(8, minmax(0, 1fr)); gap: 4px; }
+  .bb-lane-name { font-size: 10px; letter-spacing: 0.06em; }
+  .bb-cell { height: 30px; border-radius: 6px; }
 
   /* Games */
   .games-title { font-size: clamp(30px, 8.8vw, 38px); }

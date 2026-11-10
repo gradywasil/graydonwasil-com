@@ -26,20 +26,20 @@ A successful visit ends with someone getting Morse or Kilopixel (or joining a be
 
 Graydon builds software you'll want to play with. The case for his work is the work itself, presented so you can touch it: a Morse signal you can send, a pixel camera look you can roll, a reel of games you can spin. Gurpy, his pixel-art mascot, carries the humour.
 
-Morse and Kilopixel are his first two apps. As of 8 November 2026 Kilopixel is live on the App Store and Morse is in App Store review; both are in Google Play closed testing. RhymePage is a web app with Android in the works.
+Morse and Kilopixel are his first two apps. As of 8 November 2026 Kilopixel is live on the App Store and Morse is in App Store review; both are in Google Play closed testing. BitBounce, his music studio, moved out of the experiments drawer and into the apps on 10 November 2026: a TestFlight public beta for iPhone and iPad opens 11 November, with the Android rebuild still to come. bitbounce.app is now the app's marketing site; the original web app lives at old.bitbounce.app, and the section follows the new app's branding, not the old one. RhymePage is a web app with Android in the works.
 
 ## Operating Context
 
-Visitors arrive on desktop or mobile and scroll one page with anchored sections (`#top`, `#morse`, `#kilopixel`, `#rhymepage`, `#games`, `#more`, `#hello`). Old deck URLs (`/games`, `/projects/*`, `/experiments`, `/about`, `/contact`) redirect to the matching section.
+Visitors arrive on desktop or mobile and scroll one page with anchored sections (`#top`, `#morse`, `#kilopixel`, `#bitbounce`, `#rhymepage`, `#games`, `#more`, `#hello`). Old deck URLs (`/games`, `/projects/*`, `/experiments`, `/about`, `/contact`) redirect to the matching section.
 
 The site does not require an account. A visitor can contact Graydon through the contact form; when no form endpoint is configured, the site hands the prepared message to the visitor's email client instead of claiming it was delivered.
 
 ## Capabilities and Constraints
 
-- Lead with apps and games. Morse comes first, then Kilopixel (with the fullest showcase: its real engine, its six app themes, a GIF it made), then RhymePage, then the games (Brain Splitter spotlight, all eleven games on a spin reel, both game hubs).
-- Keep VOXCHAIN, CarsDB, Arranged Godly, and the 17 experiments in one compact section; do not bring back per-project story pages without a new decision.
-- App Store and Google Play buttons always appear as an equal pair, driven by the store states in `src/data/site.ts`. An app in review shows "Coming soon" and is not a link; a beta links to the tester opt-in. Do not use Apple's or Google's official badges until they link to a public listing.
-- Interactions must have a purpose. The hero orbit navigates the apps and games, the Morse sender demos Morse, the Kilopixel viewfinder and RhymePage rehearse demo those apps, and the reel and splash show each game in its own branding. Gurpy reacts to what you pick.
+- Lead with apps and games. Morse comes first, then Kilopixel (with the fullest showcase: its real engine, its six app themes, a GIF it made), then BitBounce (a playable one-bar note grid), then RhymePage, then the games (Brain Splitter spotlight, all eleven games on a spin reel, both game hubs).
+- Keep VOXCHAIN, CarsDB, Arranged Godly, and the 16 experiments in one compact section; do not bring back per-project story pages without a new decision.
+- App Store and Google Play buttons always appear as an equal pair, driven by the store states in `src/data/site.ts`. An app in review, or not yet submitted (`soon`), shows "Coming soon" and is not a link; a beta links to the tester opt-in. Do not use Apple's or Google's official badges until they link to a public listing.
+- Interactions must have a purpose. The hero orbit navigates the apps and games, the Morse sender demos Morse, the Kilopixel viewfinder, the BitBounce grid and RhymePage rehearse demo those apps, and the reel and splash show each game in its own branding. Gurpy reacts to what you pick.
 - The tone is semi-professional with fun baked in: this is also Graydon's portfolio.
 - Game branding comes from the Gurpy Games data (`arcade-ad/research/games.json`) via `scripts/sync-games.py`; do not hand-edit `src/data/games.json`.
 - Support desktop and mobile, keyboard access, visible focus, and reduced-motion preferences. The site has a single dark-first presentation; there is no light-theme toggle.

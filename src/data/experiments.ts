@@ -13,7 +13,6 @@ import trafficThumbnail from '../assets/experiments/traffic.webp';
 import typographyMatcherThumbnail from '../assets/experiments/typography-matcher.webp';
 import writersBlockThumbnail from '../assets/experiments/writers-block.webp';
 import desktopSimThumbnail from '../assets/experiments/desktop-sim.webp';
-import bitbounceThumbnail from '../assets/experiments/bitbounce.webp';
 import cordsThumbnail from '../assets/experiments/cords.webp';
 
 /** A small browser experiment. Opens live in a new tab. */
@@ -194,17 +193,6 @@ export const EXPERIMENTS: Experiment[] = [
     tags: ['Simulation', 'Local-first'],
     createdAt: '2026-09-02T05:00:00Z',
     thumbnail: desktopSimThumbnail,
-  },
-  {
-    collection: 'experiment',
-    id: 'bitbounce',
-    title: 'Bitbounce',
-    url: 'https://daw.arrangedgodly.com/',
-    sourceUrl: 'https://github.com/Arrangedgodly/DAW',
-    description: 'Builds chiptune loops from note grids and effects.',
-    tags: ['Audio', 'Sequencer'],
-    createdAt: '2026-09-02T06:00:00Z',
-    thumbnail: bitbounceThumbnail,
   },
   {
     collection: 'experiment',
