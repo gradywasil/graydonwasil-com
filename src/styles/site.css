@@ -37,8 +37,22 @@
 
   --gutter: clamp(16px, 4vw, 56px);
   --max: 1240px;
+  /* The colour pressed things throw sparks in (src/lib/juice.ts); each world sets its own. */
+  --spark: var(--ginger);
   color-scheme: dark;
 }
+.world-morse { --spark: var(--m-amber); }
+.world-kp { --spark: var(--kp-orange); }
+.world-bb { --spark: #ff5a1f; }
+.world-rp { --spark: var(--rp-green); }
+.world-games { --spark: var(--orange); }
+.splash { --spark: var(--g-a); }
+.world-hello { --spark: var(--teal); }
+.orbit-item, .orbit-card { --spark: var(--accent); }
+.sparks { position: fixed; inset: 0; z-index: 90; width: 100%; height: 100%; pointer-events: none; }
+/* Selected text and the caret wear the colour of the world they are in. */
+::selection { background: var(--spark); color: #150a02; }
+input, textarea { caret-color: var(--spark); }
 
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 84px; -webkit-text-size-adjust: 100%; }
@@ -99,6 +113,9 @@ h1, h2, h3, p { margin: 0; }
 .toplinks a:hover { color: var(--cream); background: rgb(255 255 255 / 0.07); }
 .toplinks .top-hi { background: var(--ginger); color: #1a0d03; }
 .toplinks .top-hi:hover { background: #ffb873; color: #1a0d03; }
+/* The link for the world on screen stays lit. */
+.toplinks a[aria-current] { color: var(--cream); background: rgb(255 255 255 / 0.12); }
+.toplinks .top-hi[aria-current] { color: #1a0d03; background: var(--ginger); box-shadow: 0 0 0 2px var(--cream); }
 @media (max-width: 640px) {
   .brand span { display: none; }
   .toplinks a { padding: 10px 11px; font-size: 14px; }
@@ -145,9 +162,15 @@ h1, h2, h3, p { margin: 0; }
   min-height: 58px; min-width: 186px; padding: 8px 18px 8px 14px;
   background: #000; color: #fff; text-decoration: none;
   border: 1.5px solid #a6a6a6; border-radius: 12px;
-  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  transition: transform 0.15s, translate 0.14s ease-out, box-shadow 0.15s, border-color 0.15s;
 }
-a.store-btn:hover { transform: translateY(-2px); border-color: #fff; box-shadow: 0 10px 28px rgb(0 0 0 / 0.45); }
+a.store-btn:hover {
+  transform: translateY(-2px); border-color: #fff; box-shadow: 0 10px 28px rgb(0 0 0 / 0.45);
+  background-image: radial-gradient(130px circle at var(--px, 50%) var(--py, 0%), rgb(255 255 255 / 0.16), transparent 70%);
+}
+/* They tip toward the pointer (juice.ts sets --lx and --ly) and give a little when pressed. */
+a.store-btn { translate: var(--lx, 0) var(--ly, 0); }
+a.store-btn:active { transform: translateY(1px) scale(0.98); }
 .store-btn[data-soon] { border-style: dashed; border-color: #8a8a8a; cursor: default; }
 .store-logo { width: 28px; height: 28px; flex: none; }
 .store-ios .store-logo { width: 26px; height: 26px; margin-top: -3px; }
@@ -184,10 +207,13 @@ a.store-pill:hover { border-color: #fff; }
 
 /* ----------------------------------------------------------------- hero */
 
+/* The picked item's colour, registered so the halo and glows can fade between picks. */
+@property --stage-accent { syntax: '<color>'; inherits: true; initial-value: #f7b24c; }
+
 .hero {
   position: relative;
   min-height: 100svh;
-  display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: center;
+  display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); align-items: center;
   gap: clamp(24px, 4vw, 56px);
   padding: 108px var(--gutter) 56px;
   max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto;
@@ -204,6 +230,10 @@ a.store-pill:hover { border-color: #fff; }
     radial-gradient(40% 50% at 10% 85%, rgb(255 165 82 / 0.12) 0%, transparent 70%),
     var(--night);
 }
+/* The live sky (HeroSky) covers the CSS one above; without WebGL that one stays. */
+.hero-sky { position: absolute; inset: 0 calc(50% - 50vw); z-index: -1; width: 100vw; height: 100%; display: none; }
+.hero[data-sky] .hero-sky { display: block; }
+.hero[data-sky]::before { display: none; }
 .hero-kicker { font: 600 13px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--peri); }
 .hero-title {
   margin-top: 20px;
@@ -292,12 +322,18 @@ html:has(.intro[open]) { overflow: hidden; }
   transition: transform 0.2s;
 }
 
-.hero-stage { position: relative; display: grid; gap: 14px; }
+/* The stage never outgrows the first screen: on a short window the orbit and
+ * its card shrink together instead of pushing the card below the fold. */
+.hero-stage {
+  position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px;
+  width: 100%; max-width: max(420px, calc((100svh - 318px) / 0.74)); justify-self: center;
+  transition: --stage-accent 0.6s ease-out;
+}
 
-.orbit { position: relative; width: 100%; aspect-ratio: 100 / 74; }
-.orbit-rings { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
-.orbit-rings ellipse { fill: none; stroke: rgb(143 156 255 / 0.3); stroke-width: 0.25; stroke-dasharray: 0.6 1.2; }
-.orbit-rings ellipse + ellipse { stroke: rgb(255 165 82 / 0.24); }
+.orbit { position: relative; width: 108%; margin-inline: -4%; aspect-ratio: 100 / 74; }
+.orbit-fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.orbit-fx-back { z-index: 1; }
+.orbit-fx-front { z-index: 5; }
 .orbit-label {
   position: absolute; font: 600 11px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase;
   color: rgb(255 255 255 / 0.38); pointer-events: none;
@@ -305,12 +341,13 @@ html:has(.intro[open]) { overflow: hidden; }
 .orbit-label-apps { left: 22%; top: 21%; }
 .orbit-label-games { right: 1%; top: 16%; }
 .orbit-center {
-  position: absolute; z-index: 4; left: 50%; top: 50%; width: 30%; aspect-ratio: 1;
+  position: absolute; z-index: 4; left: 50%; top: 50%; width: 32%; aspect-ratio: 1;
   transform: translate(-50%, -52%);
 }
+/* Gurpy is lit by whatever is picked. */
 .orbit-center::before {
-  content: ''; position: absolute; inset: -18%; border-radius: 50%; z-index: -1;
-  background: radial-gradient(circle, rgb(255 165 82 / 0.25), transparent 65%);
+  content: ''; position: absolute; inset: -34%; border-radius: 50%; z-index: -1;
+  background: radial-gradient(circle, color-mix(in srgb, var(--stage-accent) 42%, transparent), color-mix(in srgb, var(--stage-accent) 12%, transparent) 42%, transparent 68%);
 }
 .orbit-items { list-style: none; margin: 0; padding: 0; }
 .orbit-item {
@@ -327,6 +364,15 @@ html:has(.intro[open]) { overflow: hidden; }
   content: ''; position: absolute; inset: -12%; border-radius: 30%;
   border: 2.5px solid var(--accent); box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 60%, transparent);
 }
+/* A second ring leaves the item once, when it is picked. */
+.orbit-item[data-selected]::before {
+  content: ''; position: absolute; inset: -12%; border-radius: 30%; pointer-events: none;
+  border: 2px solid var(--accent); opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .orbit-item[data-selected]::before { animation: pick-ring 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+}
+@keyframes pick-ring { from { opacity: 0.9; transform: scale(0.9); } to { opacity: 0; transform: scale(1.9); } }
 .orbit-name {
   position: absolute; left: 50%; top: calc(100% + 8px); transform: translateX(-50%);
   white-space: nowrap; padding: 4px 8px; border-radius: 6px;
@@ -344,7 +390,7 @@ html:has(.intro[open]) { overflow: hidden; }
 .gurpy-btn:active { transform: scale(0.95); }
 .gurpy-face { width: 100%; height: 100%; image-rendering: pixelated; display: block; filter: drop-shadow(0 14px 18px rgb(0 0 0 / 0.45)); }
 .orbit-bubble {
-  position: absolute; z-index: 8; left: 50%; top: 50%; width: 30%; aspect-ratio: 1;
+  position: absolute; z-index: 8; left: 50%; top: 50%; width: 32%; aspect-ratio: 1;
   transform: translate(-50%, -52%); pointer-events: none;
 }
 .bubble {
@@ -360,7 +406,48 @@ html:has(.intro[open]) { overflow: hidden; }
   border: 8px solid transparent; border-top-color: var(--cream);
 }
 
+/* The dock: the picked item's real screen rises from behind its card. */
+.stage-dock { position: relative; }
+/* Clipped along the card's top edge only, so the glow can spill the other three ways. */
+.stage-slot {
+  position: absolute; z-index: 7; right: 6px; bottom: calc(100% - 1px); width: 200px; height: 198px;
+  clip-path: inset(-60px -60px 0 -60px); pointer-events: none;
+}
+.stage-slot[data-kind='browser'] { width: 290px; height: 184px; }
+.stage-slot[data-kind='lyrics'] { width: 250px; height: 132px; }
+.stage-device {
+  position: absolute; left: 50%; top: 14px; margin: 0; translate: -50% 0;
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--stage-accent) 55%, #05060f), 0 0 34px color-mix(in srgb, var(--stage-accent) 26%, transparent);
+}
+.stage-phone {
+  width: 170px; aspect-ratio: 9 / 19.5; rotate: 4deg; transform-origin: 50% 60%;
+  border: 5px solid #05060f; border-radius: 24px; background: #05060f; overflow: hidden;
+}
+.stage-phone img { width: 100%; height: 100%; object-fit: cover; object-position: top; border-radius: 19px; }
+.stage-morse .mapp-fit { border-radius: 19px; }
+.stage-browser {
+  width: 256px; rotate: -2.5deg; transform-origin: 50% 100%;
+  border-radius: 10px 10px 0 0; overflow: hidden; background: #0c0c12;
+}
+.stage-browser img { width: 100%; }
+.stage-bar { display: flex; align-items: center; gap: 5px; padding: 7px 9px; background: #17171f; font: 500 10px/1 var(--mono); color: rgb(255 255 255 / 0.55); }
+.stage-bar i { width: 7px; height: 7px; border-radius: 50%; background: rgb(255 255 255 / 0.22); }
+.stage-bar span { margin-left: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stage-lyrics {
+  width: 214px; padding: 16px 16px 30px; rotate: 2.5deg; transform-origin: 50% 100%;
+  border-radius: 12px 12px 0 0; background: #07100b;
+  font: 600 17px/1.45 var(--body); color: rgb(255 255 255 / 0.4);
+}
+.stage-lyrics span[data-state='sung'] { color: rgb(255 255 255 / 0.9); }
+.stage-lyrics span[data-state='now'] { color: var(--rp-green); text-shadow: 0 0 14px rgb(75 227 143 / 0.6); }
+.stage-lyrics .rp-beat { margin-top: 10px; }
+@media (prefers-reduced-motion: no-preference) {
+  .stage-device { animation: stage-rise 0.55s cubic-bezier(0.2, 1.25, 0.4, 1) both; }
+}
+@keyframes stage-rise { from { translate: -50% 105%; } }
+
 .orbit-card {
+  position: relative;
   display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 16px;
   padding: 14px 16px; border-radius: 18px;
   background: color-mix(in srgb, var(--night-2) 88%, transparent);
@@ -395,8 +482,18 @@ html:has(.intro[open]) { overflow: hidden; }
 @media (max-width: 960px) {
   .hero { grid-template-columns: 1fr; min-height: 0; padding-top: 100px; gap: 24px; }
   .hero-lede { max-width: 42ch; }
+  .hero-stage { max-width: 640px; }
+  .orbit { width: 100%; margin-inline: 0; }
 }
 @media (max-width: 560px) {
+  .stage-slot { right: 2px; width: 128px; height: 104px; }
+  .stage-slot[data-kind='browser'] { width: 178px; height: 112px; }
+  .stage-slot[data-kind='lyrics'] { width: 176px; height: 96px; }
+  .stage-device { top: 10px; }
+  .stage-phone { width: 96px; border-width: 4px; border-radius: 17px; }
+  .stage-phone img, .stage-morse .mapp-fit { border-radius: 13px; }
+  .stage-browser { width: 150px; }
+  .stage-lyrics { width: 150px; padding: 10px 12px 22px; font-size: 13px; }
   .orbit { aspect-ratio: 100 / 82; }
   .orbit-label { display: none; }
   .bubble { max-width: 180px; font-size: 13px; }
@@ -420,7 +517,7 @@ html:has(.intro[open]) { overflow: hidden; }
 
 .world { position: relative; padding: clamp(72px, 10vw, 140px) var(--gutter); }
 .world > * { max-width: var(--max); margin-left: auto; margin-right: auto; }
-.world-games::before, .world-hello::before {
+.world-games::before, .world-more::before, .world-hello::before {
   content: ''; position: absolute; left: 0; right: 0; top: -22px; height: 23px;
   background: inherit; background-color: var(--zig, currentColor);
   -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 44px 100%;
@@ -435,15 +532,30 @@ html:has(.intro[open]) { overflow: hidden; }
     repeating-linear-gradient(90deg, rgb(255 255 255 / 0.018) 0 1px, transparent 1px 9px),
     var(--m-bg);
   color: var(--m-cream);
-  border-top: 1px solid rgb(247 178 76 / 0.25);
 }
+/* The world's top edge: a punched paper tape, like the one in the app, that
+ * spells the message in the box below. It runs sideways as the page scrolls. */
+.morse-tape {
+  position: absolute; z-index: 2; left: 0; right: 0; top: -20px; height: 40px; max-width: none; overflow: hidden;
+  background:
+    radial-gradient(circle at 8px 33px, #2a1c0c 1.6px, transparent 2.2px) 0 0 / 16px 100%,
+    linear-gradient(180deg, #f6ead0, var(--m-cream) 45%, #d9c9a6);
+  box-shadow: 0 10px 24px rgb(0 0 0 / 0.5), 0 -6px 18px rgb(0 0 0 / 0.35);
+}
+.morse-tape-run { display: flex; align-items: center; gap: 22px; width: max-content; height: 28px; padding-left: 22px; will-change: transform; }
+.mt-letter { display: flex; gap: 6px; }
+.mt-dot, .mt-dash { height: 10px; border-radius: 5px; background: #1d1309; box-shadow: inset 0 2px 2px rgb(0 0 0 / 0.6), 0 1px 0 rgb(255 255 255 / 0.5); }
+.mt-dot { width: 10px; }
+.mt-dash { width: 30px; }
+.mt-space { width: 26px; }
 .morse-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(32px, 5vw, 72px); align-items: center; }
 .morse-kicker { color: var(--m-amber); }
 .morse-title {
   margin-top: 18px;
   font: 400 clamp(40px, 5.4vw, 80px)/0.95 var(--stencil); text-transform: uppercase;
 }
-.morse-title span { color: var(--m-amber); text-shadow: 0 0 28px rgb(247 178 76 / 0.45); }
+.morse-title-hot { color: var(--m-amber); text-shadow: 0 0 28px rgb(247 178 76 / 0.45); }
+.sw { display: inline-block; white-space: nowrap; }
 .morse-lede { margin-top: 20px; max-width: 44ch; font-size: 19px; color: var(--m-dim); }
 .morse-lede strong { color: var(--m-cream); }
 
@@ -475,6 +587,7 @@ html:has(.intro[open]) { overflow: hidden; }
   transition: transform 0.12s, box-shadow 0.12s;
 }
 .morse-send:hover { transform: translateY(-1px); box-shadow: 0 0 0 1px #7a4c10 inset, 0 12px 32px rgb(247 178 76 / 0.4); }
+.morse-send:active { transform: translateY(2px) scale(0.98); box-shadow: 0 0 0 1px #7a4c10 inset, 0 3px 10px rgb(247 178 76 / 0.3); }
 .morse-send:disabled { opacity: 0.5; cursor: default; }
 .morse-meta { grid-column: 1 / -1; display: flex; justify-content: space-between; font: 500 13px/1 var(--mono); color: var(--m-dim); }
 .morse-sound { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
@@ -493,6 +606,18 @@ html:has(.intro[open]) { overflow: hidden; }
   opacity: 0; filter: blur(3px); transition: opacity 0.04s;
 }
 .morse-stage[data-on] .morse-beam { opacity: 1; }
+/* While the light is on it spills a little: a soft glow around the torch and
+ * a hotter headline. Kept small and gentle, since it flickers with the signal. */
+@media (prefers-reduced-motion: no-preference) {
+  .morse-stage::before {
+    content: ''; position: absolute; inset: -28% -14% 12% -22%; pointer-events: none;
+    background: radial-gradient(closest-side, rgb(247 178 76 / 0.2), transparent);
+    opacity: 0; transition: opacity 0.09s;
+  }
+  .morse-stage[data-on]::before { opacity: 1; }
+  .morse-title-hot { transition: text-shadow 0.09s; }
+  .world-morse[data-on] .morse-title-hot { text-shadow: 0 0 36px rgb(247 178 76 / 0.8); }
+}
 
 .mphone {
   container-type: inline-size;
@@ -568,7 +693,16 @@ html:has(.intro[open]) { overflow: hidden; }
     linear-gradient(90deg, rgb(255 255 255 / 0.025) 1px, transparent 1px) 0 0 / 12px 12px,
     var(--kp-bg);
   color: var(--kp-ink);
-  border-top: 1px solid #2a2a27;
+}
+/* The world's top edge: the last world dissolves into this one through an
+ * ordered (Bayer 4x4) dither, the same one the camera uses. It is the Morse
+ * ground, thinning out downward inside this section's own top padding, so it
+ * never sits on anyone's text. */
+.world-kp::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 72px; max-width: none;
+  background: var(--m-bg); transform: scaleY(-1);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 12' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Cpath d='M0 0h1v1h-1zM2 2h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM1 5h1v1h-1zM3 5h1v1h-1zM0 6h1v1h-1zM2 6h1v1h-1zM1 7h1v1h-1zM3 7h1v1h-1zM0 8h1v1h-1zM1 8h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM0 9h1v1h-1zM1 9h1v1h-1zM3 9h1v1h-1zM0 10h1v1h-1zM1 10h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM1 11h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1z'/%3E%3C/svg%3E") 0 0 / 24px 72px repeat-x;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 12' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Cpath d='M0 0h1v1h-1zM2 2h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM1 5h1v1h-1zM3 5h1v1h-1zM0 6h1v1h-1zM2 6h1v1h-1zM1 7h1v1h-1zM3 7h1v1h-1zM0 8h1v1h-1zM1 8h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM0 9h1v1h-1zM1 9h1v1h-1zM3 9h1v1h-1zM0 10h1v1h-1zM1 10h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM1 11h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1z'/%3E%3C/svg%3E") 0 0 / 24px 72px repeat-x;
 }
 .kp-grid { display: grid; grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr); gap: clamp(32px, 5vw, 72px); align-items: center; }
 .kp-kicker { color: var(--kp-orange); }
@@ -664,8 +798,15 @@ html:has(.intro[open]) { overflow: hidden; }
   font: 700 16px/1 var(--pixel); text-decoration: none;
 }
 .kp-btn:hover { filter: brightness(1.08); }
+.kp-btn:active { translate: 0 2px; }
+.kp-roll span[aria-hidden] { display: inline-block; }
+@media (prefers-reduced-motion: no-preference) {
+  /* The die tumbles every time the look changes, in four hard steps. */
+  .kp-roll span[aria-hidden] { animation: die-tumble 0.4s steps(4); }
+}
+@keyframes die-tumble { from { rotate: -360deg; } }
 .kp-btn:disabled { cursor: default; filter: saturate(0.4); }
-.kp-roll span { font-size: 22px; font-family: var(--body); }
+.kp-roll span[aria-hidden] { font-size: 22px; font-family: var(--body); }
 
 /* Extras: the app in its themes, a GIF, and the spec list. */
 .kp-extras { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.1fr); gap: 16px; margin-top: clamp(40px, 6vw, 72px); }
@@ -755,6 +896,7 @@ html:has(.intro[open]) { overflow: hidden; }
   background: var(--rp-green); color: #04140b; font-weight: 800; font-size: 16px;
 }
 .rp-btn:hover { filter: brightness(1.08); }
+.rp-btn:active { scale: 0.96; }
 .rp-link { font-weight: 600; text-underline-offset: 4px; text-decoration-color: var(--rp-green); }
 
 /* -------------------------------------------------------------- bitbounce
@@ -782,6 +924,27 @@ html:has(.intro[open]) { overflow: hidden; }
   font-family: 'Barlow', var(--body);
 }
 .world-bb .store-btn { --store-flag: var(--bb-playhead); }
+/* The world's top edge: a step strip of the demo's four lanes. Scrolling
+ * moves the playhead along it, one step at a time. */
+.bb-strip {
+  position: absolute; z-index: 2; left: 0; right: 0; top: -17px; height: 34px; max-width: none;
+  display: grid; grid-template-columns: repeat(32, minmax(0, 1fr)); gap: 4px; padding: 7px clamp(8px, 2vw, 28px);
+  background: var(--bb-lcd); box-shadow: 0 8px 22px rgb(22 22 26 / 0.3);
+}
+.bb-strip i { border-radius: 4px; background: #262830; }
+.bb-strip i[data-on] { background: var(--c); }
+.bb-strip i[data-now] { background: #454854; }
+.bb-strip i[data-on][data-now] { background: var(--c); filter: brightness(1.35); box-shadow: 0 0 12px var(--c); }
+.bb-strip i[data-lane='drums'] { --c: #ff5a1f; }
+.bb-strip i[data-lane='bass'] { --c: #ffc400; }
+.bb-strip i[data-lane='chords'] { --c: #1f6bff; }
+.bb-strip i[data-lane='lead'] { --c: #ff3d8b; }
+.bb-strip-head {
+  position: absolute; left: clamp(8px, 2vw, 28px); top: 3px; bottom: 3px;
+  width: calc((100% - 2 * clamp(8px, 2vw, 28px) - 31 * 4px) / 32);
+  border-radius: 6px; box-shadow: 0 0 0 2px var(--bb-playhead), 0 0 12px var(--bb-playhead);
+  --hop: calc(100% + 4px);
+}
 .bb-top {
   display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
   gap: clamp(28px, 5vw, 64px); align-items: center;
@@ -803,6 +966,23 @@ html:has(.intro[open]) { overflow: hidden; }
 }
 .bb-headline em { display: block; text-wrap: balance; font-style: normal; color: var(--bb-text); }
 .bb-desc { margin-top: 20px; max-width: 46ch; color: var(--bb-soft); font-size: clamp(17px, 1.4vw, 20px); line-height: 1.6; }
+/* The four things you do in the app, as keycaps in the lane colours. */
+.bb-steps { display: grid; grid-template-columns: repeat(2, max-content); gap: 8px; margin: 16px 0 0; padding: 0; list-style: none; counter-reset: step; }
+.bb-steps li {
+  --c: #ff5a1f;
+  counter-increment: step; display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 12px 8px 8px; border-radius: 10px;
+  background: var(--bb-cap); box-shadow: 0 3px 0 var(--bb-rule), inset 0 0 0 1px var(--bb-rule);
+  font-size: 15px; color: var(--bb-soft);
+}
+.bb-steps li::before {
+  content: counter(step); display: grid; place-items: center; width: 22px; height: 22px; border-radius: 6px;
+  background: var(--c); color: var(--bb-ink); font: 700 12px/1 var(--chakra);
+}
+.bb-steps li[data-lane='bass'] { --c: #ffc400; }
+.bb-steps li[data-lane='chords'] { --c: #5a93ff; }
+.bb-steps li[data-lane='lead'] { --c: #ff6fa8; }
+.bb-steps b { color: var(--bb-ink); font-weight: 700; }
 .bb-stores { margin-top: 26px; }
 .bb-note { margin-top: 16px; color: var(--bb-soft); font-size: 15px; }
 .bb-note a { color: var(--bb-ink); font-weight: 600; text-underline-offset: 4px; text-decoration-color: var(--bb-text); }
@@ -859,6 +1039,22 @@ html:has(.intro[open]) { overflow: hidden; }
 .bb-cell[data-now] { outline: 2px solid var(--bb-playhead); outline-offset: 1px; }
 .bb-cell[aria-pressed='true'][data-now] { transform: translateY(2px); box-shadow: 0 1px 0 var(--skirt), 0 0 16px var(--c); }
 
+/* While the demo plays, the section keeps time with it. */
+@media (prefers-reduced-motion: no-preference) {
+  .bb-brand img[data-tick='0'] { animation: bb-tick-a 0.22s ease-out; }
+  .bb-brand img[data-tick='1'] { animation: bb-tick-b 0.22s ease-out; }
+  .bb-devices[data-tick='0'] .bb-phone { animation: bb-nod-a 0.24s ease-out; }
+  .bb-devices[data-tick='1'] .bb-phone { animation: bb-nod-b 0.24s ease-out; }
+  .bb-box[data-kick='0'] { animation: bb-kick-a 0.22s ease-out; }
+  .bb-box[data-kick='1'] { animation: bb-kick-b 0.22s ease-out; }
+}
+@keyframes bb-tick-a { from { scale: 1.16; rotate: -5deg; } }
+@keyframes bb-tick-b { from { scale: 1.16; rotate: 5deg; } }
+@keyframes bb-nod-a { from { translate: 0 -5px; } }
+@keyframes bb-nod-b { from { translate: 0 -5px; } }
+@keyframes bb-kick-a { from { translate: 0 4px; } }
+@keyframes bb-kick-b { from { translate: 0 4px; } }
+
 @media (max-width: 900px) {
   .bb-top { grid-template-columns: 1fr; }
   .bb-devices { max-width: 620px; }
@@ -873,6 +1069,7 @@ html:has(.intro[open]) { overflow: hidden; }
   color: var(--paper-ink);
 }
 .world-games::before { background: var(--paper); }
+.games-title .ch { display: inline-block; }
 .games-head .kicker { color: var(--orange); }
 .games-title { margin-top: 14px; font: 400 clamp(38px, 5.6vw, 84px)/0.95 var(--display); color: var(--teal); text-transform: uppercase; max-width: 14ch; }
 .games-lede { margin-top: 18px; max-width: 52ch; font-size: 19px; font-weight: 500; }
@@ -909,6 +1106,7 @@ html:has(.intro[open]) { overflow: hidden; }
   transition: transform 0.12s, box-shadow 0.12s;
 }
 .splash-play:hover { transform: translateY(-2px); box-shadow: 0 7px 0 color-mix(in srgb, var(--g-a) 45%, #000); }
+.splash-play:active { transform: translateY(3px); box-shadow: 0 2px 0 color-mix(in srgb, var(--g-a) 45%, #000); }
 .splash-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 0; padding: 0; list-style: none; }
 .splash-chips li {
   padding: 7px 12px; border-radius: 999px; font-size: 14px; font-weight: 600;
@@ -990,7 +1188,11 @@ html:has(.intro[open]) { overflow: hidden; }
 .reel-genre { padding: 0 12px 12px; font: 700 12px/1.2 var(--body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--teal); }
 .reel-card:hover { transform: translateY(-4px); }
 .reel-card[data-current] { transform: translateY(-8px) scale(1.06); box-shadow: 0 0 0 4px var(--orange), 0 10px 0 var(--paper-ink); }
-.reel-window[data-spinning] .reel-card { filter: blur(0.6px); }
+.reel-window[data-spinning] .reel-card { filter: blur(1.6px); }
+@media (prefers-reduced-motion: no-preference) {
+  .reel-card[data-current] { animation: reel-land 0.5s cubic-bezier(0.2, 1.6, 0.4, 1); }
+}
+@keyframes reel-land { from { scale: 1.16; } }
 .reel-pointer {
   position: absolute; left: 50%; top: 0; transform: translateX(-50%);
   border: 12px solid transparent; border-top: 16px solid var(--orange);
@@ -1013,7 +1215,8 @@ html:has(.intro[open]) { overflow: hidden; }
 
 /* ----------------------------------------------------------------- more */
 
-.world-more { background: var(--night); }
+.world-more { --zig: var(--night); background: var(--night); }
+.world-more::before { background: var(--night); }
 .more-head h2 { font: 800 clamp(30px, 3.4vw, 46px)/1 var(--display-home); letter-spacing: -0.03em; }
 .more-head p { margin-top: 10px; color: var(--muted); }
 .more-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 28px; }
@@ -1173,16 +1376,88 @@ html:has(.intro[open]) { overflow: hidden; }
 
 /* ------------------------------------------------- scroll-driven reveals */
 
+/* ------------------------------------------------ travelling between worlds
+ * Each world arrives in its own idiom. Headlines play once when they scroll
+ * into view (useReveal marks them); edges and devices are tied to the scroll
+ * position itself where the browser supports it. Without either, everything
+ * is simply there. */
+
 @media (prefers-reduced-motion: no-preference) {
+  /* Headlines, once. Hidden only while armed and waiting below the fold. */
+  [data-armed]:not([data-in]) .ch { opacity: 0; }
+
+  /* Morse: keyed in a letter at a time, each one hot as it lands. */
+  .morse-title[data-in] .ch { animation: key-in 0.55s calc(var(--i) * 30ms) ease-out both; }
+  /* Kilopixel: scanned in from the top in nine steps, like a look change. */
+  .kp-title[data-armed]:not([data-in]) { opacity: 0; }
+  .kp-title[data-in] { animation: kp-scan 0.72s steps(9) both; }
+  /* BitBounce: a word per eighth note at the demo's 118 BPM. */
+  .bb-headline .sw { transform-origin: 50% 100%; }
+  .bb-headline[data-in] .ch { animation: none; opacity: 1; }
+  .bb-headline[data-armed]:not([data-in]) .sw { opacity: 0; }
+  .bb-headline[data-in] .sw { animation: beat-in 0.42s calc(var(--w) * 127ms) cubic-bezier(0.2, 1.5, 0.4, 1) both; }
+  /* Games: the letters tumble in. */
+  .games-title[data-in] .ch { animation: tumble 0.6s calc(var(--i) * 24ms) cubic-bezier(0.2, 1.5, 0.4, 1) both; }
+
   @supports (animation-timeline: view()) {
-    .world h2, .brain-feature, .app-card, .note-card, .morse-stage, .roulette, .kp-studio, .kp-tile {
+    .bb-brand, .more-head h2, .app-card, .note-card, .roulette, .kp-tile {
       animation: rise linear both;
       animation-timeline: view();
       animation-range: entry 0% entry 55%;
     }
+
+    /* Leaving the hero: the copy and the stage part at different speeds. */
+    .hero-copy { animation: hero-copy-out linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
+    .hero-stage { animation: hero-stage-out linear both; animation-timeline: view(); animation-range: exit 10% exit 100%; }
+
+    /* Edges. */
+    .morse-tape-run { animation: tape-run linear both; animation-timeline: view(); animation-range: cover; }
+    .bb-strip-head { animation: head-run steps(31) both; animation-timeline: view(); animation-range: entry 20% exit 60%; }
+    .world-games::before, .world-more::before, .world-hello::before {
+      animation: zig-crawl linear both; animation-timeline: view(); animation-range: cover;
+    }
+    .world-more::before { animation-direction: reverse; }
+
+    /* Devices. The two Morse phones swing in toward each other. */
+    .mphone-send { animation: phone-in-left linear both; animation-timeline: view(); animation-range: entry 0% cover 38%; }
+    .mphone-receive { animation: phone-in-right linear both; animation-timeline: view(); animation-range: entry 0% cover 38%; }
+    /* The Kilopixel studio climbs into place in chunky steps. */
+    .kp-studio { animation: kp-climb steps(8) both; animation-timeline: view(); animation-range: entry 0% entry 80%; }
+    /* BitBounce's phone travels further than the iPad behind it. */
+    .bb-ipad { animation: ipad-in linear both; animation-timeline: view(); animation-range: entry 0% cover 45%; }
+    .bb-phone { animation: phone-up linear both; animation-timeline: view(); animation-range: entry 0% cover 50%; }
+    .bb-box { animation: rise linear both; animation-timeline: view(); animation-range: entry 0% entry 60%; }
+    /* The games splash card lands with a tilt. */
+    .splash { animation: splash-land linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
   }
 }
 @keyframes rise { from { opacity: 0; transform: translateY(48px) scale(0.97); } }
+@keyframes key-in {
+  0% { opacity: 0; }
+  2% { opacity: 1; color: #fff8e2; text-shadow: 0 0 6px #fff4d6, 0 0 26px #f7b24c; }
+  100% { opacity: 1; }
+}
+@keyframes kp-scan { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes beat-in {
+  0% { opacity: 0; transform: translateY(-0.55em) scale(1.08, 0.72); }
+  55% { opacity: 1; transform: translateY(0) scale(0.95, 1.08); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes tumble { from { opacity: 0; transform: translateY(-0.7em) rotate(-16deg) scale(1.3); } }
+@keyframes hero-copy-out { to { translate: 0 -40px; } }
+@keyframes hero-stage-out { to { translate: 0 56px; scale: 0.95; } }
+@keyframes tape-run { from { transform: translateX(0); } to { transform: translateX(-420px); } }
+@keyframes head-run { to { transform: translateX(calc(var(--hop) * 31)); } }
+@keyframes zig-crawl {
+  from { -webkit-mask-position: 50% 0; mask-position: 50% 0; }
+  to { -webkit-mask-position: calc(50% + 88px) 0; mask-position: calc(50% + 88px) 0; }
+}
+@keyframes phone-in-left { from { opacity: 0; translate: -22% 14%; rotate: -11deg; } }
+@keyframes phone-in-right { from { opacity: 0; translate: 26% 10%; rotate: 10deg; } }
+@keyframes kp-climb { from { opacity: 0; translate: 0 96px; } }
+@keyframes ipad-in { from { opacity: 0; translate: 7% 6%; } }
+@keyframes phone-up { from { opacity: 0; translate: -10% 26%; rotate: -7deg; } }
+@keyframes splash-land { from { opacity: 0; transform: translateY(64px) rotate(-1.8deg) scale(0.95); } }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -1362,4 +1637,148 @@ html:has(.intro[open]) { overflow: hidden; }
 @media (max-width: 370px) {
   .hero-ctas { flex-wrap: wrap; }
   .note-row { grid-template-columns: 1fr; }
+}
+
+/* ----------------------------------------------------- arriving on scroll
+ * The smaller pieces of each world arrive once as they scroll into view
+ * (src/lib/juice.ts marks them). Only pieces waiting below the fold are
+ * hidden, and nothing here applies under reduced motion. */
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-rv][data-armed]:not([data-in]) { opacity: 0; }
+  [data-rv='rise'][data-in] { animation: rv-rise 0.65s calc(var(--rv-i, 0) * 80ms) cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+  [data-rv='pop'][data-in] { animation: rv-pop 0.5s calc(var(--rv-i, 0) * 90ms) cubic-bezier(0.2, 1.5, 0.4, 1) backwards; }
+  [data-rv='deal'][data-in] { animation: rv-deal 0.6s calc(var(--rv-i, 0) * 90ms) cubic-bezier(0.2, 1.3, 0.4, 1) backwards; }
+  [data-rv='key'][data-in] { animation: rv-key 0.32s calc(var(--rv-i, 0) * 38ms) cubic-bezier(0.2, 1.6, 0.4, 1) backwards; }
+  [data-rv='drop'][data-in] { animation: rv-drop 0.7s cubic-bezier(0.2, 1.4, 0.4, 1) backwards; }
+
+  /* RhymePage sings its bars as you scroll past, until you press Rehearse. */
+  @supports (animation-timeline: view()) {
+    .rp-sheet:not([data-live]) p span {
+      animation: rp-sing linear both; animation-timeline: view();
+      animation-range: cover calc(26% + var(--n) * 4.5%) cover calc(40% + var(--n) * 4.5%);
+    }
+  }
+}
+@keyframes rv-rise { from { opacity: 0; transform: translateY(26px); } }
+@keyframes rv-pop { from { opacity: 0; transform: translateY(14px) scale(0.86); } }
+@keyframes rv-deal { from { opacity: 0; transform: translateY(40px) rotate(-4deg); } }
+@keyframes rv-key { from { opacity: 0; transform: translateY(-10px) scale(0.8); } }
+@keyframes rv-drop { from { opacity: 0; transform: translateY(-46px) rotate(10deg); } }
+@keyframes rp-sing {
+  0% { color: rgb(255 255 255 / 0.4); text-shadow: none; }
+  50% { color: var(--rp-green); text-shadow: 0 0 16px rgb(75 227 143 / 0.6); }
+  100% { color: rgb(255 255 255 / 0.9); text-shadow: none; }
+}
+
+/* ------------------------------------------------ phone: one idea a screen
+ * On a phone each idea gets one screen: the visual first, one line of pitch,
+ * the thing to press, and the stores. Kickers, second sentences and anything
+ * that repeats what a button already says step aside (`.only-wide`). */
+
+@media (max-width: 640px) {
+  .only-wide, .morse-kicker, .kp-kicker, .bb-kicker, .games-head .kicker { display: none; }
+  .world { padding: 40px 16px 36px; }
+  .world-kp::before { height: 36px; -webkit-mask-size: 12px 36px; mask-size: 12px 36px; }
+
+  /* Hero: the headline, the orbit, the card. The intro reel tucks in beside
+   * the headline's last line. */
+  .hero { padding: 84px 16px 26px; gap: 6px; }
+  .hero-copy { position: relative; }
+  .hero-lede, .hero-ctas, .hero-sticker, .stage-slot, .hero-watch-text span { display: none; }
+  .hero-title { margin-top: 12px; }
+  .hero-watch { position: absolute; right: 0; bottom: 0; margin: 0; gap: 8px; min-height: 44px; }
+  .hero-watch-thumb { width: 52px; border-width: 2px; box-shadow: 0 3px 0 #05060f; }
+  .hero-watch-play { width: 22px; height: 22px; box-shadow: 0 0 0 2px #05060f; }
+  .hero-watch-text strong { font-size: 14px; }
+  .orbit { aspect-ratio: 100 / 79; }
+  .orbit-card, .orbit-card[data-stores] { grid-template-columns: auto minmax(0, 1fr); padding: 10px 12px; gap: 8px 10px; }
+  .orbit-card-line { font-size: 13px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .orbit-card-actions, .orbit-card[data-stores] .orbit-card-actions {
+    grid-column: 1 / -1; display: flex; flex-wrap: nowrap; justify-content: flex-start; align-items: center; gap: 6px;
+  }
+  .orbit-card-actions .store-row { flex: 1 1 auto; flex-wrap: nowrap; gap: 6px; min-width: 0; }
+  .orbit-card-actions .store-pill { flex: 1 1 0; min-width: 0; min-height: 44px; justify-content: center; gap: 5px; padding: 5px 6px; font-size: 12px; }
+  .orbit-card-actions .store-pill-state { padding: 3px 4px; font-size: 9px; }
+  .orbit-card-go { min-height: 44px; }
+  /* "Try it below" keeps its words for screen readers and becomes an arrow. */
+  .orbit-card-more {
+    flex: none; display: grid; place-items: center; width: 44px; height: 44px; margin-left: auto;
+    border-radius: 10px; border: 1px solid rgb(255 255 255 / 0.18); color: var(--cream);
+    font-size: 18px; text-decoration: none;
+  }
+  .orbit-card-more-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* Morse: the two phones, the line, the message box, the stores. */
+  .morse-grid { gap: 12px; }
+  .morse-stage { width: 76%; }
+  .morse-title { margin-top: 0; font-size: clamp(28px, 8.2vw, 33px); }
+  .morse-lede { margin-top: 8px; font-size: 15px; line-height: 1.45; }
+  .morse-demo { margin-top: 12px; padding: 10px; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+  .morse-field { padding: 8px 12px 6px; }
+  .morse-field input { margin-top: 5px; font-size: 20px; }
+  .morse-send { min-height: 0; padding: 0 16px; font-size: 16px; }
+  .morse-meta { font-size: 12px; }
+  .morse-count { display: none; }
+  .morse-stores { margin-top: 12px; }
+  .morse-note { margin-top: 8px; font-size: 13px; }
+
+  /* Kilopixel: name, headline, then the camera itself with its controls
+   * beside it, and the numbers and stores underneath. */
+  .kp-grid { gap: 0; }
+  .kp-copy { display: contents; }
+  .kp-brand { order: 1; margin-top: 0; }
+  .kp-title { order: 2; margin-top: 8px; font-size: clamp(34px, 9.8vw, 42px); }
+  .kp-lede { order: 3; margin-top: 8px; font-size: 15px; }
+  .kp-studio {
+    order: 4; margin-top: 14px; max-width: none; padding: 8px; gap: 8px;
+    grid-template-columns: minmax(0, 54%) minmax(0, 1fr);
+    grid-template-areas: 'screen bar' 'screen controls' 'rail rail';
+    grid-template-rows: auto 1fr auto;
+  }
+  .kp-stats { order: 5; margin-top: 14px; }
+  .kp-stores { order: 6; margin-top: 12px; }
+  .kp-note { order: 7; margin-top: 8px; font-size: 13px; }
+  .kp-vf-bar { grid-area: bar; flex-direction: column; align-items: flex-start; gap: 12px; padding: 4px 0 0; }
+  .kp-vf-look { justify-items: start; text-align: left; }
+  .kp-vf-look strong { font-size: 18px; }
+  .kp-screen { grid-area: screen; max-width: none; margin: 0; }
+  .kp-tabs { display: none; }
+  .kp-rail { grid-area: rail; }
+  .kp-controls { grid-area: controls; align-self: end; flex-direction: column; align-items: stretch; gap: 10px; padding: 0; }
+  .kp-recipe i, .kp-recipe strong { display: none; }
+  .kp-roll { justify-content: center; }
+  .kp-hint { right: 6px; bottom: 6px; padding: 5px 6px; font-size: 9px; }
+  .kp-scenes { left: 6px; top: 6px; }
+  .kp-extras { margin-top: 22px; }
+
+  /* BitBounce: headline, the app on its devices, one line, the stores. */
+  .bb-top { gap: 0; }
+  .bb-copy { display: contents; }
+  .bb-brand { order: 1; margin-top: 0; }
+  .bb-headline { order: 2; margin-top: 10px; font-size: clamp(32px, 9.2vw, 38px); }
+  /* The phone stands taller than the iPad it leans on; leave it headroom under the headline. */
+  .bb-devices { order: 3; width: 88%; margin: 6px auto 0; padding-top: 16%; }
+  .bb-desc { order: 4; margin-top: 12px; font-size: 15px; }
+  .bb-steps { order: 5; margin-top: 10px; gap: 6px; }
+  .bb-steps li { padding: 6px 9px 6px 6px; font-size: 13px; }
+  .bb-stores { order: 6; margin-top: 14px; }
+  .bb-note { order: 7; margin-top: 8px; font-size: 13px; }
+  .bb-box { margin-top: 26px; }
+
+  /* Games: the headline and the game on stage, then the reel. */
+  .games-title { margin-top: 0; }
+  .games-lede { margin-top: 8px; font-size: 15px; }
+  .splash { margin-top: 16px; }
+  .splash-desc { display: none; }
+  .splash-stage { height: 196px; }
+  .roulette { margin-top: 22px; }
+  .game-hubs { margin-top: 16px; }
+
+  .hello-grid { gap: 20px; }
+
+  /* Gurpy's corner remarks stay small, so they do not sit on the thing they are about. */
+  .buddy { right: 10px; bottom: 10px; gap: 6px; }
+  .buddy-btn { width: 52px; height: 52px; padding: 3px; }
+  .buddy-bubble { max-width: min(190px, calc(100vw - 90px)); margin-bottom: 12px; padding: 7px 10px; font-size: 12px; }
 }

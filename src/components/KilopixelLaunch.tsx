@@ -10,6 +10,7 @@ import appArcade from '../assets/kilopixel/app-arcade.webp';
 import appTerminal from '../assets/kilopixel/app-terminal.webp';
 import appCandy from '../assets/kilopixel/app-candy.webp';
 import { KILOPIXEL } from '../data/site';
+import { useReveal } from '../lib/useReveal';
 import type { Renderer, Settings } from '../vendor/kilopixel/renderer';
 import type { LookTheme, StarterPreset } from '../vendor/kilopixel/looks';
 import { AndroidLogo, AppleLogo, StoreButtons } from './StoreButtons';
@@ -71,6 +72,7 @@ function useInView<T extends Element>(margin: string) {
 }
 
 export function KilopixelLaunch({ still }: { still: boolean }) {
+  const titleRef = useReveal<HTMLHeadingElement>();
   const [sectionRef, near] = useInView<HTMLElement>('600px 0px');
   const [studioRef, visible] = useInView<HTMLDivElement>('0px');
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -241,10 +243,13 @@ export function KilopixelLaunch({ still }: { still: boolean }) {
             <img src={KILOPIXEL.icon} alt="" width="48" height="48" />
             KILOPIXEL
           </p>
-          <h2 className="kp-title" id="kp-title">One camera.<br /><span>49 looks.</span></h2>
+          <h2 className="kp-title" id="kp-title" ref={titleRef}>One camera.<br /><span>49 looks.</span></h2>
           <p className="kp-lede">
-            A live pixel camera for photos, video and GIFs. Pick a look, mix your own, or roll the dice.
-            Everything in this box is drawn by the app&rsquo;s own engine.
+            A live pixel camera for photos, video and GIFs.
+            <span className="only-wide">
+              {' '}Pick a look, mix your own, or roll the dice. Everything in this box is drawn by the
+              app&rsquo;s own engine.
+            </span>
           </p>
           <ul className="kp-stats">
             <li><b>49</b> looks</li>
@@ -359,7 +364,7 @@ export function KilopixelLaunch({ still }: { still: boolean }) {
               ) : 'Style + palette = look'}
             </p>
             <button type="button" className="kp-btn kp-roll" onClick={() => { setAuto(false); roll(); }} disabled={!engine}>
-              <span aria-hidden="true">⚄</span> Roll a look
+              <span aria-hidden="true" key={look?.id}>⚄</span> Roll<span className="only-wide"> a look</span>
             </button>
           </div>
         </div>

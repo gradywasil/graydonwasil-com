@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { RHYMEPAGE } from '../data/site';
 
 /* RhymePage, in one gesture: press rehearse and the lines light up in time,
@@ -39,12 +39,12 @@ export function RhymePageCard() {
       </h3>
       <p className="app-desc">Write lyrics, sync them to a track, then rehearse in time.</p>
       </div>
-      <div className="rp-sheet" aria-hidden="true">
+      <div className="rp-sheet" aria-hidden="true" data-live={at >= 0 || undefined}>
         {BARS.map((bar, bi) => (
           <p key={bi}>
             {bar.map((w) => {
               n++;
-              return <span key={w} data-state={at === n ? 'now' : at > n ? 'sung' : undefined}>{w} </span>;
+              return <span key={w} style={{ '--n': n } as CSSProperties} data-state={at === n ? 'now' : at > n ? 'sung' : undefined}>{w} </span>;
             })}
           </p>
         ))}

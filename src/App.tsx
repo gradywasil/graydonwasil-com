@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import gurpySrc from './assets/fun/gurpy.png';
 import { BitBounceLaunch } from './components/BitBounceLaunch';
 import { Buddy } from './components/Buddy';
@@ -11,6 +11,7 @@ import { MoreWork } from './components/MoreWork';
 import { MorseLaunch } from './components/MorseLaunch';
 import { RhymePageCard } from './components/RhymePageCard';
 import { GITHUB, EMAIL } from './data/site';
+import { initJuice } from './lib/juice';
 import { usePrefersReducedMotion } from './lib/usePrefersReducedMotion';
 
 interface Drop { id: number; left: number; delay: number; size: number; spin: number; }
@@ -52,6 +53,21 @@ function App() {
   const [watching, setWatching] = useState(false);
   const watch = () => setWatching(true);
 
+  // The top bar marks the world you are in.
+  const [here, setHere] = useState('');
+  useEffect(() => {
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) if (e.isIntersecting) setHere(e.target.id);
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    document.querySelectorAll('main > [id]').forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+  const at = (id: string) => (here === id ? 'true' as const : undefined);
+
+  // Sparks and leaning buttons, everywhere, unless motion is reduced.
+  // (Layout effect: pieces are marked before the first paint, so nothing blinks on load.)
+  useLayoutEffect(() => (still ? undefined : initJuice()), [still]);
+
   return (
     <>
       <a className="skip" href="#morse">Skip to the apps</a>
@@ -61,11 +77,11 @@ function App() {
           <span>Graydon Wasil</span>
         </a>
         <div className="toplinks">
-          <a href="#morse">Morse</a>
-          <a href="#kilopixel">Kilopixel</a>
-          <a href="#bitbounce">BitBounce</a>
-          <a href="#games">Games</a>
-          <a href="#hello" className="top-hi">Say hi</a>
+          <a href="#morse" aria-current={at('morse')}>Morse</a>
+          <a href="#kilopixel" aria-current={at('kilopixel')}>Kilopixel</a>
+          <a href="#bitbounce" aria-current={at('bitbounce')}>BitBounce</a>
+          <a href="#games" aria-current={at('games')}>Games</a>
+          <a href="#hello" className="top-hi" aria-current={at('hello')}>Say hi</a>
         </div>
       </nav>
 

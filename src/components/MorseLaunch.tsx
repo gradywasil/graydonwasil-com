@@ -3,7 +3,9 @@ import { createAudioContext, unmuteOnIOS } from '../lib/audio';
 import { MORSE } from '../data/site';
 import { clean, letters, schedule } from '../lib/morse';
 import { tapeGroups } from '../lib/morse-tape';
+import { useReveal } from '../lib/useReveal';
 import { ReceiverScreen, SenderScreen } from './MorsePhones';
+import { Split } from './Split';
 import { AndroidLogo, AppleLogo, StoreButtons } from './StoreButtons';
 
 /* Morse, demoed the way it works in real life. Two phones run the real Morse
@@ -14,6 +16,8 @@ import { AndroidLogo, AppleLogo, StoreButtons } from './StoreButtons';
 const WPM = 8; // the app's STANDARD step
 const UNIT_MS = 1200 / WPM;
 const MAX = 16;
+// The tape along the section's top edge repeats the message this many times.
+const TAPE_REPEATS = 10;
 
 export function MorseLaunch() {
   const [text, setText] = useState('HI GURPY');
@@ -28,6 +32,7 @@ export function MorseLaunch() {
   const [received, setReceived] = useState('');
   const [sound, setSound] = useState(false);
   const run = useRef(0);
+  const title = useReveal<HTMLHeadingElement>();
   const audio = useRef<{ ctx: AudioContext; gain: GainNode } | null>(null);
 
   const msg = clean(text);
@@ -115,7 +120,21 @@ export function MorseLaunch() {
 
   const sentLetters = groups.length;
   return (
-    <section className="world world-morse" id="morse" aria-labelledby="morse-title">
+    <section className="world world-morse" id="morse" aria-labelledby="morse-title" data-on={lamp || undefined}>
+      {/* The edge of this world is a punched tape of whatever message is in the box. */}
+      <div className="morse-tape" aria-hidden="true">
+        <div className="morse-tape-run">
+          {Array.from({ length: TAPE_REPEATS }, (_, rep) => chars.map((c, i) => (
+            c.char === ' '
+              ? <span key={`${rep}-${i}`} className="mt-space" />
+              : (
+                <span key={`${rep}-${i}`} className="mt-letter">
+                  {[...c.code].map((s, k) => <i key={k} className={s === '.' ? 'mt-dot' : 'mt-dash'} />)}
+                </span>
+              )
+          )))}
+        </div>
+      </div>
       <div className="morse-grid">
         <div className="morse-copy">
           <p className="kicker morse-kicker">
@@ -123,8 +142,11 @@ export function MorseLaunch() {
             <AndroidLogo className="kicker-logo" />
             App #1 &middot; iPhone &amp; Android
           </p>
-          <h2 className="morse-title" id="morse-title">
-            My first app is <span>almost in your pocket.</span>
+          <h2 className="morse-title" id="morse-title" ref={title}>
+            <span className="sr-only">My first app is finally in your pocket.</span>
+            <span aria-hidden="true">
+              <Split text="My first app is" /> <span className="morse-title-hot"><Split text="finally in your pocket." at={12} word={4} /></span>
+            </span>
           </h2>
           <p className="morse-lede">
             <strong>Morse</strong> turns a few words into light, sound and vibration. Point another
@@ -147,7 +169,7 @@ export function MorseLaunch() {
             </div>
             <button type="button" className="morse-send" onClick={() => void send()} disabled={!clean(text).trim()}>
               <span aria-hidden="true">{playing ? '■' : '▶'}</span>
-              {playing ? 'Stop' : 'Send a signal'}
+              {playing ? 'Stop' : <>Send<span className="only-wide"> a signal</span></>}
             </button>
             <div className="morse-meta">
               <span>{seconds}s at {WPM} WPM</span>

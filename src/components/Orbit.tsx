@@ -2,16 +2,24 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import type { OrbitItem } from '../data/site';
 
 /* Apps and games orbit Gurpy on two tilted rings. Items in front of him are
- * full size; items passing behind shrink and dim. The rings slow when the
- * pointer is over the orbit and stop while an item is hovered or focused,
- * so anything is easy to pick. Positions are written straight to the DOM
- * from one rAF loop rather than through React state. */
+ * full size; items passing behind shrink and dim, and each one drags a comet
+ * tail in its own colour. The whole system leans a little with the pointer,
+ * front one way and back the other, so it reads as depth. The rings slow when
+ * the pointer is over the orbit and stop while an item is hovered or focused,
+ * so anything is easy to pick. Positions are written straight to the DOM and
+ * the rings and tails to two canvases (behind and in front of Gurpy) from one
+ * rAF loop rather than through React state. */
 
 const RINGS = {
-  apps: { rx: 0.3, ry: 0.13, speed: 0.16, size: 0.15 },
-  games: { rx: 0.47, ry: 0.22, speed: -0.08, size: 0.105 },
+  apps: { rx: 0.3, ry: 0.13, speed: 0.16, size: 0.15, tail: 0.7 },
+  games: { rx: 0.47, ry: 0.22, speed: -0.08, size: 0.105, tail: 0.46 },
 } as const;
+type Ring = keyof typeof RINGS;
 const TILT = (-14 * Math.PI) / 180;
+const COS = Math.cos(TILT);
+const SIN = Math.sin(TILT);
+const RING_STEPS = 48;
+const TAIL_STEPS = 14;
 
 export function Orbit({ items, selected, onSelect, still, bubble, children }: {
   items: OrbitItem[];
@@ -24,47 +32,122 @@ export function Orbit({ items, selected, onSelect, still, bubble, children }: {
   children: ReactNode;
 }) {
   const boxRef = useRef<HTMLDivElement>(null);
+  const backRef = useRef<HTMLCanvasElement>(null);
+  const frontRef = useRef<HTMLCanvasElement>(null);
+  const replace = useRef(() => {});
+
+  // With the orbit held still (reduced motion) nothing repaints on its own,
+  // so a new pick redraws once to move the emphasis.
+  useEffect(() => { replace.current(); }, [selected]);
 
   useEffect(() => {
     const box = boxRef.current;
-    if (!box) return;
+    const back = backRef.current?.getContext('2d');
+    const front = frontRef.current?.getContext('2d');
+    if (!box || !back || !front) return;
     const els = [...box.querySelectorAll<HTMLElement>('[data-orbit]')];
     const groups = { apps: els.filter((e) => e.dataset.ring === 'apps'), games: els.filter((e) => e.dataset.ring === 'games') };
     let W = box.clientWidth;
     let H = box.clientHeight;
+    let dpr = 1;
     let phase = { apps: 0.35, games: -0.2 };
     let speed = 1;
     let target = 1;
     let hoverBox = false;
     let holding = 0;
+    const lean = { x: 0, y: 0, tx: 0, ty: 0 };
+
+    const fit = () => {
+      W = box.clientWidth;
+      H = box.clientHeight;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      for (const ctx of [back, front]) {
+        ctx.canvas.width = Math.round(W * dpr);
+        ctx.canvas.height = Math.round(H * dpr);
+      }
+    };
+
+    const point = (ring: Ring, a: number) => {
+      const cfg = RINGS[ring];
+      const ex = Math.cos(a) * cfg.rx * W;
+      const ey = Math.sin(a) * cfg.ry * W;
+      const depth = Math.sin(a); // -1 behind Gurpy, 1 in front
+      return {
+        x: W / 2 + ex * COS - ey * SIN + lean.x * depth * W * 0.02,
+        y: H / 2 + ex * SIN + ey * COS + lean.y * depth * W * 0.012,
+        depth,
+      };
+    };
 
     const place = () => {
-      const cx = W / 2;
-      const cy = H / 2;
+      for (const ctx of [back, front]) {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, W, H);
+        ctx.lineCap = 'round';
+      }
+
+      // The rings: dashed, fainter where they pass behind Gurpy.
+      back.setLineDash([3, 7]);
+      back.lineWidth = 1.25;
+      for (const ring of ['apps', 'games'] as const) {
+        for (const half of [0, 1]) {
+          back.beginPath();
+          for (let i = 0; i <= RING_STEPS; i++) {
+            const p = point(ring, (half + i / RING_STEPS) * Math.PI);
+            if (i) back.lineTo(p.x, p.y); else back.moveTo(p.x, p.y);
+          }
+          const rgb = ring === 'apps' ? '143 156 255' : '255 165 82';
+          back.strokeStyle = `rgb(${rgb} / ${half ? 0.16 : 0.42})`;
+          back.stroke();
+        }
+      }
+      back.setLineDash([]);
+
       for (const ring of ['apps', 'games'] as const) {
         const cfg = RINGS[ring];
         const list = groups[ring];
+        const dir = Math.sign(cfg.speed);
+        const tail = cfg.tail * Math.min(1, Math.abs(speed));
         list.forEach((el, i) => {
           const a = phase[ring] + (i / list.length) * Math.PI * 2;
-          const ex = Math.cos(a) * cfg.rx * W;
-          const ey = Math.sin(a) * cfg.ry * W;
-          const x = cx + ex * Math.cos(TILT) - ey * Math.sin(TILT);
-          const y = cy + ex * Math.sin(TILT) + ey * Math.cos(TILT);
-          const depth = Math.sin(a); // -1 behind Gurpy, 1 in front
-          const scale = 0.78 + 0.22 * ((depth + 1) / 2);
+          const p = point(ring, a);
+          const near = (p.depth + 1) / 2;
+          const picked = el.hasAttribute('data-selected');
+          const scale = (0.78 + 0.22 * near) * (picked ? 1.14 : 1);
           const size = cfg.size * W;
           el.style.width = el.style.height = `${size}px`;
-          el.style.transform = `translate3d(${x - size / 2}px, ${y - size / 2}px, 0) scale(${scale.toFixed(3)})`;
-          el.style.zIndex = depth > 0 ? '6' : '2';
-          el.style.setProperty('--dim', (0.55 + 0.45 * ((depth + 1) / 2)).toFixed(2));
+          el.style.transform = `translate3d(${p.x - size / 2}px, ${p.y - size / 2}px, 0) scale(${scale.toFixed(3)})`;
+          el.style.zIndex = p.depth > 0 ? '6' : '2';
+          el.style.setProperty('--dim', picked ? '1' : (0.55 + 0.45 * near).toFixed(2));
+
+          // The comet tail: short strokes that thin and fade away from the item.
+          if (tail < 0.02) return;
+          const colour = el.dataset.accent ?? '#ffffff';
+          let from = p;
+          for (let k = 1; k <= TAIL_STEPS; k++) {
+            const to = point(ring, a - dir * tail * (k / TAIL_STEPS));
+            const ctx = from.depth + to.depth > 0 ? front : back;
+            const fade = 1 - (k - 1) / TAIL_STEPS;
+            ctx.globalAlpha = fade * fade * (picked ? 0.85 : 0.2 + 0.4 * near);
+            ctx.strokeStyle = colour;
+            ctx.lineWidth = Math.max(1, size * 0.2 * scale * fade);
+            ctx.beginPath();
+            ctx.moveTo(from.x, from.y);
+            ctx.lineTo(to.x, to.y);
+            ctx.stroke();
+            from = to;
+          }
+          back.globalAlpha = front.globalAlpha = 1;
         });
       }
     };
 
-    const ro = new ResizeObserver(() => { W = box.clientWidth; H = box.clientHeight; place(); });
+    const ro = new ResizeObserver(() => { fit(); place(); });
     ro.observe(box);
+    fit();
     place();
-    if (still) return () => ro.disconnect();
+    replace.current = place;
+    if (still) return () => { ro.disconnect(); replace.current = () => {}; };
 
     const retarget = () => { target = holding > 0 ? 0 : hoverBox ? 0.3 : 1; };
     const onEnter = () => { hoverBox = true; retarget(); };
@@ -79,6 +162,13 @@ export function Orbit({ items, selected, onSelect, still, bubble, children }: {
       el.addEventListener('focus', hold);
       el.addEventListener('blur', release);
     });
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return;
+      const r = box.getBoundingClientRect();
+      lean.tx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (window.innerWidth / 2)));
+      lean.ty = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / (window.innerHeight / 2)));
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
 
     let raf = 0;
     let last = 0;
@@ -87,6 +177,10 @@ export function Orbit({ items, selected, onSelect, still, bubble, children }: {
       const dt = Math.min(0.05, (t - last) / 1000 || 0.016);
       last = t;
       speed += (target - speed) * Math.min(1, dt * 6);
+      lean.x += (lean.tx - lean.x) * Math.min(1, dt * 4);
+      // Scrolling away tips the orbit too, which is all a phone has to lean it with.
+      const tipped = Math.max(-1.6, Math.min(1.6, lean.ty + (window.scrollY / window.innerHeight) * 2.2));
+      lean.y += (tipped - lean.y) * Math.min(1, dt * 4);
       phase = { apps: phase.apps + RINGS.apps.speed * speed * dt, games: phase.games + RINGS.games.speed * speed * dt };
       place();
       raf = requestAnimationFrame(frame);
@@ -101,7 +195,9 @@ export function Orbit({ items, selected, onSelect, still, bubble, children }: {
 
     return () => {
       halt(); ro.disconnect(); io.disconnect();
+      replace.current = () => {};
       document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('pointermove', onMove);
       box.removeEventListener('pointerenter', onEnter);
       box.removeEventListener('pointerleave', onLeave);
       els.forEach((el) => {
@@ -113,13 +209,10 @@ export function Orbit({ items, selected, onSelect, still, bubble, children }: {
     };
   }, [still]);
 
-  const tilt = (TILT * 180) / Math.PI;
   return (
     <div className="orbit" ref={boxRef}>
-      <svg className="orbit-rings" viewBox="-50 -37 100 74" aria-hidden="true">
-        <ellipse rx={RINGS.apps.rx * 100} ry={RINGS.apps.ry * 100} transform={`rotate(${tilt})`} />
-        <ellipse rx={RINGS.games.rx * 100} ry={RINGS.games.ry * 100} transform={`rotate(${tilt})`} />
-      </svg>
+      <canvas className="orbit-fx orbit-fx-back" ref={backRef} aria-hidden="true" />
+      <canvas className="orbit-fx orbit-fx-front" ref={frontRef} aria-hidden="true" />
       <span className="orbit-label orbit-label-apps" aria-hidden="true">apps</span>
       <span className="orbit-label orbit-label-games" aria-hidden="true">games</span>
       <div className="orbit-center">{children}</div>
@@ -131,6 +224,7 @@ export function Orbit({ items, selected, onSelect, still, bubble, children }: {
               type="button"
               data-orbit
               data-ring={item.ring}
+              data-accent={item.accent}
               data-selected={item.id === selected || undefined}
               className="orbit-item"
               style={{ ['--accent' as string]: item.accent }}

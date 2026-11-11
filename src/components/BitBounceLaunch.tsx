@@ -4,6 +4,8 @@ import ipadShot from '../assets/bitbounce/ipad-song.webp';
 import phoneShot from '../assets/bitbounce/phone-edit.webp';
 import { BITBOUNCE } from '../data/site';
 import { createAudioContext, unmuteOnIOS } from '../lib/audio';
+import { useReveal } from '../lib/useReveal';
+import { Split } from './Split';
 import { StoreButtons } from './StoreButtons';
 
 /* BitBounce, the iPhone and iPad app, dressed like bitbounce.app: a cream toy
@@ -94,6 +96,7 @@ export function BitBounceLaunch() {
   const audio = useRef<{ ctx: AudioContext; out: GainNode } | null>(null);
   const loop = useRef(0);
   const pending = useRef(new Set<number>());
+  const headline = useReveal<HTMLParagraphElement>();
   useEffect(() => { gridRef.current = grid; }, [grid]);
 
   const stop = () => {
@@ -149,23 +152,45 @@ export function BitBounceLaunch() {
     setPlaying(true);
   };
 
+  // While it plays, the page keeps time: a tick on every step and a kick on the downbeats.
+  const live = playing && step >= 0;
+  const tick = live ? step % 2 : undefined;
+  const kick = live && step % 4 === 0 && grid.drums[step] ? (step / 4) % 2 : undefined;
+
   const toggle = (lane: Lane, i: number) =>
     setGrid((g) => ({ ...g, [lane]: g[lane].map((on, j) => (j === i ? !on : on)) }));
 
   return (
     <section className="world world-bb" id="bitbounce" aria-labelledby="bb-title">
+      {/* The edge of this world is the demo's four lanes laid end to end, with
+          a playhead that scrolling moves along them. */}
+      <div className="bb-strip" aria-hidden="true">
+        {LANES.flatMap((lane) => START[lane.id].map((on, i) => (
+          <i key={`${lane.id}-${i}`} data-lane={lane.id} data-on={(live ? grid[lane.id][i] : on) || undefined} data-now={(live && step === i) || undefined} />
+        )))}
+        <b className="bb-strip-head" />
+      </div>
       <div className="bb-top">
         <div className="bb-copy">
           <p className="bb-kicker"><span className="bb-led" />Free beta on iPhone and iPad</p>
           <h2 className="bb-brand" id="bb-title">
-            <img src={logo} alt="" width="52" height="52" />
+            <img src={logo} alt="" width="52" height="52" data-tick={tick} />
             BitBounce
           </h2>
-          <p className="bb-headline">Make the beat. <em>Then make it a song.</em></p>
-          <p className="bb-desc">
-            A free music studio built like a toy groovebox. Program drums, bass, chords and leads on a grid,
-            chain the patterns into a song, mix it with real effects and export it when it&rsquo;s done.
+          <p className="bb-headline" ref={headline}>
+            <span className="sr-only">Make the beat. Then make it a song.</span>
+            <span aria-hidden="true">
+              <Split text="Make the beat." /> <em><Split text="Then make it a song." at={12} word={3} /></em>
+            </span>
           </p>
+          <p className="bb-desc">A free music studio built like a toy groovebox.</p>
+          {/* The rest of the pitch, as the four things you do in the app. */}
+          <ol className="bb-steps">
+            <li data-lane="drums"><b>Program</b> the grid</li>
+            <li data-lane="bass"><b>Chain</b> a song</li>
+            <li data-lane="chords"><b>Mix</b> with real effects</li>
+            <li data-lane="lead"><b>Export</b> it</li>
+          </ol>
           <StoreButtons stores={BITBOUNCE.stores} app="BitBounce" className="bb-stores" />
           <p className="bb-note">
             No account, no ads. Android is on the way.{' '}
@@ -175,7 +200,7 @@ export function BitBounceLaunch() {
           </p>
         </div>
 
-        <div className="bb-devices">
+        <div className="bb-devices" data-tick={tick}>
           <div className="bb-ipad">
             <img src={ipadShot} alt="BitBounce on iPad, showing the Song page with sections of pattern blocks" width="1600" height="1112" loading="lazy" />
           </div>
@@ -185,7 +210,7 @@ export function BitBounceLaunch() {
         </div>
       </div>
 
-      <div className="bb-box">
+      <div className="bb-box" data-kick={kick}>
         <div className="bb-transport">
           <button type="button" className="bb-key bb-key-play" aria-pressed={playing} onClick={() => void play()}>
             <span aria-hidden="true">{playing ? '■' : '▶'}</span> {playing ? 'Stop' : 'Play'}

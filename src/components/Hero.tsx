@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { ORBIT_ITEMS } from '../data/site';
 import { GurpyFace, type GurpyMood } from './GurpyFace';
+import { HeroSky } from './HeroSky';
 import { WatchIntro } from './IntroVideo';
 import { Orbit } from './Orbit';
+import { StageDevice } from './StageDevice';
 import { AndroidLogo, AppleLogo, StoreButtons } from './StoreButtons';
 
 const POKES = [
@@ -52,6 +54,13 @@ export function Hero({ still, onPickGame, onWatch }: { still: boolean; onPickGam
     return () => clearInterval(t);
   }, [touring]);
 
+  // Have the next item's screen ready before the tour (or a curious visitor) reaches it.
+  useEffect(() => {
+    const i = ORBIT_ITEMS.findIndex((x) => x.id === selected);
+    const next = ORBIT_ITEMS[(i + 1) % ORBIT_ITEMS.length].screen;
+    if ('src' in next) new Image().src = next.src;
+  }, [selected]);
+
   const onPoke = () => {
     setTouring(false);
     setLine(POKES[poke.current++ % POKES.length]);
@@ -60,6 +69,7 @@ export function Hero({ still, onPickGame, onWatch }: { still: boolean; onPickGam
 
   return (
     <header className="hero" id="top">
+      <HeroSky accent={item.accent} pick={selected} still={still} />
       <div className="hero-copy">
         <p className="hero-kicker">Graydon Wasil &middot; iOS &amp; Android developer</p>
         <h1 className="hero-title">
@@ -89,7 +99,7 @@ export function Hero({ still, onPickGame, onWatch }: { still: boolean; onPickGam
         </p>
       </div>
 
-      <div className="hero-stage">
+      <div className="hero-stage" style={{ ['--stage-accent' as string]: item.accent }}>
         <Orbit
           items={ORBIT_ITEMS}
           selected={selected}
@@ -102,6 +112,8 @@ export function Hero({ still, onPickGame, onWatch }: { still: boolean; onPickGam
           </button>
         </Orbit>
 
+        <div className="stage-dock">
+        <StageDevice key={item.id} screen={item.screen} />
         <div className="orbit-card" data-stores={item.stores ? '' : undefined} style={{ ['--accent' as string]: item.accent }} aria-live="polite">
           <img className="orbit-card-icon" src={item.icon} alt="" data-px={item.pixel || undefined} />
           <div className="orbit-card-body">
@@ -122,9 +134,11 @@ export function Hero({ still, onPickGame, onWatch }: { still: boolean; onPickGam
               href={`#${item.section}`}
               onClick={() => { if (item.ring === 'games') onPickGame(item.id); }}
             >
-              {item.ring === 'games' ? 'See it below' : 'Try it below'} <span aria-hidden="true">&darr;</span>
+              <span className="orbit-card-more-text">{item.ring === 'games' ? 'See it below' : 'Try it below'}</span>{' '}
+              <span aria-hidden="true">&darr;</span>
             </a>
           </div>
+        </div>
         </div>
       </div>
     </header>

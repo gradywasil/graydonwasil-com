@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 import { GAMES, gameById } from '../data/games';
 import { GAME_HUBS } from '../data/site';
+import { burst } from '../lib/juice';
+import { useReveal } from '../lib/useReveal';
+import { Split } from './Split';
 
 /* The games section. The splash card at the top wears the selected game's
  * branding from the Gurpy Games site: its colours, logo, tagline, screen and
@@ -20,6 +23,7 @@ export function GamesArcade({ still, gameId, onPick }: {
   const index = GAMES.indexOf(game);
   const viewport = useRef<HTMLDivElement>(null);
   const reel = useRef<HTMLDivElement>(null);
+  const title = useReveal<HTMLHeadingElement>();
   const [pos, setPos] = useState(MIDDLE * N + index);
   const [spinning, setSpinning] = useState(false);
   const [animate, setAnimate] = useState(false);
@@ -73,7 +77,13 @@ export function GamesArcade({ still, gameId, onPick }: {
     if (!animate) return;
     setAnimate(false);
     setPos(MIDDLE * N + (pos % N));
-    if (spinning) { setSpinning(false); onPick(GAMES[pos % N].id); }
+    if (!spinning) return;
+    const won = GAMES[pos % N];
+    setSpinning(false);
+    onPick(won.id);
+    // The reel lands with a burst in the winner's own colours.
+    const r = viewport.current?.getBoundingClientRect();
+    if (r) burst(r.left + r.width / 2, r.top + 26, [won.theme.a, won.theme.b, '#fffaf0'], 30, 1.35);
   };
 
   const pickCard = (at: number) => {
@@ -97,10 +107,13 @@ export function GamesArcade({ still, gameId, onPick }: {
     <section className="world world-games" id="games" aria-labelledby="games-title">
       <div className="games-head">
         <p className="kicker">Also, I make games</p>
-        <h2 className="games-title" id="games-title">Weird games for curious thumbs.</h2>
+        <h2 className="games-title" id="games-title" ref={title}>
+          <span className="sr-only">Weird games for curious thumbs.</span>
+          <span aria-hidden="true"><Split text="Weird games for curious thumbs." /></span>
+        </h2>
         <p className="games-lede">
-          Eleven browser games and counting, all free to play right now. Pick one below and it
-          takes over the stage.
+          Eleven browser games and counting, all free to play right now.
+          <span className="only-wide"> Pick one below and it takes over the stage.</span>
         </p>
       </div>
 

@@ -115,7 +115,7 @@ Every section has one thing to play with. The goal is a smile in the first five 
 - Home-base headlines in Bricolage Grotesque 800, sentence case and tightly tracked, with one ginger phrase and a hand-drawn underline.
 - Interactions have a job: the orbit navigates the work, the Morse sender demos Morse, the reel picks a game. No decorative physics.
 - Chunky buttons: thick ink border and a solid offset shadow that presses down on click.
-- Section worlds separated by zigzag edges, as on Gurpy Games.
+- Each world's top edge is made of that world: a Morse tape, a Kilopixel dither, a BitBounce step strip, and zigzags for the Gurpy Games paper and the home base.
 - Real art from Graydon's own products, never stock or invented imagery.
 - Pixel art always renders with `image-rendering: pixelated`.
 
@@ -123,7 +123,7 @@ Every section has one thing to play with. The goal is a smile in the first five 
 
 | Section | Ground | Accent | Display type |
 |---|---|---|---|
-| Hero | Navy night with periwinkle and ginger glows | Ginger, periwinkle; the selected item's own accent on its card | Bricolage Grotesque |
+| Hero | Navy night: a live sky of periwinkle and ginger nebula and pixel stars | Ginger, periwinkle; the selected item's own accent on its card, Gurpy's halo and the sky | Bricolage Grotesque |
 | Morse | Morse brown `#140d06` with faint vertical lines | Amber `#f7b24c` with glow | Saira Stencil One |
 | Kilopixel | Graphite `#121212` with a faint 12px pixel grid and notched pixel corners | Signal orange `#ff6a1f`; the themes tile takes the selected app theme's colours | Pixelify Sans, Silkscreen for micro labels |
 | BitBounce | Cream `#f4f1ea` toy groovebox with keycaps on darker skirts and a dark LCD `#17181d` grid (from bitbounce.app, not the old web app) | Orange `#ff5a1f`; lanes drums orange, bass `#ffc400`, chords `#1f6bff`, lead `#ff3d8b`; yellow playhead | Chakra Petch 700, Barlow for text |
@@ -161,18 +161,41 @@ A product world uses its own site's colours and type. Do not let one product's p
 - **Kilopixel viewfinder:** the app's own engine on a sample photo, with a look rail, group filters, a die, and a lens that shows the original. Look changes wipe down in ten steps.
 - **Speech bubble:** cream with a teal hard shadow and a tail; short lines only.
 - **Sticker:** a tilted cream label with a periwinkle hard shadow for status callouts.
-- **Orbit:** two tilted dashed rings (apps inner, games outer). Items behind Gurpy shrink and dim. The rings slow under the pointer and stop on hover or focus. The selected item gets an accent ring and drives the card below.
+- **Sky:** the hero's night sky is drawn live by one fragment shader (`HeroSky`): a slow nebula lying in the plane of the orbit, square pixel stars and plus-shaped sparkles on three depths that shift with the pointer, and the odd shooting star. The sky, Gurpy's halo and the stage glow all take the picked item's accent (`--stage-accent`), and the sky ripples once on each pick. Without WebGL the CSS sky stays; under reduced motion it is one still frame.
+- **Orbit:** two tilted dashed rings (apps inner, games outer), fainter where they pass behind Gurpy. Items behind him shrink and dim, and each drags a comet tail in its own accent; the picked item is larger, undimmed, and has the brightest tail. The system leans with the pointer, front one way and back the other. The rings slow under the pointer and stop on hover or focus. The selected item gets an accent ring and drives the dock below.
+- **Stage dock:** the picked item's real screen rises from behind the top edge of its card (`StageDevice`): a phone for apps and phone games, a browser window for the rest. Morse runs its own interface; RhymePage shows its rehearsal sheet. The slot ignores the pointer so orbit items passing behind it can still be picked.
+- **World edges:** each world's top edge is made of that world. Morse: a punched paper tape spelling the message in its demo box. Kilopixel: a Bayer 4×4 dither. BitBounce: a step strip of the demo's four lanes with a playhead. Games, More and Hello: zigzags. Where scroll-driven animation is supported the tape runs, the playhead steps and the zigzags crawl with the scroll.
+- **Sparks:** pressed controls throw a burst of square pixels in their world's `--spark` colour (`src/lib/juice.ts`). The reel lands in the winning game's two colours. Text selection and carets use the same `--spark`.
 - **Splash:** the games card re-themes to the selected game: background, two accents, logo, tagline in alternating accents, a browser or phone frame (phones sit right of centre so sprites have room on the left), and floating sprites that drift on their own clocks and lean toward the pointer by depth. Sprites frame the screenshot; they never cover it.
 - **Tiles:** rounded 16px night-2 cards with screenshot on top, used only in the compact More strip.
 
 ## Motion
 
 - Entrances pop with overshoot (`cubic-bezier(0.2, 1.6, 0.4, 1)`), staggered by about 0.12s.
-- Section content rises in on scroll via `animation-timeline: view()` where supported.
-- Physics, the Morse signal, and the reel are interaction-driven; nothing important moves on its own except Gurpy blinking, the Brain Splitter bob, and the Kilopixel auto-tour (which stops on the first interaction).
-- Under reduced motion: the orbit holds still and there is no guided tour; the Kilopixel viewfinder does not auto-roll, wipe, or animate VHS looks; no pops, float loops, or scroll reveals; the reel jumps; Gurpy stops blinking but still looks at the pointer.
+- The hero is the one loud moment. Everything below it is quieter and belongs to its world.
+- Headlines arrive every time they scroll into view, from either direction, each in its world's idiom (`useReveal` marks them, `Split` cuts them up): Morse is keyed in a letter at a time, Kilopixel scans in over nine steps, BitBounce lands a word per eighth note at 118 BPM, the games title tumbles in. A headline is only ever hidden while it is off screen, and it does not matter where the page was scrolled to when it loaded.
+- Devices are tied to scroll via `animation-timeline: view()` where supported: the Morse phones swing toward each other, the Kilopixel studio climbs in eight steps, BitBounce's phone travels further than its iPad, the splash lands with a tilt. Without support they are simply in place.
+- Demos spill into their sections: while a Morse signal is on, a soft glow spreads from the torch and the headline runs hotter (kept small and gentle because it flickers with the signal); while BitBounce plays, the logo ticks, the phone nods, the grid kicks on downbeats and the edge strip follows the step.
+- The smaller pieces arrive the same way, staggered by their order (`data-rv` kinds in `site.css`, marked by `src/lib/juice.ts`): ledes and notes rise, store buttons and stat chips pop, the groovebox keys press in column by column, the side-project tiles are dealt, the polaroid drops. RhymePage's bars light up word by word as the section scrolls past, until Rehearse is pressed.
+- Scrolling slides the star layers and tips the orbit, so phones get depth without a pointer. The top bar keeps the link for the world on screen lit.
+- Buttons give when pressed. Store buttons tip toward the pointer and carry a sheen under it.
+- Physics, the Morse signal, and the reel are interaction-driven; nothing important moves on its own except the sky, the orbit, Gurpy blinking, the Brain Splitter bob, and the Kilopixel auto-tour (which stops on the first interaction).
+- Under reduced motion: the sky is one still frame and the orbit holds still with its tails drawn; there is no guided tour; the Kilopixel viewfinder does not auto-roll, wipe, or animate VHS looks; no pops, float loops, headline entrances, scroll-driven motion, sparks, or leaning buttons; the reel jumps; Gurpy stops blinking but still looks at the pointer.
+
+## Phones
+
+One idea per screen (the last block of `site.css`). Each idea is the visual, one line of pitch, the thing to press, and the stores; kickers, second sentences and anything a button already says are hidden with `.only-wide`.
+
+- **Hero:** headline, orbit, card. No lede, call-to-action buttons, platform sticker or stage device; the intro reel sits beside the headline's last line, and the card's "Try it below" becomes an arrow.
+- **Morse:** phones, headline, lede, the message box with Send beside it, stores.
+- **Kilopixel:** name and headline, then the viewfinder with its look name, palette and Roll beside it and the rail under it (no filter tabs), then stats and stores. The extras swipe sideways.
+- **BitBounce:** headline, devices, one line and the four steps, stores; the groovebox is its own screen.
+- **Games:** headline and the splash (no description); the reel and hubs are their own screen.
+- Gurpy's corner bubble is small so it does not cover what it is talking about.
 
 ## Don'ts
+
+- Don't let a world's edge sit on another world's text: the Kilopixel dither lives inside Kilopixel's own top padding.
 
 - Don't add per-project story pages or a slide deck back to the home page.
 - Don't use the old console look (cyan-on-black, condensed type, square chrome).
