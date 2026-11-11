@@ -1,14 +1,16 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import type { OrbitItem } from '../data/site';
 
-/* Apps and games orbit Gurpy on two tilted rings. Items in front of him are
- * full size; items passing behind shrink and dim, and each one drags a comet
- * tail in its own colour. The whole system leans a little with the pointer,
- * front one way and back the other, so it reads as depth. The rings slow when
- * the pointer is over the orbit and stop while an item is hovered or focused,
- * so anything is easy to pick. Positions are written straight to the DOM and
- * the rings and tails to two canvases (behind and in front of Gurpy) from one
- * rAF loop rather than through React state. */
+/* Apps and games orbit on two tilted rings around whatever the hero puts in
+ * the middle (the children). Items in front are full size; items passing
+ * behind shrink and dim, and each one drags a comet tail in its own colour. The whole system leans a little with
+ * the pointer, front one way and back the other, so it reads as depth. The
+ * rings slow when the pointer is over the orbit and stop while an item is
+ * hovered or focused, so anything is easy to pick. Nothing in the middle
+ * takes the pointer. When the pick changes, a copy of the new item's icon
+ * can fly into the middle (`flyTo`). Positions are written straight to the
+ * DOM and the rings and tails to two canvases (behind and in front of the
+ * middle) from one rAF loop rather than through React state. */
 
 const RINGS = {
   apps: { rx: 0.3, ry: 0.13, speed: 0.16, size: 0.15, tail: 0.7 },
@@ -21,24 +23,57 @@ const SIN = Math.sin(TILT);
 const RING_STEPS = 48;
 const TAIL_STEPS = 14;
 
-export function Orbit({ items, selected, onSelect, still, bubble, children }: {
+export function Orbit({ items, selected, onSelect, still, centre, ringY = 0.5, flyTo, children }: {
   items: OrbitItem[];
   selected: string;
   onSelect: (id: string) => void;
   still: boolean;
-  /** Gurpy's speech bubble, kept above everything in orbit. */
-  bubble: ReactNode;
-  /** Gurpy. */
+  /** What kind of thing is in the middle; site.css lights it accordingly. */
+  centre: string;
+  /** How far down the box the rings are centred, 0 to 1. */
+  ringY?: number;
+  /** How far down the box the picked icon flies to. Leave out for no flight. */
+  flyTo?: number;
+  /** Whatever stands in the middle. */
   children: ReactNode;
 }) {
   const boxRef = useRef<HTMLDivElement>(null);
   const backRef = useRef<HTMLCanvasElement>(null);
   const frontRef = useRef<HTMLCanvasElement>(null);
   const replace = useRef(() => {});
+  const picked = useRef(selected);
 
-  // With the orbit held still (reduced motion) nothing repaints on its own,
-  // so a new pick redraws once to move the emphasis.
-  useEffect(() => { replace.current(); }, [selected]);
+  useEffect(() => {
+    // With the orbit held still (reduced motion) nothing repaints on its own,
+    // so a new pick redraws once to move the emphasis.
+    replace.current();
+    if (picked.current === selected) return;
+    picked.current = selected;
+    if (still || flyTo === undefined) return;
+    // The new pick's icon leaves its place in orbit and dives into the middle.
+    const box = boxRef.current;
+    const from = box?.querySelector<HTMLElement>('[data-orbit][data-selected]');
+    const icon = from?.querySelector('img');
+    if (!box || !from || !icon) return;
+    const b = box.getBoundingClientRect();
+    const r = from.getBoundingClientRect();
+    const ghost = icon.cloneNode() as HTMLImageElement;
+    ghost.className = 'orbit-ghost';
+    ghost.setAttribute('aria-hidden', 'true');
+    Object.assign(ghost.style, { left: `${r.left - b.left}px`, top: `${r.top - b.top}px`, width: `${r.width}px`, height: `${r.height}px` });
+    box.appendChild(ghost);
+    const dx = b.width / 2 - (r.left - b.left + r.width / 2);
+    const dy = b.height * flyTo - (r.top - b.top + r.height / 2);
+    const flight = ghost.animate([
+      { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+      { transform: `translate(${dx * 0.42}px, ${dy * 0.42 - b.width * 0.05}px) scale(1.35)`, opacity: 1, offset: 0.5 },
+      { transform: `translate(${dx}px, ${dy}px) scale(0.35)`, opacity: 0 },
+    ], { duration: 480, easing: 'cubic-bezier(0.45, 0, 0.8, 0.3)' });
+    const land = () => ghost.remove();
+    flight.onfinish = land;
+    flight.oncancel = land;
+    return () => flight.cancel();
+  }, [selected, still, flyTo]);
 
   useEffect(() => {
     const box = boxRef.current;
@@ -71,10 +106,10 @@ export function Orbit({ items, selected, onSelect, still, bubble, children }: {
       const cfg = RINGS[ring];
       const ex = Math.cos(a) * cfg.rx * W;
       const ey = Math.sin(a) * cfg.ry * W;
-      const depth = Math.sin(a); // -1 behind Gurpy, 1 in front
+      const depth = Math.sin(a); // -1 behind the screen, 1 in front
       return {
         x: W / 2 + ex * COS - ey * SIN + lean.x * depth * W * 0.02,
-        y: H / 2 + ex * SIN + ey * COS + lean.y * depth * W * 0.012,
+        y: H * ringY + ex * SIN + ey * COS + lean.y * depth * W * 0.012,
         depth,
       };
     };
@@ -86,7 +121,7 @@ export function Orbit({ items, selected, onSelect, still, bubble, children }: {
         ctx.lineCap = 'round';
       }
 
-      // The rings: dashed, fainter where they pass behind Gurpy.
+      // The rings: dashed, fainter where they pass behind the screen.
       back.setLineDash([3, 7]);
       back.lineWidth = 1.25;
       for (const ring of ['apps', 'games'] as const) {
@@ -207,16 +242,15 @@ export function Orbit({ items, selected, onSelect, still, bubble, children }: {
         el.removeEventListener('blur', release);
       });
     };
-  }, [still]);
+  }, [still, ringY]);
 
   return (
-    <div className="orbit" ref={boxRef}>
+    <div className="orbit" ref={boxRef} data-centre={centre} style={{ ['--ring-y' as string]: ringY }}>
       <canvas className="orbit-fx orbit-fx-back" ref={backRef} aria-hidden="true" />
       <canvas className="orbit-fx orbit-fx-front" ref={frontRef} aria-hidden="true" />
       <span className="orbit-label orbit-label-apps" aria-hidden="true">apps</span>
       <span className="orbit-label orbit-label-games" aria-hidden="true">games</span>
-      <div className="orbit-center">{children}</div>
-      <div className="orbit-bubble">{bubble}</div>
+      <div className="orbit-center" aria-hidden="true">{children}</div>
       <ul className="orbit-items" aria-label="Apps and games">
         {items.map((item) => (
           <li key={item.id}>

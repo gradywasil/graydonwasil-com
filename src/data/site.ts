@@ -72,10 +72,11 @@ export const INTRO = {
 
 export const RHYMEPAGE = { site: 'https://rhymepage.com/', icon: rhymepageIcon };
 
-/** Everything circling Gurpy in the hero. Apps ride the inner ring, games
- *  the outer one. Picking one shows its card; `section` is where "more"
- *  scrolls to, and games also open in the splash below. */
-/** What the hero stage shows for the picked item: a real screen of the thing.
+/** Everything in orbit in the hero. Apps ride the inner ring, games the
+ *  outer one. Picking one puts its screen in the middle and shows its card;
+ *  `section` is where "more" scrolls to, and games also open in the splash
+ *  below. */
+/** What stands in the middle of the orbit for the picked item: a real screen of the thing.
  *  'morse' runs the app's own interface and 'lyrics' is RhymePage's rehearsal
  *  sheet, as in their sections; the others are screenshots. */
 export type StageScreen =
@@ -97,7 +98,6 @@ export interface OrbitItem {
   href?: string;
   cta?: string;
   section: string;
-  quip: string;
   accent: string;
   screen: StageScreen;
 }
@@ -107,27 +107,27 @@ const APP_ITEMS: OrbitItem[] = [
     id: 'morse', ring: 'apps', name: 'Morse', icon: morseIcon, status: 'iPhone & Android',
     line: 'Send a message with light and sound. Another phone reads it back.',
     stores: MORSE.stores, section: 'morse',
-    quip: 'My first app! iPhone and Android.', accent: '#f7b24c', screen: { kind: 'morse' },
+    accent: '#f7b24c', screen: { kind: 'morse' },
   },
   {
     id: 'kilopixel', ring: 'apps', name: 'Kilopixel', icon: kilopixelIcon, status: 'iPhone & Android',
     line: 'A live pixel camera for photos, video and GIFs. One camera, 49 looks.',
     stores: KILOPIXEL.stores, section: 'kilopixel',
-    quip: 'Forty-nine looks. I tried them all.', accent: '#ff6a1f',
+    accent: '#ff6a1f',
     screen: { kind: 'phone', src: kilopixelScreen, w: 540, h: 1169 },
   },
   {
     id: 'bitbounce', ring: 'apps', name: 'BitBounce', icon: bitbounceIcon, status: 'iPhone & iPad beta',
     line: 'Make the beat, then make it a song. A music studio built like a toy groovebox.',
     stores: BITBOUNCE.stores, section: 'bitbounce',
-    quip: 'Beats first. Song second.', accent: '#ff5a1f',
+    accent: '#ff5a1f',
     screen: { kind: 'phone', src: bitbounceScreen, w: 720, h: 1565 },
   },
   {
     id: 'rhymepage', ring: 'apps', name: 'RhymePage', icon: rhymepageIcon, status: 'Web app',
     line: 'Write lyrics, sync them to a track, rehearse in time.',
     href: RHYMEPAGE.site, cta: 'Open RhymePage', section: 'rhymepage',
-    quip: 'For when the bars won’t come.', accent: '#4be38f', screen: { kind: 'lyrics' },
+    accent: '#4be38f', screen: { kind: 'lyrics' },
   },
 ];
 
@@ -139,7 +139,7 @@ const GAME_ITEMS: OrbitItem[] = ORBIT_GAMES.map((id) => {
   return {
     id: g.id, ring: 'games', name: g.title, icon: g.orbit?.src ?? g.thumb.src, pixel: g.orbit?.pixel,
     status: g.tag, line: g.hook.join(' '), href: g.url, cta: 'Play now', section: 'games',
-    quip: g.comment ?? `${g.title}. Good pick.`, accent: g.theme.a,
+    accent: g.theme.a,
     screen: g.frame === 'phone'
       ? { kind: 'phone', src: g.shot.src, w: g.shot.w, h: g.shot.h }
       : { kind: 'browser', src: g.shot.src, w: g.shot.w, h: g.shot.h, host: g.host },

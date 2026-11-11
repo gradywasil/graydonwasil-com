@@ -1,15 +1,18 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
 import gurpySrc from './assets/fun/gurpy.png';
 import { BitBounceLaunch } from './components/BitBounceLaunch';
-import { Buddy } from './components/Buddy';
 import { GamesArcade } from './components/GamesArcade';
+import { GurpyPeek } from './components/GurpyPeek';
 import { Hello } from './components/Hello';
 import { Hero } from './components/Hero';
+import { HeroLab } from './components/hero/HeroLab';
+import { readHeroVariant, writeHeroVariant, type HeroVariant } from './components/hero/variants';
 import { IntroVideo } from './components/IntroVideo';
 import { KilopixelLaunch } from './components/KilopixelLaunch';
 import { MoreWork } from './components/MoreWork';
 import { MorseLaunch } from './components/MorseLaunch';
 import { RhymePageCard } from './components/RhymePageCard';
+import { TopBar } from './components/TopBar';
 import { GITHUB, EMAIL } from './data/site';
 import { initJuice } from './lib/juice';
 import { usePrefersReducedMotion } from './lib/usePrefersReducedMotion';
@@ -53,6 +56,14 @@ function App() {
   const [watching, setWatching] = useState(false);
   const watch = () => setWatching(true);
 
+  // The hero stage is being tried several ways; `?hero=2` opens one directly.
+  const [hero, setHero] = useState<HeroVariant>(readHeroVariant);
+  const tryHero = (next: HeroVariant) => {
+    setHero(next);
+    writeHeroVariant(next);
+    window.scrollTo({ top: 0 });
+  };
+
   // The top bar marks the world you are in.
   const [here, setHere] = useState('');
   useEffect(() => {
@@ -62,7 +73,8 @@ function App() {
     document.querySelectorAll('main > [id]').forEach((el) => io.observe(el));
     return () => io.disconnect();
   }, []);
-  const at = (id: string) => (here === id ? 'true' as const : undefined);
+  /** What is open in the hero's phone: its tab lights up too. */
+  const [staged, setStaged] = useState<string | null>(null);
 
   // Sparks and leaning buttons, everywhere, unless motion is reduced.
   // (Layout effect: pieces are marked before the first paint, so nothing blinks on load.)
@@ -71,22 +83,10 @@ function App() {
   return (
     <>
       <a className="skip" href="#morse">Skip to the apps</a>
-      <nav className="topbar" aria-label="Sections">
-        <a href="#top" className="brand">
-          <img src={gurpySrc} alt="" width="32" height="32" />
-          <span>Graydon Wasil</span>
-        </a>
-        <div className="toplinks">
-          <a href="#morse" aria-current={at('morse')}>Morse</a>
-          <a href="#kilopixel" aria-current={at('kilopixel')}>Kilopixel</a>
-          <a href="#bitbounce" aria-current={at('bitbounce')}>BitBounce</a>
-          <a href="#games" aria-current={at('games')}>Games</a>
-          <a href="#hello" className="top-hi" aria-current={at('hello')}>Say hi</a>
-        </div>
-      </nav>
+      <TopBar still={still} here={here} staged={hero === 'home' ? staged : null} gameId={gameId} />
 
       <main>
-        <Hero still={still} onPickGame={setGameId} onWatch={watch} />
+        <Hero still={still} variant={hero} onPickGame={setGameId} onWatch={watch} onStage={setStaged} />
         <MorseLaunch />
         <KilopixelLaunch still={still} />
         <BitBounceLaunch />
@@ -108,7 +108,8 @@ function App() {
         </p>
       </footer>
 
-      <Buddy still={still} />
+      {!still && <GurpyPeek />}
+      {import.meta.env.DEV && <HeroLab variant={hero} onChange={tryHero} />}
       <IntroVideo open={watching} onClose={() => setWatching(false)} />
 
       {drops.length > 0 && (

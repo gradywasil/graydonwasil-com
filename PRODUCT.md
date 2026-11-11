@@ -24,7 +24,7 @@ A successful visit ends with someone getting Morse or Kilopixel (or joining a be
 
 ## Positioning
 
-Graydon builds software you'll want to play with. The case for his work is the work itself, presented so you can touch it: a Morse signal you can send, a pixel camera look you can roll, a reel of games you can spin. Gurpy, his pixel-art mascot, carries the humour.
+Graydon builds software you'll want to play with. The case for his work is the work itself, presented so you can touch it: a phone in the hero whose apps and games open, run and restyle the page around them, a Morse signal you can send, a pixel camera you can point at yourself, a groovebox you can roll and swing, a reel of games you can spin. Gurpy, his pixel-art mascot, is the site's mark and an occasional face over a section's edge.
 
 Morse and Kilopixel are his first two apps. As of 10 November 2026 Kilopixel and Morse are both live on the App Store; both are in Google Play closed testing. BitBounce, his music studio, moved out of the experiments drawer and into the apps on 10 November 2026: a TestFlight public beta for iPhone and iPad opens 11 November, with the Android rebuild still to come. bitbounce.app is now the app's marketing site; the original web app lives at old.bitbounce.app, and the section follows the new app's branding, not the old one. RhymePage is a web app with Android in the works.
 
@@ -36,10 +36,10 @@ The site does not require an account. A visitor can contact Graydon through the 
 
 ## Capabilities and Constraints
 
-- Lead with apps and games. Morse comes first, then Kilopixel (with the fullest showcase: its real engine, its six app themes, a GIF it made), then BitBounce (a playable one-bar note grid), then RhymePage, then the games (Brain Splitter spotlight, all eleven games on a spin reel, both game hubs).
+- Lead with apps and games. Morse comes first, then Kilopixel (with the fullest showcase: its real engine on sample photos or the visitor's own camera, its six app themes worn by the whole section, a GIF it made), then BitBounce (a playable one-bar groovebox with Dice, Swing, Tempo, Sound and Clear keys), then RhymePage, then the games (Brain Splitter spotlight, all eleven games on a spin reel, both game hubs).
 - Keep VOXCHAIN, CarsDB, Arranged Godly, and the 16 experiments in one compact section; do not bring back per-project story pages without a new decision.
 - App Store and Google Play buttons always appear as an equal pair, driven by the store states in `src/data/site.ts`. An app in review, or not yet submitted (`soon`), shows "Coming soon" and is not a link; a beta links to the tester opt-in. Do not use Apple's or Google's official badges until they link to a public listing.
-- Interactions must have a purpose. The hero orbit navigates the apps and games, the Morse sender demos Morse, the Kilopixel viewfinder, the BitBounce grid and RhymePage rehearse demo those apps, and the reel and splash show each game in its own branding. Gurpy reacts to what you pick.
+- Interactions must have a purpose. The hero phone's home screen navigates the apps and games, the Morse sender demos Morse, the Kilopixel viewfinder, the BitBounce grid and RhymePage rehearse demo those apps, and the reel and splash show each game in its own branding. Whatever is opened on the hero phone runs there and colours the sky around it. The visitor's camera is used only when they press "You", stays in the browser, and switches off when the viewfinder leaves the screen.
 - The tone is semi-professional with fun baked in: this is also Graydon's portfolio.
 - Game branding comes from the Gurpy Games data (`arcade-ad/research/games.json`) via `scripts/sync-games.py`; do not hand-edit `src/data/games.json`.
 - Support desktop and mobile, keyboard access, visible focus, and reduced-motion preferences. The site has a single dark-first presentation; there is no light-theme toggle.
@@ -49,7 +49,7 @@ The site does not require an account. A visitor can contact Graydon through the 
 
 ## Brand Commitments
 
-The product is Graydon Wasil's personal site and speaks in his first-person voice, with Gurpy as a playful second voice. The writing is short, candid, specific, and funny when it is true. It foregrounds the problem he noticed, the behavior he built, and the implementation decision that mattered.
+The product is Graydon Wasil's personal site and speaks in his first-person voice. Gurpy appears but does not speak. The writing is short, candid, specific, and funny when it is true. It foregrounds the problem he noticed, the behavior he built, and the implementation decision that mattered.
 
 Personal details and humor are welcome when they are true and help the visitor understand the person behind the work. Meaningful technical language such as TypeScript, REST APIs, Web Audio, authentication, local storage, latency, and game loops should remain when it adds evidence. The voice must not drift into detached resume language, generic agency copy, inflated promotion, or invented proof.
 
@@ -66,7 +66,7 @@ No testimonials, client roster, download counts, ratings, or quantified outcomes
 1. Let people touch it. Every product section has something to play with within one click.
 2. Apps and games first; everything else stays compact.
 3. Make the next step obvious: join the beta, play a game, open the app site, or say hi.
-4. Be funny, never fake. Humour comes from Gurpy and true details, not invented proof.
+4. Be funny, never fake. Humour comes from true details and from Gurpy turning up, not invented proof.
 5. Preserve truthful behavior, accessibility, responsive usability, and browser performance as the site evolves.
 
 ## Accessibility & Inclusion

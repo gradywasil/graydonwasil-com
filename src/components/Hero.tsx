@@ -1,75 +1,88 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ORBIT_ITEMS } from '../data/site';
-import { GurpyFace, type GurpyMood } from './GurpyFace';
-import { HeroSky } from './HeroSky';
+import { GurpyFace } from './GurpyFace';
+import { HeroSky, type SkyLook } from './HeroSky';
 import { WatchIntro } from './IntroVideo';
 import { Orbit } from './Orbit';
-import { StageDevice } from './StageDevice';
-import { AndroidLogo, AppleLogo, StoreButtons } from './StoreButtons';
+import { StageCentre } from './StageDevice';
+import { AndroidLogo, AppleLogo } from './StoreButtons';
+import { HomeScreen } from './hero/HomeScreen';
+import { ItemActions } from './hero/ItemActions';
+import { PixelSun } from './hero/PixelSun';
+import type { HeroVariant } from './hero/variants';
+import { WorldStack } from './hero/WorldStack';
 
-const POKES = [
-  "Hi! I'm Gurpy.",
-  'Everything circling me is real. Pick one.',
-  'Psst. Type g-u-r-p-y. Anywhere.',
-  'Boop accepted.',
-  'He made me too, technically.',
-];
+/* The hero: the pitch on the left and a stage on the right. The stage is
+ * being tried several ways (`variant`, see hero/variants.ts): three keep the
+ * orbit and change what is in its middle, two replace the orbit outright. */
+
 const TOUR_MS = 4200;
+const HOME_LOOK: SkyLook = { accent: '#8f9cff', id: 'home' };
 
-export function Hero({ still, onPickGame, onWatch }: { still: boolean; onPickGame: (id: string) => void; onWatch: () => void }) {
+export function Hero({ still, variant, onPickGame, onWatch, onStage }: {
+  still: boolean;
+  variant: HeroVariant;
+  onPickGame: (id: string) => void;
+  onWatch: () => void;
+  /** What is open in the phone (null when nothing is), so the top bar can light its tab. */
+  onStage: (id: string | null) => void;
+}) {
   const [selected, setSelected] = useState('morse');
-  const [line, setLine] = useState('Everything circling me is real. Pick one.');
-  const [mood, setMood] = useState<GurpyMood>('idle');
   const [touring, setTouring] = useState(!still);
-  const poke = useRef(0);
-  const moodTimer = useRef(0);
+  const [happy, setHappy] = useState(false);
+  /** How the sky is dressed when the stage is not an orbit. */
+  const [look, setLook] = useState(HOME_LOOK);
+  /** What the open app in the phone is doing: a lamp held on, and a count of beats landed. */
+  const [glow, setGlow] = useState(false);
+  const [beat, setBeat] = useState(0);
   const item = ORBIT_ITEMS.find((i) => i.id === selected) ?? ORBIT_ITEMS[0];
+  const orbiting = variant === 'sun' || variant === 'gurpy' || variant === 'screen';
 
-  const feel = (next: GurpyMood, ms: number) => {
-    setMood(next);
-    clearTimeout(moodTimer.current);
-    moodTimer.current = window.setTimeout(() => setMood('idle'), ms);
-  };
-
-  const pick = (id: string, fromTour = false) => {
-    if (!fromTour) setTouring(false);
-    const next = ORBIT_ITEMS.find((i) => i.id === id);
-    if (!next) return;
-    setSelected(id);
-    setLine(next.quip);
-    feel('happy', 700);
+  const pick = (id: string) => {
+    setTouring(false);
+    if (ORBIT_ITEMS.some((i) => i.id === id)) setSelected(id);
   };
 
   // A slow guided tour until the visitor picks something themselves.
   useEffect(() => {
-    if (!touring) return;
+    if (!touring || !orbiting) return;
     const t = window.setInterval(() => {
       setSelected((cur) => {
         const i = ORBIT_ITEMS.findIndex((x) => x.id === cur);
-        const next = ORBIT_ITEMS[(i + 1) % ORBIT_ITEMS.length];
-        setLine(next.quip);
-        return next.id;
+        return ORBIT_ITEMS[(i + 1) % ORBIT_ITEMS.length].id;
       });
     }, TOUR_MS);
     return () => clearInterval(t);
-  }, [touring]);
+  }, [touring, orbiting]);
 
   // Have the next item's screen ready before the tour (or a curious visitor) reaches it.
   useEffect(() => {
+    if (variant !== 'screen') return;
     const i = ORBIT_ITEMS.findIndex((x) => x.id === selected);
     const next = ORBIT_ITEMS[(i + 1) % ORBIT_ITEMS.length].screen;
     if ('src' in next) new Image().src = next.src;
-  }, [selected]);
+  }, [selected, variant]);
 
-  const onPoke = () => {
-    setTouring(false);
-    setLine(POKES[poke.current++ % POKES.length]);
-    feel('happy', 900);
-  };
+  // Gurpy, when he is the middle, is pleased for a moment by each pick.
+  useEffect(() => {
+    if (variant !== 'gurpy') return;
+    const on = window.setTimeout(() => setHappy(true), 0);
+    const off = window.setTimeout(() => setHappy(false), 750);
+    return () => { clearTimeout(on); clearTimeout(off); };
+  }, [selected, variant]);
+
+  const lightWorld = useCallback((accent: string, id: string) => setLook({ accent, id }), []);
+  const dress = useCallback((next: SkyLook | null) => {
+    setLook(next ?? HOME_LOOK);
+    onStage(next?.id ?? null);
+  }, [onStage]);
+  const landBeat = useCallback(() => setBeat((n) => n + 1), []);
+  const phone = variant === 'home';
+  const sky: SkyLook = orbiting ? { accent: item.accent, id: selected } : look;
 
   return (
-    <header className="hero" id="top">
-      <HeroSky accent={item.accent} pick={selected} still={still} />
+    <header className="hero" id="top" data-variant={variant}>
+      <HeroSky key={variant} look={sky} still={still} beat={phone ? beat : 0} glow={phone && glow} />
       <div className="hero-copy">
         <p className="hero-kicker">Graydon Wasil &middot; iOS &amp; Android developer</p>
         <h1 className="hero-title">
@@ -99,48 +112,41 @@ export function Hero({ still, onPickGame, onWatch }: { still: boolean; onPickGam
         </p>
       </div>
 
-      <div className="hero-stage" style={{ ['--stage-accent' as string]: item.accent }}>
-        <Orbit
-          items={ORBIT_ITEMS}
-          selected={selected}
-          onSelect={(id) => pick(id)}
-          still={still}
-          bubble={<p className="bubble" aria-live="polite">{line}</p>}
-        >
-          <button type="button" className="gurpy-btn" onClick={onPoke} aria-label="Poke Gurpy">
-            <GurpyFace mood={mood} still={still} />
-          </button>
-        </Orbit>
+      {orbiting && (
+        <div className="hero-stage" style={{ ['--stage-accent' as string]: item.accent }}>
+          <Orbit
+            items={ORBIT_ITEMS}
+            selected={selected}
+            onSelect={pick}
+            still={still}
+            centre={variant}
+            ringY={variant === 'screen' ? 0.6 : 0.5}
+            flyTo={variant === 'screen' ? 0.36 : variant === 'sun' ? 0.5 : undefined}
+          >
+            {variant === 'screen' && <StageCentre item={item} />}
+            {variant === 'sun' && <PixelSun accent={item.accent} pick={selected} still={still} />}
+            {variant === 'gurpy' && <GurpyFace className="orbit-gurpy" mood={happy ? 'happy' : 'idle'} still={still} />}
+          </Orbit>
 
-        <div className="stage-dock">
-        <StageDevice key={item.id} screen={item.screen} />
-        <div className="orbit-card" data-stores={item.stores ? '' : undefined} style={{ ['--accent' as string]: item.accent }} aria-live="polite">
-          <img className="orbit-card-icon" src={item.icon} alt="" data-px={item.pixel || undefined} />
-          <div className="orbit-card-body">
-            <p className="orbit-card-status"><span className="dot" />{item.ring === 'apps' ? 'App' : 'Game'} &middot; {item.status}</p>
-            <h2 className="orbit-card-name">{item.name}</h2>
-            <p className="orbit-card-line">{item.line}</p>
-          </div>
-          <div className="orbit-card-actions">
-            {item.stores ? (
-              <StoreButtons stores={item.stores} app={item.name} pill />
-            ) : (
-              <a className="orbit-card-go" href={item.href} target="_blank" rel="noopener noreferrer">
-                {item.cta} <span aria-hidden="true">&#8599;</span>
-              </a>
-            )}
-            <a
-              className="orbit-card-more"
-              href={`#${item.section}`}
-              onClick={() => { if (item.ring === 'games') onPickGame(item.id); }}
-            >
-              <span className="orbit-card-more-text">{item.ring === 'games' ? 'See it below' : 'Try it below'}</span>{' '}
-              <span aria-hidden="true">&darr;</span>
-            </a>
+          <div className="orbit-card" data-stores={item.stores ? '' : undefined} style={{ ['--accent' as string]: item.accent }} aria-live="polite">
+            <img className="orbit-card-icon" src={item.icon} alt="" data-px={item.pixel || undefined} />
+            <div className="orbit-card-body">
+              <p className="orbit-card-status"><span className="dot" />{item.ring === 'apps' ? 'App' : 'Game'} &middot; {item.status}</p>
+              <h2 className="orbit-card-name">{item.name}</h2>
+              <p className="orbit-card-line">{item.line}</p>
+            </div>
+            <ItemActions item={item} onPickGame={onPickGame} />
           </div>
         </div>
-        </div>
-      </div>
+      )}
+
+      {variant === 'home' && (
+        <HomeScreen still={still} onPickGame={onPickGame} onLook={dress} onGlow={setGlow} onBeat={landBeat} />
+      )}
+
+      {variant === 'worlds' && (
+        <WorldStack still={still} onLight={lightWorld} />
+      )}
     </header>
   );
 }

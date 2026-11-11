@@ -22,7 +22,7 @@ const CREAM = '#f6efe3';
 /** Everything that throws sparks when pressed. */
 const SPARKY = [
   '.chunky-btn', 'a.store-btn', 'a.store-pill', '.morse-send', '.kp-btn', '.kp-play', '.bb-key', '.splash-play',
-  '.rp-btn', '.orbit-item', '.orbit-card-go', '.gurpy-btn', '.buddy-btn', '.top-hi', '.game-hub',
+  '.rp-btn', '.orbit-item', '.orbit-card-go', '.top-tab', '.game-hub', '.bb-lane-name', '.kp-skin', '.kp-shutter', '.hs-icon', '.hs-note', '.hs-back', '.hs-kp-roll', '.ws-go',
 ].join(',');
 
 /** What arrives on scroll, and how (the `data-rv` kinds in site.css). */

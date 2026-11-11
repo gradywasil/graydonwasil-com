@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
+import { flushSync } from 'react-dom';
 import flowerSrc from '../assets/kilopixel/flower.webp';
 import streetSrc from '../assets/kilopixel/street.webp';
 import jellyStill from '../assets/kilopixel/jellyfish-still.webp';
@@ -16,21 +17,47 @@ import type { LookTheme, StarterPreset } from '../vendor/kilopixel/looks';
 import { AndroidLogo, AppleLogo, StoreButtons } from './StoreButtons';
 
 /* Kilopixel, shown with the app's own engine (a snapshot in src/vendor/kilopixel).
- * The viewfinder renders the 49 built-in looks live on two sample photos; the
- * rail below previews every look; hovering shows the original photo. Below
- * that: the real app in its six themes, a GIF it exported, and the rest. */
+ * The viewfinder renders the 49 built-in looks live on two sample photos, or
+ * on the visitor's own camera if they ask for it; the rail below previews
+ * every look; hovering shows the original. The app's six themes re-skin the
+ * whole section, not just a card. Below: the real app in the chosen theme, a
+ * GIF it exported, and the rest. */
 
 const SCENES = { flower: flowerSrc, street: streetSrc } as const;
-type Scene = keyof typeof SCENES;
+type Sample = keyof typeof SCENES;
+type Scene = Sample | 'camera';
 
+/* The app's six interface themes (ids, names and base colours from
+ * src/vendor/kilopixel/themes.ts), filled out for a whole section: `hot` is
+ * the accent when it is used as text, `on` is text on an accent fill. */
 const THEMES = [
-  { id: 'dark', name: 'Graphite', shot: appDark, bg: '#121211', ink: '#efede4', accent: '#ff6b1f' },
-  { id: 'classic', name: 'Classic', shot: appClassic, bg: '#f4f2ea', ink: '#111111', accent: '#111111' },
-  { id: 'pocket', name: 'Pocket', shot: appPocket, bg: '#a3b373', ink: '#1c2812', accent: '#2d421c' },
-  { id: 'arcade', name: 'Arcade', shot: appArcade, bg: '#0f1230', ink: '#f6f0ff', accent: '#46e6d6' },
-  { id: 'terminal', name: 'Terminal', shot: appTerminal, bg: '#0b0a07', ink: '#ffcf7a', accent: '#ffb000' },
-  { id: 'candy', name: 'Candy', shot: appCandy, bg: '#fbe4ef', ink: '#43215e', accent: '#ff4f9a' },
+  { id: 'dark', name: 'Graphite', shot: appDark, bg: '#121212', panel: '#1b1b19', ink: '#efede4', muted: '#b5b3aa', line: '#3a3934', chip: '#262623', accent: '#ff6a1f', hot: '#ff6a1f', on: '#160700' },
+  { id: 'classic', name: 'Classic', shot: appClassic, bg: '#f4f2ea', panel: '#ffffff', ink: '#111111', muted: '#4d4c48', line: '#c9c6ba', chip: '#e7e4d8', accent: '#111111', hot: '#111111', on: '#f4f2ea' },
+  { id: 'pocket', name: 'Pocket', shot: appPocket, bg: '#9bab70', panel: '#b4c38a', ink: '#1f2b14', muted: '#2c3a1e', line: '#7d8c58', chip: '#a3b27a', accent: '#30461f', hot: '#283c18', on: '#dfe8c4' },
+  { id: 'arcade', name: 'Arcade', shot: appArcade, bg: '#0f1230', panel: '#1a1f48', ink: '#f6f0ff', muted: '#b4b0d6', line: '#343a78', chip: '#262c5e', accent: '#46e6d6', hot: '#46e6d6', on: '#06202a' },
+  { id: 'terminal', name: 'Terminal', shot: appTerminal, bg: '#0b0a07', panel: '#17140c', ink: '#ffcf7a', muted: '#c79a52', line: '#3d3115', chip: '#241e10', accent: '#ffb000', hot: '#ffb000', on: '#1a1000' },
+  { id: 'candy', name: 'Candy', shot: appCandy, bg: '#fbe4ef', panel: '#fff4f9', ink: '#43215e', muted: '#6d4b85', line: '#e9bcd3', chip: '#f6d3e3', accent: '#ff4f9a', hot: '#b3206a', on: '#2b0a25' },
 ] as const;
+
+/** Six swatches that pick the app theme, wherever they are shown. */
+function Skins({ theme, onPick }: { theme: number; onPick: (i: number) => void }) {
+  return (
+    <span className="kp-theme-swatches" role="radiogroup" aria-label="App theme">
+      {THEMES.map((x, i) => (
+        <button
+          key={x.id}
+          type="button"
+          role="radio"
+          className="kp-skin"
+          aria-checked={i === theme}
+          aria-label={x.name}
+          style={{ background: `linear-gradient(135deg, ${x.bg} 0 55%, ${x.accent} 55%)` }}
+          onClick={() => onPick(i)}
+        />
+      ))}
+    </span>
+  );
+}
 
 const SPECS = [
   ['3-shot moment', 'Frames from just before and after the press. Keep the best one.'],
@@ -41,6 +68,9 @@ const SPECS = [
 ] as const;
 
 const AUTO_MS = 3200;
+/** While the camera is on, the look rail repaints this often. */
+const RAIL_MS = 2500;
+const NO_CAMERA = 'No camera here, so the sample photo stays. Nothing leaves your browser either way.';
 const CHIP_W = 72;
 const CHIP_H = 96;
 
@@ -78,7 +108,10 @@ export function KilopixelLaunch({ still }: { still: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const prevRef = useRef<HTMLCanvasElement>(null);
   const railRef = useRef<HTMLDivElement>(null);
-  const images = useRef<Partial<Record<Scene, HTMLImageElement>>>({});
+  const images = useRef<Partial<Record<Sample, HTMLImageElement>>>({});
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const stream = useRef<MediaStream | null>(null);
+  const asking = useRef(false);
 
   const [engine, setEngine] = useState<Engine | null>(null);
   const [failed, setFailed] = useState(false);
@@ -91,6 +124,8 @@ export function KilopixelLaunch({ still }: { still: boolean }) {
 
   const [theme, setTheme] = useState(0);
   const [gif, setGif] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+  const [flash, setFlash] = useState(0);
 
   // Load the engine and the sample photos once the section is close.
   useEffect(() => {
@@ -128,7 +163,7 @@ export function KilopixelLaunch({ still }: { still: boolean }) {
   useEffect(() => {
     if (!near) return;
     let cancelled = false;
-    Promise.all((Object.keys(SCENES) as Scene[]).map(async (key) => {
+    Promise.all((Object.keys(SCENES) as Sample[]).map(async (key) => {
       const img = new Image();
       img.src = SCENES[key];
       await img.decode();
@@ -146,42 +181,154 @@ export function KilopixelLaunch({ still }: { still: boolean }) {
   const look = looks.find((x) => x.id === lookId) ?? looks[0];
   const shown = useMemo(() => (group === 'all' ? looks : looks.filter((x) => x.theme === group)), [looks, group]);
 
-  const draw = useCallback((time?: number) => {
-    const img = images.current[scene];
-    if (!engine || !look || !img) return;
-    try { engine.main.render(img, scaled(look.settings, 480), { time }); } catch { /* keep the last frame */ }
-  }, [engine, look, scene]);
+  /** What the engine is pointed at: a sample photo, or the camera once it has a frame. */
+  const source = useCallback((): CanvasImageSource | undefined => {
+    if (scene !== 'camera') return images.current[scene];
+    const video = videoRef.current;
+    return video && video.readyState >= 2 ? video : undefined;
+  }, [scene]);
 
-  // Paint the viewfinder; VHS looks keep moving while on screen.
+  const draw = useCallback((time?: number) => {
+    const from = source();
+    if (!engine || !look || !from) return;
+    try { engine.main.render(from, scaled(look.settings, 480), { time }); } catch { /* keep the last frame */ }
+  }, [engine, look, source]);
+
+  // Paint the viewfinder; VHS looks, and the camera, keep moving while on screen.
   useEffect(() => {
     if (!imagesReady) return;
     draw();
-    if (!engine || !look || !engine.animated(look.settings) || !visible || still) return;
+    const moving = scene === 'camera' || (!still && !!engine && !!look && engine.animated(look.settings));
+    if (!moving || !visible) return;
     let raf = 0;
     const start = performance.now();
     const tick = (now: number) => { draw(now - start); raf = requestAnimationFrame(tick); };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [draw, imagesReady, engine, look, visible, still]);
+  }, [draw, imagesReady, engine, look, visible, still, scene]);
 
-  // Preview chips: every look in the rail, rendered on the current scene.
+  // Preview chips: every look in the rail, rendered on the current scene. With
+  // the camera on they are redrawn every so often, so the rail is you too.
   useEffect(() => {
-    const img = images.current[scene];
-    if (!engine || !img || !imagesReady) return;
+    if (!engine || !imagesReady) return;
     const { side, sideCanvas } = engine;
     const byId = new Map(shown.map((x) => [x.id, x]));
-    for (const target of railRef.current?.querySelectorAll<HTMLCanvasElement>('canvas[data-look]') ?? []) {
-      const item = byId.get(target.dataset.look ?? '');
-      const ctx = target.getContext('2d');
-      if (!item || !ctx) continue;
-      try {
-        side.setSize(CHIP_W, CHIP_H);
-        side.render(img, scaled(item.settings, CHIP_W * 1.6));
-        ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(sideCanvas, 0, 0, target.width, target.height);
-      } catch { /* decorative */ }
+    const paint = () => {
+      const from = source();
+      if (!from) return;
+      for (const target of railRef.current?.querySelectorAll<HTMLCanvasElement>('canvas[data-look]') ?? []) {
+        const item = byId.get(target.dataset.look ?? '');
+        const ctx = target.getContext('2d');
+        if (!item || !ctx) continue;
+        try {
+          side.setSize(CHIP_W, CHIP_H);
+          side.render(from, scaled(item.settings, CHIP_W * 1.6));
+          ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(sideCanvas, 0, 0, target.width, target.height);
+        } catch { /* decorative */ }
+      }
+    };
+    paint();
+    if (scene !== 'camera') return;
+    const first = window.setTimeout(paint, 350);
+    const t = window.setInterval(paint, RAIL_MS);
+    return () => { clearTimeout(first); clearInterval(t); };
+  }, [engine, shown, scene, imagesReady, source]);
+
+  /* The visitor's own camera, only when they ask. The picture goes from the
+   * camera to the engine on this page and nowhere else. */
+  const closeCamera = useCallback(() => {
+    stream.current?.getTracks().forEach((track) => track.stop());
+    stream.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
+  }, []);
+
+  const openCamera = async () => {
+    setAuto(false);
+    if (scene === 'camera' || asking.current) return;
+    asking.current = true;
+    try {
+      if (!navigator.mediaDevices?.getUserMedia) throw new Error('unavailable');
+      const feed = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: 'user', width: { ideal: 960 }, height: { ideal: 1280 } } });
+      const video = videoRef.current;
+      if (!video) { feed.getTracks().forEach((track) => track.stop()); return; }
+      stream.current = feed;
+      video.srcObject = feed;
+      await video.play();
+      setNote(null);
+      setScene('camera');
+    } catch {
+      closeCamera();
+      setNote(NO_CAMERA);
+    } finally {
+      asking.current = false;
     }
-  }, [engine, shown, scene, imagesReady]);
+  };
+
+  const showSample = (s: Sample) => {
+    setAuto(false);
+    closeCamera();
+    setScene(s);
+  };
+
+  // The camera goes off when the viewfinder scrolls away, the tab closes, or the page does.
+  useEffect(() => {
+    if (scene !== 'camera') return;
+    const studio = studioRef.current;
+    const off = () => { closeCamera(); setScene('flower'); };
+    const io = new IntersectionObserver(([e]) => { if (!e.isIntersecting) off(); });
+    if (studio) io.observe(studio);
+    window.addEventListener('pagehide', off);
+    return () => { io.disconnect(); window.removeEventListener('pagehide', off); };
+  }, [scene, studioRef, closeCamera]);
+  useEffect(() => closeCamera, [closeCamera]);
+  useEffect(() => {
+    if (!note) return;
+    const t = window.setTimeout(() => setNote(null), 5200);
+    return () => clearTimeout(t);
+  }, [note]);
+
+  /** Save what the viewfinder shows, at twice its size with hard pixels. */
+  const snap = () => {
+    const canvas = canvasRef.current;
+    if (!canvas || !look) return;
+    draw();
+    const shot = document.createElement('canvas');
+    shot.width = canvas.width * 2;
+    shot.height = canvas.height * 2;
+    const ctx = shot.getContext('2d');
+    if (!ctx) return;
+    ctx.imageSmoothingEnabled = false;
+    // The viewfinder is mirrored like a selfie camera; save it the way it looked.
+    ctx.translate(shot.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(canvas, 0, 0, shot.width, shot.height);
+    setFlash((n) => n + 1);
+    shot.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const link = Object.assign(document.createElement('a'), { href: url, download: `kilopixel-${look.id.replace(/^starter-/, '')}.png` });
+      document.body.append(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 10000);
+    }, 'image/png');
+  };
+
+  /** Re-skin the section in one of the app's themes, wiped in like a look change. */
+  const skin = (i: number) => {
+    if (i === theme) return;
+    if (still || !('startViewTransition' in document)) { setTheme(i); return; }
+    const root = document.documentElement;
+    root.dataset.vt = 'kp';
+    const done = () => { delete root.dataset.vt; };
+    try {
+      document.startViewTransition(() => flushSync(() => setTheme(i))).finished.then(done, done);
+    } catch {
+      done();
+      setTheme(i);
+    }
+  };
 
   // Hand over to a new look with a stepped wipe from the old frame.
   const choose = useCallback((id: string) => {
@@ -227,11 +374,17 @@ export function KilopixelLaunch({ still }: { still: boolean }) {
     setReveal({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 });
   };
 
+  const lens = reveal ? `circle(17% at ${reveal.x}% ${reveal.y}%)` : 'circle(0 at 50% 50%)';
   const t = THEMES[theme];
+  const skinVars = {
+    '--kp-bg': t.bg, '--kp-panel': t.panel, '--kp-ink': t.ink, '--kp-muted': t.muted, '--kp-line': t.line,
+    '--kp-chip': t.chip, '--kp-orange': t.accent, '--kp-hot': t.hot, '--kp-on': t.on,
+  } as CSSProperties;
   const settings = look?.settings;
+  const onCamera = scene === 'camera';
 
   return (
-    <section className="world world-kp" id="kilopixel" ref={sectionRef} aria-labelledby="kp-title">
+    <section className="world world-kp" id="kilopixel" ref={sectionRef} aria-labelledby="kp-title" data-theme={t.id} style={skinVars}>
       <div className="kp-grid">
         <div className="kp-copy">
           <p className="kicker kp-kicker">
@@ -255,8 +408,13 @@ export function KilopixelLaunch({ still }: { still: boolean }) {
             <li><b>49</b> looks</li>
             <li><b>23</b> effects</li>
             <li><b>134</b> palettes</li>
-            <li><b>6</b> app themes</li>
           </ul>
+          {/* The app's six themes, worn by this whole section. */}
+          <div className="kp-skins">
+            <span className="kp-skins-label">App theme</span>
+            <Skins theme={theme} onPick={skin} />
+            <b>{t.name}</b>
+          </div>
           <StoreButtons stores={KILOPIXEL.stores} app="Kilopixel" className="kp-stores" />
           <p className="kp-note">
             {KILOPIXEL.stores.android.state === 'beta' && (
@@ -272,7 +430,7 @@ export function KilopixelLaunch({ still }: { still: boolean }) {
 
         <div className="kp-studio" ref={studioRef}>
           <div className="kp-vf-bar">
-            <span className="kp-live"><i />{failed ? 'Sample' : 'Live engine'}</span>
+            <span className="kp-live"><i />{failed ? 'Sample' : onCamera ? 'Your camera, never uploaded' : 'Live engine'}</span>
             <span className="kp-vf-look">
               <strong>{look?.name ?? 'Riso print'}</strong>
               <span>{settings ? `${engine?.effectLabel(settings)} · ${settings.palette.length} colors` : 'Loading looks'}</span>
@@ -280,6 +438,7 @@ export function KilopixelLaunch({ still }: { still: boolean }) {
           </div>
           <div
             className="kp-screen"
+            data-mirror={onCamera || undefined}
             onPointerMove={track}
             onPointerDown={track}
             onPointerLeave={() => setReveal(null)}
@@ -290,7 +449,7 @@ export function KilopixelLaunch({ still }: { still: boolean }) {
               width={480}
               height={640}
               role="img"
-              aria-label={`The ${scene} photo in Kilopixel's ${look?.name ?? 'Riso print'} look`}
+              aria-label={`${onCamera ? 'Your camera' : `The ${scene} photo`} in Kilopixel's ${look?.name ?? 'Riso print'} look`}
             />
             <canvas
               ref={prevRef}
@@ -298,22 +457,44 @@ export function KilopixelLaunch({ still }: { still: boolean }) {
               aria-hidden="true"
               onAnimationEnd={(e) => e.currentTarget.classList.remove('kp-wipe')}
             />
-            {(failed || !engine) && <img className="kp-fallback" src={SCENES[scene]} alt="" />}
-            <img
+            {(failed || !engine) && <img className="kp-fallback" src={SCENES[onCamera ? 'flower' : scene]} alt="" />}
+            {!onCamera && (
+              <img
+                className="kp-reveal"
+                src={SCENES[scene]}
+                alt=""
+                aria-hidden="true"
+                style={{ clipPath: lens }}
+              />
+            )}
+            {/* The camera's own picture: the engine reads it, and the lens shows it untouched. */}
+            <video
+              ref={videoRef}
               className="kp-reveal"
-              src={SCENES[scene]}
-              alt=""
+              muted
+              playsInline
               aria-hidden="true"
-              style={reveal ? { clipPath: `circle(17% at ${reveal.x}% ${reveal.y}%)` } : { clipPath: 'circle(0 at 50% 50%)' }}
+              style={{ clipPath: onCamera && reveal ? `circle(17% at ${100 - reveal.x}% ${reveal.y}%)` : 'circle(0 at 50% 50%)' }}
             />
             {reveal && <i className="kp-lens" style={{ left: `${reveal.x}%`, top: `${reveal.y}%` }} aria-hidden="true" />}
-            <div className="kp-scenes" role="group" aria-label="Photo">
-              {(Object.keys(SCENES) as Scene[]).map((s) => (
-                <button key={s} type="button" aria-pressed={scene === s} onClick={() => { setAuto(false); setScene(s); }}>
+            {flash > 0 && <i className="kp-flash" key={flash} aria-hidden="true" />}
+            <div className="kp-scenes" role="group" aria-label="Picture">
+              {(Object.keys(SCENES) as Sample[]).map((s) => (
+                <button key={s} type="button" aria-pressed={scene === s} onClick={() => showSample(s)}>
                   {s === 'flower' ? 'Flower' : 'Street'}
                 </button>
               ))}
+              <button type="button" className="kp-you" aria-pressed={onCamera} aria-label="Use your camera" onClick={() => void openCamera()}>
+                <svg viewBox="0 0 12 10" aria-hidden="true" shapeRendering="crispEdges"><path d="M0 2h3V1h1V0h4v1h1v1h3v8H0zM4 4v4h4V4z" fill="currentColor" fillRule="evenodd" /></svg>
+                You
+              </button>
             </div>
+            {onCamera && engine && (
+              <button type="button" className="kp-shutter" onClick={snap} aria-label={`Save this photo in the ${look?.name ?? ''} look`}>
+                <i aria-hidden="true" />
+              </button>
+            )}
+            {note && <p className="kp-toast" role="status">{note}</p>}
             <p className="kp-hint" aria-hidden="true">
               <span className="kp-hint-hover">Hover to see reality</span>
               <span className="kp-hint-touch">Hold to see reality</span>
@@ -328,7 +509,7 @@ export function KilopixelLaunch({ still }: { still: boolean }) {
               </button>
             ))}
           </div>
-          <div className="kp-rail" role="radiogroup" aria-label="Looks" ref={railRef}>
+          <div className="kp-rail" role="radiogroup" aria-label="Looks" ref={railRef} data-mirror={onCamera || undefined}>
             {shown.map((item) => (
               <button
                 key={item.id}
@@ -371,29 +552,14 @@ export function KilopixelLaunch({ still }: { still: boolean }) {
       </div>
 
       <div className="kp-extras">
-        <figure
-          className="kp-tile kp-themes"
-          style={{ ['--t-bg' as string]: t.bg, ['--t-ink' as string]: t.ink, ['--t-accent' as string]: t.accent }}
-        >
+        <figure className="kp-tile kp-themes">
           <div className="kp-phone">
             <img src={t.shot} alt={`The Kilopixel camera screen in the ${t.name} theme`} width="540" height="1169" loading="lazy" decoding="async" />
           </div>
           <figcaption>
             <strong>Six app themes</strong>
-            <span>{t.name}. The real app, not a mockup.</span>
-            <span className="kp-theme-swatches" role="radiogroup" aria-label="App theme">
-              {THEMES.map((x, i) => (
-                <button
-                  key={x.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={i === theme}
-                  aria-label={x.name}
-                  style={{ background: `linear-gradient(135deg, ${x.bg} 0 55%, ${x.accent} 55%)` }}
-                  onClick={() => setTheme(i)}
-                />
-              ))}
-            </span>
+            <span>{t.name}. The real app, not a mockup. <span className="only-wide">Pick one and this whole section wears it.</span></span>
+            <Skins theme={theme} onPick={skin} />
           </figcaption>
         </figure>
 

@@ -1,0 +1,626 @@
+/* The hero stage, tried several ways (src/components/hero). Whichever one is
+ * kept, its rules move into site.css and the rest of this file goes. */
+
+/* ------------------------------------------------- orbit: what's in the middle */
+
+/* 1. A pixel sun in the picked item's colour. */
+.pixel-sun { position: absolute; left: -19cqw; top: -19cqw; width: 38cqw; height: 38cqw; image-rendering: pixelated; }
+
+/* 2. Gurpy, quiet: no bubble, no click, and the pointer passes through him. */
+/* (No drop shadow: a filter here blacks out the WebGL sky behind it in Chrome.) */
+.orbit-gurpy { position: absolute; left: -13cqw; top: -14.5cqw; width: 26cqw; height: 26cqw; }
+
+/* ------------------------------------------------------------ 3. home screen
+ * A phone whose home screen is the work (HomeScreen.tsx). Inside the screen
+ * everything is sized in cqw, a hundredth of the screen's width, so the same
+ * phone works at any size. */
+
+.hs { position: relative; justify-self: center; display: grid; justify-items: center; gap: 22px; width: 100%; }
+/* The 3D scene is only the tilting handset and what hangs around it. Nothing else may share it:
+ * a box that keeps its children in 3D sits at depth zero, and whichever half of the leaning
+ * phone falls behind that takes no presses. So this box flattens, and passes presses through. */
+.hs-float { position: relative; perspective: 1500px; pointer-events: none; }
+/* The handset leans with the pointer and the scroll (HomeScreen sets --rx, --ry and --gy). */
+.hs-tilt { position: relative; transform-style: preserve-3d; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); }
+.hs-phone {
+  pointer-events: auto;
+  position: relative; width: min(318px, calc((100svh - 214px) * 9 / 19)); min-width: 250px; aspect-ratio: 9 / 19; padding: 9px;
+  border-radius: 50px;
+  background: linear-gradient(140deg, #34374f, #0b0c18 26%, #05060f 68%, #23263a);
+  box-shadow:
+    0 0 0 1.5px rgb(255 255 255 / 0.18),
+    0 50px 70px -40px #000,
+    0 0 120px -16px color-mix(in srgb, var(--accent) 62%, transparent);
+  transition: box-shadow 0.5s ease-out;
+}
+.hs-phone[data-glow] { box-shadow: 0 0 0 1.5px rgb(255 255 255 / 0.3), 0 50px 70px -40px #000, 0 0 150px -6px color-mix(in srgb, var(--accent) 85%, transparent); transition-duration: 0.04s; }
+/* A sheen that slides across the glass as the phone turns. */
+.hs-phone::after {
+  content: ''; position: absolute; inset: 0; z-index: 5; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(112deg, transparent 34%, rgb(255 255 255 / 0.1) 45%, rgb(255 255 255 / 0.02) 53%, transparent 62%) calc(50% + var(--gy, 0) * 3.5%) 0 / 280% 100% no-repeat;
+}
+/* Its buttons, and the flashlight at its top corner (the sky throws its beam from here: `.hero-lamp`). */
+.hs-key { position: absolute; width: 4px; border-radius: 2px; background: #23263a; }
+.hs-key-a { left: -3.5px; top: 17%; height: 4%; }
+.hs-key-b { left: -3.5px; top: 24.5%; height: 7.5%; }
+.hs-key-c { left: -3.5px; top: 34%; height: 7.5%; }
+.hs-key-d { right: -3.5px; top: 28%; height: 12%; }
+.hs-torch {
+  position: absolute; z-index: 6; right: -17%; top: -8%; width: 46%; aspect-ratio: 1; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, #fffaf0 0 6%, rgb(255 226 160 / 0.9) 12%, rgb(247 178 76 / 0.5) 30%, transparent 68%);
+  opacity: 0; transition: opacity 0.14s;
+}
+.hs-phone[data-glow] .hs-torch { opacity: 1; transition-duration: 0.02s; }
+
+.hs-screen {
+  position: relative; height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr);
+  border-radius: 41px; overflow: hidden; isolation: isolate; container-type: inline-size;
+  background:
+    radial-gradient(90% 50% at 50% 0%, color-mix(in srgb, var(--accent) 36%, transparent), transparent 70%),
+    linear-gradient(175deg, #1c2148, #0d1026 70%);
+  color: var(--cream);
+}
+.hs-screen[data-open] { --away: 1; }
+.hs-status {
+  position: relative; z-index: 4; display: flex; align-items: center; justify-content: space-between;
+  padding: 4.6cqw 8cqw 2cqw; font: 700 clamp(11px, 4.4cqw, 14px)/1 var(--body);
+}
+/* The island: it widens to hold whatever is open, with a meter if that thing makes sound. */
+.hs-island {
+  position: absolute; left: 50%; top: 3.2cqw; width: 27cqw; height: 7.4cqw; translate: -50% 0;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 1.5cqw 0 1.2cqw;
+  border-radius: 999px; background: #05060f; overflow: hidden;
+  transition: width 0.5s cubic-bezier(0.2, 1.5, 0.35, 1);
+}
+.hs-island[data-live] { width: 46cqw; }
+.hs-island img { width: 5.2cqw; height: 5.2cqw; object-fit: contain; border-radius: 26%; }
+.hs-island img[data-px] { image-rendering: pixelated; }
+.hs-eq { display: flex; align-items: center; gap: 0.8cqw; height: 4.2cqw; margin-right: 1cqw; }
+.hs-eq i { width: 0.9cqw; min-width: 2px; height: 100%; border-radius: 1cqw; background: var(--accent); scale: 1 0.35; }
+.hs-dot { width: 2.2cqw; height: 2.2cqw; margin-right: 1.4cqw; border-radius: 50%; background: var(--accent); box-shadow: 0 0 2.4cqw var(--accent); }
+.hs-status-icons { display: flex; align-items: center; gap: 1.6cqw; }
+.hs-status-icons svg { height: 3.4cqw; min-height: 9px; width: auto; }
+
+/* Opening an app dives into its icon: home grows toward it (HomeScreen sets the origin) and clears. */
+.hs-home {
+  display: grid; grid-template-rows: minmax(0, 1fr) auto; padding: 4cqw 4.5cqw 4.5cqw; transform-origin: 50% 42%;
+  scale: calc(1 + 0.9 * var(--away, 0)); opacity: calc(1 - var(--away, 0));
+  transition: scale 0.5s cubic-bezier(0.3, 0, 0.2, 1), opacity 0.3s;
+}
+.hs-grid, .hs-dock { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; }
+/* Games get three to a row, so they are big enough to read and to hit. */
+.hs-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-content: space-evenly; row-gap: 2cqw; }
+.hs-grid .hs-tile { width: 22cqw; }
+.hs-dock {
+  padding: 3.6cqw 0 3cqw; border-radius: 9cqw;
+  background: rgb(255 255 255 / 0.1); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+}
+.hs-icon {
+  display: grid; justify-items: center; gap: 1.7cqw; width: 100%; padding: 0;
+  background: none; border: 0; color: inherit; cursor: pointer; text-decoration: none;
+  --spark: var(--accent);
+}
+.hs-tile {
+  display: grid; place-items: center; width: 16.5cqw; aspect-ratio: 1; overflow: hidden; border-radius: 25%;
+  background: color-mix(in srgb, var(--accent) 30%, #0d1026);
+  box-shadow: 0 1.4cqw 2.6cqw rgb(0 0 0 / 0.38), inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  transition: scale 0.16s cubic-bezier(0.2, 1.5, 0.4, 1), box-shadow 0.2s;
+}
+.hs-tile img { width: 100%; height: 100%; object-fit: cover; }
+.hs-tile[data-ring='games'] img, .hs-tile-hub img { width: 80%; height: 80%; object-fit: contain; }
+.hs-tile img[data-px] { image-rendering: pixelated; }
+.hs-tile-hub { background: var(--cream); }
+.hs-name {
+  max-width: 100%; padding: 0 0.6cqw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font: 600 clamp(10px, 3.5cqw, 12px)/1.1 var(--body);
+}
+.hs-icon:hover .hs-tile, .hs-icon:focus-visible .hs-tile {
+  scale: 1.12;
+  box-shadow: 0 1.4cqw 2.6cqw rgb(0 0 0 / 0.38), inset 0 0 0 1px rgb(255 255 255 / 0.1), 0 0 5cqw color-mix(in srgb, var(--accent) 75%, transparent);
+}
+.hs-icon:active .hs-tile { scale: 0.86; }
+.hs-icon:focus-visible { outline-offset: 1px; }
+
+/* A notification: one of the apps or games, saying what it is. Tapping it opens it. */
+.hs-note {
+  position: absolute; z-index: 5; left: 3cqw; right: 3cqw; top: 13.5cqw;
+  display: flex; align-items: center; gap: 3cqw; padding: 3cqw 3.6cqw; border: 0; border-radius: 7cqw; cursor: pointer;
+  background: rgb(30 34 68 / 0.95); color: var(--cream); text-align: left; font: inherit;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, rgb(255 255 255 / 0.12)), 0 5cqw 9cqw -3cqw rgb(0 0 0 / 0.7);
+  --spark: var(--accent);
+}
+.hs-note .hs-tile { width: 12cqw; flex: none; }
+.hs-note-text { display: grid; gap: 1cqw; min-width: 0; flex: 1; }
+.hs-note-text b { display: flex; justify-content: space-between; align-items: baseline; gap: 2cqw; font: 700 clamp(12px, 4.3cqw, 14px)/1.1 var(--body); }
+.hs-note-text small { font-weight: 500; font-size: 0.82em; color: var(--muted); }
+.hs-note-text > span {
+  font-size: clamp(11px, 3.7cqw, 13px); line-height: 1.3; color: #d3d6ee;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* An opened item: it fills the phone and runs (LiveApps.tsx), with a sheet over the bottom. */
+.hs-app { position: absolute; inset: 0; z-index: 3; overflow: hidden; background: #05060f; }
+.hs-splash, .hs-boot { display: none; }
+.hs-app-shot { position: absolute; inset: 0; }
+.hs-app[data-kind='phone'] .hs-app-shot > img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.hs-app-shot .mapp-fit { border-radius: 0; }
+/* Morse's interface and a phone game's screen start under the status bar. BitBounce's
+ * screenshot brings a status bar of its own, so ours steps aside and leaves the island. */
+.hs-app[data-app='morse'] .hs-app-shot, .hs-app[data-app='game'][data-kind='phone'] .hs-app-shot { top: 11cqw; }
+.hs-screen:has(.hs-app[data-app='bitbounce']) .hs-status > span:first-child,
+.hs-screen:has(.hs-app[data-app='bitbounce']) .hs-status-icons { visibility: hidden; }
+/* Kilopixel: its engine, live, on a photo. Tap the picture for another look. */
+.hs-kp canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
+.hs-kp-roll { position: absolute; inset: 0; padding: 0; border: 0; background: none; cursor: pointer; }
+.hs-kp-tag, .hs-kp-hint {
+  position: absolute; top: 14cqw; display: flex; align-items: center; gap: 2cqw; padding: 2.2cqw 2.6cqw; pointer-events: none;
+  background: rgb(7 7 7 / 0.82); color: #efede4;
+  font: 400 clamp(9px, 3cqw, 11px)/1 var(--micro); letter-spacing: 0.06em; text-transform: uppercase;
+}
+.hs-kp-tag { left: 4cqw; display: grid; grid-template-columns: auto auto; }
+.hs-kp-tag i { width: 2.2cqw; height: 2.2cqw; background: #ff3b30; }
+.hs-kp-tag b { grid-column: 1 / -1; font: 700 clamp(13px, 5cqw, 17px)/1 var(--pixel); letter-spacing: 0; text-transform: none; color: #ff6a1f; }
+.hs-kp-hint { right: 4cqw; }
+.hs-lyrics {
+  display: grid; align-content: start; gap: 1cqw; padding: 30cqw 9cqw 0; background: #07100b;
+  font: 700 clamp(17px, 7.4cqw, 26px)/1.35 var(--body); color: rgb(255 255 255 / 0.4);
+}
+.hs-lyrics span { transition: color 0.12s; }
+.hs-lyrics span[data-state='sung'] { color: rgb(255 255 255 / 0.9); }
+.hs-lyrics span[data-state='now'] { color: var(--rp-green); text-shadow: 0 0 16px rgb(75 227 143 / 0.6); }
+.hs-lyrics .rp-beat { margin-top: 4cqw; }
+.hs-game { display: grid; align-content: start; justify-items: center; gap: 5cqw; padding: 26cqw 5cqw 0; background: var(--g-bg, #101327); }
+.hs-game-logo { width: auto; max-width: 80%; height: auto; max-height: 30cqw; object-fit: contain; }
+.hs-game-logo[data-px] { height: 26cqw; image-rendering: pixelated; }
+.hs-game-window { width: 100%; margin: 0; border-radius: 3cqw; overflow: hidden; background: #0c0c12; box-shadow: 0 5cqw 9cqw -4cqw rgb(0 0 0 / 0.7); }
+.hs-game-window img { width: 100%; display: block; }
+
+.hs-sheet {
+  position: absolute; z-index: 3; left: 3cqw; right: 3cqw; bottom: 7.5cqw; padding: 5cqw 5cqw 4.5cqw; border-radius: 9cqw;
+  background: color-mix(in srgb, var(--night-2) 92%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 34%, transparent), 0 -8cqw 12cqw -6cqw rgb(0 0 0 / 0.6);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+}
+/* Home sits on the sheet's corner, so it never covers the screen it is closing. */
+.hs-back {
+  position: absolute; right: 3.5cqw; top: 3.5cqw; display: inline-flex; align-items: center; gap: 7px;
+  min-height: 40px; padding: 0 14px 0 11px; border: 0; border-radius: 999px; cursor: pointer;
+  background: rgb(255 255 255 / 0.12); color: var(--cream); font: 700 13px/1 var(--body);
+}
+.hs-back svg { width: 8px; height: 13px; }
+.hs-back:hover { background: rgb(255 255 255 / 0.22); }
+.hs-sheet .orbit-card-status { min-height: 26px; padding-right: 88px; }
+.hs-sheet-name { margin-top: 7px; font: 800 clamp(21px, 8cqw, 27px)/1.05 var(--display-home); letter-spacing: -0.02em; }
+.hs-sheet-line { margin-top: 5px; font-size: clamp(13px, 4.4cqw, 15px); line-height: 1.4; color: var(--muted); }
+.hs-sheet .orbit-card-actions { display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: 8px 12px; margin-top: 12px; --spark: var(--accent); }
+.hs-sheet .store-row { gap: 6px; }
+/* On a small handset the sheet is kept short, so the app above it stays in view: what it is,
+ * its name beside Home, and the way in. The store buttons keep their logos and their state. */
+@container (max-width: 270px) {
+  .hs-sheet { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 6px; padding: 4.5cqw 4.5cqw 4cqw; }
+  .hs-sheet .orbit-card-status { grid-area: 1 / 1 / 2 / -1; min-height: 0; padding-right: 0; gap: 5px; font-size: 9px; letter-spacing: 0.04em; white-space: nowrap; overflow: hidden; }
+  .hs-sheet .orbit-card-status .dot { flex: none; width: 6px; height: 6px; }
+  .hs-sheet-name { grid-area: 2 / 1; margin-top: 5px; font-size: 19px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  /* Home is just its arrow here (it keeps its name for screen readers). It looks small and takes a full-size press. */
+  .hs-back { position: relative; grid-area: 2 / 2; right: auto; top: auto; align-self: start; justify-content: center; margin-top: 3px; width: 34px; min-height: 34px; padding: 0 2px 0 0; gap: 0; font-size: 0; }
+  .hs-back::before { content: ''; position: absolute; inset: -6px; }
+  .hs-sheet-line { display: none; }
+  .hs-sheet .orbit-card-actions { grid-area: 3 / 1 / 4 / -1; flex-wrap: nowrap; gap: 5px; margin-top: 9px; }
+  .hs-sheet .store-row { flex: 1 1 auto; flex-wrap: nowrap; gap: 5px; min-width: 0; }
+  .hs-sheet .store-pill { flex: 1 1 0; flex-direction: column; min-width: 0; min-height: 46px; justify-content: center; gap: 4px; padding: 5px 4px; }
+  .hs-sheet .store-pill-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .hs-sheet .store-pill-state { padding: 2px 4px; font-size: 9px; }
+  .hs-sheet .orbit-card-go { flex: 1 1 0; min-width: 0; min-height: 46px; justify-content: center; gap: 4px; padding: 0 6px; font-size: 12px; white-space: nowrap; }
+  .hs-sheet .orbit-card-more {
+    flex: none; display: grid; place-items: center; width: 40px; height: 46px; margin-left: auto;
+    border: 1px solid rgb(255 255 255 / 0.2); border-radius: 10px; color: var(--cream); font-size: 17px; text-decoration: none;
+  }
+  .hs-sheet .orbit-card-more-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+/* The bar along the bottom: tap it or flick it up to go home. */
+.hs-bar {
+  position: absolute; z-index: 4; left: 50%; bottom: 0; translate: -50% 0; width: 52cqw; height: 7.5cqw; min-height: 24px;
+  padding: 0; border: 0; background: none; cursor: grab; touch-action: none;
+}
+.hs-bar::after {
+  content: ''; position: absolute; left: 8cqw; right: 8cqw; bottom: 2.4cqw; height: 1.5cqw; min-height: 4px;
+  border-radius: 999px; background: rgb(255 255 255 / 0.78); transition: background-color 0.15s, scale 0.15s;
+}
+.hs-bar:hover::after { background: #fff; scale: 1.06 1.2; }
+.hs-bar:active { cursor: grabbing; }
+
+/* What climbs out of the phone and hangs around it. Each thing names a side, how far off the
+ * handset's edge it sits (--gap) and how far down (--y), and has a depth of its own, so the
+ * tilt slides it past the handset. --spread pulls everything in where there is less room. */
+.hs-spill {
+  position: absolute; inset: 0; pointer-events: none; transform-style: preserve-3d;
+  --spread: 1; --wmax: 999px; --bx: 250px; --by: -188px; --beam-turn: -36.9deg;
+}
+.hs-spill > * { position: absolute; top: var(--y); }
+.hs-spill > [data-side='l'] { right: calc(100% + var(--gap) * var(--spread)); }
+.hs-spill > [data-side='r'] { left: calc(100% + var(--gap) * var(--spread)); }
+/* A game's sprites. */
+.hs-floater { width: min(var(--w), var(--wmax)); transform: translateZ(calc(var(--depth) * var(--deep, 70px))) rotate(var(--r)); }
+.hs-floater img { width: 100%; display: block; }
+.hs-floater[data-px] img { image-rendering: pixelated; }
+/* Kilopixel: the colours of the look it is drawing in, as pixels coming off two corners. */
+.hs-chip { width: var(--s); aspect-ratio: 1; background: var(--c); box-shadow: 0 0 0 1px rgb(0 0 0 / 0.45); transform: translateZ(calc(var(--depth) * 60px)); }
+/* BitBounce: its four lanes as pads, each playing its part of the beat. */
+.hs-pad {
+  width: 17%; aspect-ratio: 1; border-radius: 24%;
+  background: color-mix(in srgb, var(--c) 24%, #fbf9f4);
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--c) 34%, #7d7768), 0 16px 22px -8px rgb(0 0 0 / 0.7);
+  transform: translateZ(calc(46px + var(--i) * 14px)) rotate(7deg);
+}
+.hs-pad[data-side='l'] { transform: translateZ(calc(46px + var(--i) * 14px)) rotate(-8deg); }
+.hs-pad::after { content: ''; position: absolute; inset: 26%; border-radius: 30%; background: var(--c); opacity: 0.45; }
+/* Morse's marks and RhymePage's words only exist in motion. */
+.hs-pulse, .hs-word { display: none; }
+.hs-hint { font: 600 12px/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .hs-float { animation: hs-float 7s ease-in-out infinite; }
+  /* The handset swings in, and boots: a mark and a bar, the screen comes on, the island and the
+   * status bar arrive, the icons drop in, and the dock slides up and hops. These play once. */
+  .hs-phone { animation: hs-enter 0.95s 0.05s cubic-bezier(0.2, 1.1, 0.35, 1) both; }
+  .hs-boot {
+    position: absolute; inset: 0; z-index: 9; display: grid; place-content: center; justify-items: center; gap: 5cqw;
+    border-radius: inherit; background: #05060f; color: var(--cream); pointer-events: none;
+    animation: hs-boot-out 0.5s 1.2s cubic-bezier(0.5, 0, 0.2, 1) forwards;
+  }
+  .hs-boot b { font: 800 clamp(20px, 9cqw, 30px)/1 var(--display-home); letter-spacing: -0.03em; animation: hs-boot-mark 0.5s 0.4s cubic-bezier(0.2, 1.4, 0.4, 1) backwards; }
+  .hs-boot b i { font-style: normal; color: var(--ginger); }
+  .hs-boot span { width: 36cqw; height: 2.4cqw; min-height: 5px; border-radius: 99px; overflow: hidden; background: rgb(255 255 255 / 0.16); animation: hs-boot-mark 0.4s 0.5s backwards; }
+  .hs-boot span i { display: block; height: 100%; background: var(--ginger); animation: hs-load 0.5s 0.56s cubic-bezier(0.6, 0, 0.3, 1) both; }
+  .hs-screen::after {
+    content: ''; position: absolute; inset: 0; z-index: 8; border-radius: inherit; pointer-events: none; opacity: 0;
+    background: radial-gradient(circle at 50% 40%, rgb(255 255 255 / 0.75), rgb(143 156 255 / 0.3) 55%, transparent 80%);
+    animation: hs-bloom 0.8s 1.2s ease-out;
+  }
+  .hs-status > span:first-child, .hs-status-icons { animation: hs-fade 0.4s 1.35s backwards; }
+  .hs-island { animation: hs-island-in 0.6s 1.25s cubic-bezier(0.2, 1.6, 0.35, 1) backwards; }
+  .hs-grid li { animation: hs-land 0.55s calc(1.3s + var(--i, 0) * 40ms) cubic-bezier(0.2, 1.4, 0.4, 1) backwards; }
+  .hs-dock { animation: hs-dock-in 0.6s 1.65s cubic-bezier(0.2, 1.3, 0.35, 1) backwards; }
+  .hs-dock li { animation: hs-hop 0.55s calc(2.15s + var(--i, 0) * 80ms) cubic-bezier(0.2, 1.5, 0.4, 1) backwards; }
+
+  .hs-note { animation: hs-note-in 0.55s cubic-bezier(0.2, 1.3, 0.35, 1) backwards; }
+  .hs-note[data-leaving] { animation: hs-note-out 0.32s cubic-bezier(0.5, 0, 0.8, 0.3) forwards; }
+  .hs-island img { animation: hs-pop 0.4s 0.15s cubic-bezier(0.2, 1.5, 0.4, 1) backwards; }
+  .hs-eq i { animation: hs-eq 0.42s ease-in-out infinite alternate; }
+  .hs-eq i:nth-child(2) { animation-delay: -0.31s; animation-duration: 0.36s; }
+  .hs-eq i:nth-child(3) { animation-delay: -0.12s; animation-duration: 0.5s; }
+  .hs-eq i:nth-child(4) { animation-delay: -0.22s; animation-duration: 0.31s; }
+  .hs-dot { animation: hs-dot 1.2s ease-in-out infinite alternate; }
+
+  /* The launch screen: the app's colour, a ring out from its icon, its name, and a loader that
+   * belongs to it. It holds for as long as an app takes to open, then clears. */
+  .hs-splash {
+    position: absolute; inset: 0; z-index: 2; display: grid; place-content: center; justify-items: center; gap: 4.5cqw; pointer-events: none;
+    background: radial-gradient(circle at 50% 43%, color-mix(in srgb, var(--accent) 52%, #0b0d1c), color-mix(in srgb, var(--accent) 20%, #07080f) 78%);
+    color: var(--cream);
+    animation: hs-splash 0.34s 0.9s cubic-bezier(0.5, 0, 0.8, 0.4) forwards;
+  }
+  .hs-splash img { width: 30cqw; height: 30cqw; object-fit: contain; border-radius: 25%; animation: hs-splash-icon 0.6s cubic-bezier(0.2, 1.6, 0.4, 1) both; }
+  .hs-splash img[data-ring='games'] { border-radius: 0; }
+  .hs-splash img[data-px] { image-rendering: pixelated; }
+  .hs-splash b { font: 800 clamp(15px, 6.4cqw, 21px)/1 var(--display-home); letter-spacing: -0.01em; animation: hs-rise 0.4s 0.2s cubic-bezier(0.2, 1.2, 0.4, 1) backwards; }
+  .hs-splash-ring {
+    position: absolute; left: 50%; top: calc(50% - 7cqw); width: 30cqw; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%;
+    border: 1cqw solid color-mix(in srgb, var(--accent) 70%, #fff); opacity: 0;
+    animation: hs-ring 0.75s 0.12s cubic-bezier(0.1, 0.7, 0.3, 1);
+  }
+  /* One bar, which always fills to the end before the launch screen clears. Each app fills it its own way. */
+  .hs-splash-load { width: 36cqw; height: 2.4cqw; min-height: 5px; border-radius: 99px; overflow: hidden; background: rgb(255 255 255 / 0.22); }
+  .hs-splash-load i {
+    display: block; height: 100%; background: var(--cream);
+    animation: hs-load 0.5s 0.26s cubic-bezier(0.45, 0, 0.25, 1) both;
+  }
+  /* Morse: the colour of its lamp. */
+  .hs-app[data-app='morse'] .hs-splash-load i { background: #ffe9b8; }
+  /* Kilopixel: square, in hard steps and its own colours, and its launch screen wipes off in hard steps too. */
+  .hs-app[data-app='kilopixel'] .hs-splash { animation: hs-splash-px 0.4s 0.9s steps(7, end) forwards; }
+  .hs-app[data-app='kilopixel'] .hs-splash b { font: 700 clamp(17px, 7.4cqw, 24px)/1 var(--pixel); letter-spacing: 0; }
+  .hs-app[data-app='kilopixel'] .hs-splash-load { height: 3.6cqw; min-height: 7px; border-radius: 0; background: #111; }
+  .hs-app[data-app='kilopixel'] .hs-splash-load i {
+    background: linear-gradient(90deg, #2a4bd7 0 20%, #e23b3b 0 40%, #ff6a1f 0 60%, #ffd23f 0 80%, #efede4 0);
+    animation-timing-function: steps(5, end);
+  }
+  /* BitBounce: its icon drops in and bounces, and the bar counts in its four lanes, one at a time. */
+  .hs-app[data-app='bitbounce'] .hs-splash img { animation: hs-splash-bounce 0.78s cubic-bezier(0.3, 0, 0.6, 1) both; }
+  .hs-app[data-app='bitbounce'] .hs-splash-load { height: 3.6cqw; min-height: 7px; border-radius: 1.2cqw; }
+  .hs-app[data-app='bitbounce'] .hs-splash-load i {
+    background: linear-gradient(90deg, #ff5a1f 0 25%, #ffc400 0 50%, #1f6bff 0 75%, #ff3d8b 0);
+    animation-timing-function: steps(4, end);
+  }
+  /* RhymePage: its green. */
+  .hs-app[data-app='rhymepage'] .hs-splash-load i { background: var(--rp-green); }
+  /* A game: a framed bar, the way a cartridge loads, in its colour. */
+  .hs-app[data-app='game'] .hs-splash b { font: 400 clamp(11px, 4.4cqw, 15px)/1 var(--micro); letter-spacing: 0.04em; text-transform: uppercase; }
+  .hs-app[data-app='game'] .hs-splash-load { height: 5.6cqw; min-height: 12px; padding: 0.8cqw; border: 0.6cqw solid var(--cream); border-radius: 0; background: none; }
+  .hs-app[data-app='game'] .hs-splash-load i { background: var(--accent); animation-timing-function: steps(6, end); }
+
+  .hs-sheet { animation: hs-sheet 0.55s 0.98s cubic-bezier(0.2, 1.15, 0.3, 1) backwards; }
+
+  /* Around the phone. Everything waits for the launch screen to clear. */
+  .hs-floater img {
+    animation:
+      drift calc(var(--speed) * 1.3) ease-in-out calc(var(--i) * -1.7s) infinite,
+      hs-climb 0.7s calc(0.9s + var(--i) * 0.07s) cubic-bezier(0.2, 1.5, 0.4, 1) backwards;
+  }
+  /* A new look swaps the pixels' colours in hard steps. */
+  .hs-chip { animation: hs-chip 0.3s calc(var(--i) * 26ms) steps(3, end) backwards, hs-chip-bob 2.6s calc(var(--i) * -0.4s) steps(3, end) infinite alternate; }
+  .hs-chip[data-first] { animation-delay: calc(1s + var(--i) * 40ms), calc(var(--i) * -0.4s); }
+  /* The pads come in on the launch, then play: each on its own count of eighth notes (254ms at 118 BPM). */
+  .hs-pad {
+    animation:
+      hs-pop 0.5s calc(0.72s + var(--i) * 70ms) cubic-bezier(0.2, 1.6, 0.4, 1) backwards,
+      hs-pad-2 calc(var(--every) * 254.24ms) calc(1017ms + var(--shift) * 254.24ms) linear infinite;
+  }
+  .hs-pad::after { animation: hs-led-2 calc(var(--every) * 254.24ms) calc(1017ms + var(--shift) * 254.24ms) linear infinite; }
+  .hs-pad[data-every='4'] { animation-name: hs-pop, hs-pad-4; }
+  .hs-pad[data-every='4']::after { animation-name: hs-led-4; }
+  .hs-pad[data-every='8'] { animation-name: hs-pop, hs-pad-8; }
+  .hs-pad[data-every='8']::after { animation-name: hs-led-8; }
+  /* Each mark Morse sends leaves the flashlight along its beam: a dot, or a dash. */
+  .hs-pulse {
+    display: block; right: 2%; top: 1%; width: 12px; height: 12px; border-radius: 99px; rotate: var(--beam-turn);
+    background: #ffe9b8; box-shadow: 0 0 16px 4px rgb(247 178 76 / 0.8);
+    animation: hs-pulse 1.6s cubic-bezier(0.15, 0.7, 0.3, 1) forwards;
+  }
+  .hs-pulse[data-long] { width: 38px; }
+  /* Each word RhymePage sings comes up beside the phone as it is sung (380ms a word, a rest of four, after the launch). */
+  .hs-word {
+    display: block; white-space: nowrap; opacity: 0; transform: translateZ(60px);
+    font: 800 clamp(18px, 2.1vw, 30px)/1 var(--display-home); letter-spacing: -0.02em; color: var(--cream);
+    text-shadow: 0 0 18px rgb(75 227 143 / 0.6);
+    animation: hs-word 4180ms calc(900ms + 380ms * (var(--i) + 1)) linear infinite backwards;
+  }
+  .hs-word[data-rhyme] { padding: 0.14em 0.32em; border-radius: 0.26em; background: var(--rp-green); color: #04140b; text-shadow: none; }
+}
+@keyframes hs-float { 50% { translate: 0 -8px; } }
+@keyframes hs-enter { from { opacity: 0; transform: translateY(80px) rotateY(-34deg) rotateX(14deg) scale(0.86); } }
+@keyframes hs-boot-out { to { opacity: 0; scale: 1.3; visibility: hidden; } }
+@keyframes hs-boot-mark { from { opacity: 0; scale: 0.7; } }
+@keyframes hs-bloom { 18% { opacity: 0.7; } to { opacity: 0; } }
+@keyframes hs-fade { from { opacity: 0; } }
+@keyframes hs-island-in { from { opacity: 0; scale: 0.2 1; } }
+@keyframes hs-land { from { opacity: 0; translate: 0 -14cqw; scale: 0.4; } }
+@keyframes hs-dock-in { from { translate: 0 150%; } }
+@keyframes hs-hop { 0% { translate: 0 0; } 45% { translate: 0 -3.4cqw; } 100% { translate: 0 0; } }
+@keyframes hs-pop { from { opacity: 0; scale: 0.3; } }
+@keyframes hs-rise { from { opacity: 0; translate: 0 3cqw; } }
+@keyframes hs-note-in { from { translate: 0 -130%; opacity: 0; } }
+@keyframes hs-note-out { to { translate: 0 -130%; opacity: 0; } }
+@keyframes hs-eq { to { scale: 1 1; } }
+@keyframes hs-dot { to { opacity: 0.35; } }
+@keyframes hs-splash { to { opacity: 0; scale: 1.2; visibility: hidden; } }
+@keyframes hs-splash-px { to { clip-path: inset(0 0 100% 0); visibility: hidden; } }
+@keyframes hs-splash-icon { from { scale: 0.45; } }
+@keyframes hs-splash-bounce {
+  0% { translate: 0 -46cqw; scale: 1; }
+  34% { translate: 0 0; scale: 1.14 0.84; }
+  52% { translate: 0 -13cqw; scale: 0.96 1.05; }
+  72% { translate: 0 0; scale: 1.07 0.93; }
+  86% { translate: 0 -3.5cqw; scale: 1; }
+  100% { translate: 0 0; scale: 1; }
+}
+@keyframes hs-ring { from { opacity: 0.9; scale: 1; } to { opacity: 0; scale: 5.5; } }
+@keyframes hs-load { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0); } }
+@keyframes hs-sheet { from { opacity: 0; translate: 0 40%; } }
+@keyframes hs-climb { from { opacity: 0; scale: 0.2; translate: var(--from) 30%; } }
+@keyframes hs-chip { from { opacity: 0; scale: 0.2; } }
+@keyframes hs-chip-bob { to { translate: 0 -9px; } }
+/* A pad's hit lasts the same quarter of a second whether it plays every beat, every two, or once a bar. */
+@keyframes hs-pad-2 { 0% { translate: 0 4px; background: var(--c); } 45%, 100% { translate: 0 0; } }
+@keyframes hs-pad-4 { 0% { translate: 0 4px; background: var(--c); } 23%, 100% { translate: 0 0; } }
+@keyframes hs-pad-8 { 0% { translate: 0 4px; background: var(--c); } 12%, 100% { translate: 0 0; } }
+@keyframes hs-led-2 { 0% { opacity: 1; box-shadow: 0 0 22px 6px var(--c); } 45%, 100% { opacity: 0.45; box-shadow: 0 0 0 0 transparent; } }
+@keyframes hs-led-4 { 0% { opacity: 1; box-shadow: 0 0 22px 6px var(--c); } 23%, 100% { opacity: 0.45; box-shadow: 0 0 0 0 transparent; } }
+@keyframes hs-led-8 { 0% { opacity: 1; box-shadow: 0 0 22px 6px var(--c); } 12%, 100% { opacity: 0.45; box-shadow: 0 0 0 0 transparent; } }
+@keyframes hs-pulse { from { translate: 0 0; opacity: 1; } to { translate: var(--bx) var(--by); opacity: 0; } }
+@keyframes hs-word {
+  0% { opacity: 0; translate: 0 18px; scale: 0.6; }
+  3% { opacity: 1; translate: 0 0; scale: 1.14; }
+  7% { scale: 1; }
+  30% { opacity: 1; translate: 0 -14px; scale: 1; }
+  40%, 100% { opacity: 0; translate: 0 -34px; scale: 1; }
+}
+
+/* ---------------------------------------------------------------- 4. worlds */
+
+.ws {
+  justify-self: center; display: flex; flex-direction: column; width: 100%; max-width: 620px;
+  height: clamp(440px, calc(100svh - 190px), 610px);
+  border-radius: 26px; overflow: hidden;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.12), 0 44px 80px -40px #000;
+}
+.ws-band {
+  --head: 68px;
+  position: relative; flex: 0 1 var(--head); min-height: var(--head); overflow: hidden;
+  background: var(--bg); color: var(--ink);
+  transition: flex-grow 0.55s cubic-bezier(0.3, 0.8, 0.2, 1);
+}
+.ws-band[data-open] { flex-grow: 1; }
+.ws-band[data-world='morse'] {
+  --bg: #140d06; --ink: #eee0c2; --hot: #f7b24c; --on: #140d06;
+  background: repeating-linear-gradient(90deg, transparent 0 34px, rgb(247 178 76 / 0.05) 34px 35px), var(--bg);
+}
+.ws-band[data-world='kilopixel'] {
+  --bg: #121212; --ink: #efede4; --hot: #ff6a1f; --on: #160700;
+  background:
+    linear-gradient(rgb(255 255 255 / 0.03) 1px, transparent 1px) 0 0 / 12px 12px,
+    linear-gradient(90deg, rgb(255 255 255 / 0.03) 1px, transparent 1px) 0 0 / 12px 12px, var(--bg);
+}
+.ws-band[data-world='bitbounce'] { --bg: #f4f1ea; --ink: #16161a; --hot: #c2410c; --on: #fbf9f4; }
+.ws-band[data-world='rhymepage'] {
+  --bg: #0e1913; --ink: #f6efe3; --hot: #4be38f; --on: #06140c;
+  background: radial-gradient(70% 120% at 100% 0%, rgb(75 227 143 / 0.16), transparent 60%), var(--bg);
+}
+.ws-band[data-world='games'] { --bg: var(--paper); --ink: #0b2b3b; --hot: #0d7a85; --on: #fdf8ea; }
+
+.ws-head { margin: 0; font: inherit; }
+.ws-head button {
+  display: flex; align-items: center; gap: 12px; width: 100%; height: var(--head); padding: 0 20px;
+  background: none; border: 0; color: inherit; cursor: pointer; text-align: left;
+}
+.ws-head img { width: 40px; height: 40px; flex: none; border-radius: 26%; transition: scale 0.35s cubic-bezier(0.2, 1.4, 0.4, 1); }
+.ws-name { font-size: 27px; line-height: 1; transition: font-size 0.4s cubic-bezier(0.3, 0.8, 0.2, 1), color 0.3s; }
+.ws-band[data-open] .ws-name { font-size: 40px; color: var(--hot); }
+.ws-band[data-open] .ws-head img { scale: 1.12; }
+.ws-status {
+  margin-left: auto; font: 600 11px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; text-align: right;
+  color: color-mix(in srgb, var(--ink) 66%, var(--bg));
+}
+.ws-band[data-world='morse'] .ws-name { font-family: var(--stencil); text-transform: uppercase; letter-spacing: 0.02em; }
+.ws-band[data-world='kilopixel'] .ws-name { font-family: var(--micro); letter-spacing: 0.06em; text-transform: uppercase; font-size: 22px; }
+.ws-band[data-world='kilopixel'][data-open] .ws-name { font-size: 32px; }
+.ws-band[data-world='bitbounce'] .ws-name { font-family: var(--chakra); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.ws-band[data-world='rhymepage'] .ws-name { font-family: var(--body); font-weight: 800; letter-spacing: -0.02em; }
+.ws-band[data-world='games'] .ws-name { font-family: var(--display); text-transform: uppercase; }
+.ws-band[data-world='games'] .ws-head button { padding-left: 22px; }
+.ws-band:not([data-open]) .ws-head button:hover .ws-name { color: var(--hot); }
+.ws-head button:focus-visible { outline-offset: -4px; outline-color: var(--hot); }
+
+.ws-body { position: relative; z-index: 1; max-width: 56%; padding: 2px 20px 20px; opacity: 0; transition: opacity 0.2s; }
+.ws-band[data-open] .ws-body { opacity: 1; transition: opacity 0.4s 0.18s; }
+.ws-line { font-size: 17px; line-height: 1.45; color: color-mix(in srgb, var(--ink) 80%, var(--bg)); }
+.ws-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 16px; --spark: var(--hot); }
+.ws-actions .store-row { gap: 6px; }
+.ws-go {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 10px;
+  background: var(--hot); color: var(--on); font: 800 14px/1 var(--body); text-decoration: none; white-space: nowrap;
+}
+.ws-more { font-size: 13px; font-weight: 600; color: inherit; text-underline-offset: 3px; white-space: nowrap; }
+
+/* A piece of the thing itself, on the right of the open poster. */
+.ws-art { position: absolute; right: 0; top: 0; bottom: 0; width: 44%; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.ws-band[data-open] .ws-art { opacity: 1; transition: opacity 0.5s 0.2s; }
+.ws-tape {
+  position: absolute; left: -12%; top: 50%; display: flex; align-items: center; gap: 22px; width: max-content;
+  height: 62px; padding: 0 20px; background: var(--ink); rotate: -7deg; translate: 0 -30%;
+  box-shadow: 0 10px 24px rgb(0 0 0 / 0.5);
+}
+.ws-tape span { display: flex; gap: 8px; }
+.ws-tape i { width: 18px; height: 18px; border-radius: 50%; background: var(--bg); }
+.ws-tape i[data-mark='dash'] { width: 46px; border-radius: 9px; }
+.ws-phone {
+  position: absolute; left: 22%; top: 16%; width: 54%; height: auto; rotate: 7deg;
+  border: 5px solid #050505; border-radius: 22px; box-shadow: 0 0 0 2px rgb(255 106 31 / 0.5), 0 20px 40px -14px #000;
+}
+.ws-beat {
+  position: absolute; left: 6%; right: 8%; top: 50%; translate: 0 -42%; rotate: -4deg;
+  display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; padding: 10px; border-radius: 14px; background: #17181d;
+  box-shadow: 0 18px 34px -16px rgb(22 22 26 / 0.7);
+}
+.ws-beat i { aspect-ratio: 1; border-radius: 5px; background: #23252d; }
+.ws-beat i[data-on][data-lane='0'] { background: #ff5a1f; }
+.ws-beat i[data-on][data-lane='1'] { background: #ffc400; }
+.ws-beat i[data-on][data-lane='2'] { background: #1f6bff; }
+.ws-beat i[data-on][data-lane='3'] { background: #ff3d8b; }
+.ws-bars { position: absolute; left: 4%; right: 6%; top: 50%; translate: 0 -40%; font: 700 clamp(18px, 2vw, 24px)/1.4 var(--body); color: rgb(255 255 255 / 0.42); }
+.ws-bars span[data-state='sung'] { color: rgb(255 255 255 / 0.92); }
+.ws-bars span[data-state='now'] { color: var(--rp-green); text-shadow: 0 0 16px rgb(75 227 143 / 0.6); }
+.ws-sprites { position: absolute; inset: 14% 6% 10% 0; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 10px 12px; }
+.ws-sprites img { width: 21%; aspect-ratio: 1; object-fit: contain; filter: drop-shadow(0 6px 6px rgb(11 43 59 / 0.3)); }
+.ws-sprites img[data-px] { image-rendering: pixelated; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .ws { animation: pop-in 0.7s 0.1s cubic-bezier(0.2, 1.2, 0.4, 1) both; }
+  .ws-band[data-open] .ws-tape { animation: ws-tape 9s linear infinite; }
+  .ws-band[data-open] .ws-beat i[data-on] { animation: ws-step 2.03s calc(var(--col) * 254ms) steps(1) infinite; }
+  .ws-band[data-open] .ws-sprites img { animation: ws-bob 1.6s calc(var(--n) * -0.23s) ease-in-out infinite alternate; }
+  .ws-band[data-open] .ws-phone { animation: ws-rise 0.7s 0.1s cubic-bezier(0.2, 1.2, 0.4, 1) backwards; }
+}
+@keyframes ws-tape { to { transform: translateX(-33.33%); } }
+@keyframes ws-step { 0% { filter: brightness(1.6); scale: 1.12; } 12.5% { filter: none; scale: 1; } }
+@keyframes ws-bob { to { translate: 0 -7px; } }
+@keyframes ws-rise { from { translate: 0 40%; opacity: 0; } }
+
+/* ----------------------------------------------------------- the lab switch */
+
+.hero-lab {
+  position: fixed; z-index: 85; left: 50%; bottom: 10px; translate: -50% 0;
+  display: grid; justify-items: center; gap: 6px; max-width: calc(100vw - 12px); pointer-events: none;
+}
+.hero-lab-note {
+  padding: 5px 10px; border-radius: 8px; background: rgb(5 6 15 / 0.9); color: var(--cream);
+  font: 500 12px/1.2 var(--body); text-align: center;
+}
+.hero-lab-keys {
+  display: flex; align-items: center; gap: 3px; padding: 4px; border-radius: 14px; pointer-events: auto;
+  background: #05060f; border: 1px solid rgb(255 255 255 / 0.24); box-shadow: 0 10px 30px rgb(0 0 0 / 0.55);
+  font: 600 12px/1 var(--mono);
+}
+.hero-lab-title { padding: 0 8px 0 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.hero-lab-keys button {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 0 11px;
+  border: 0; border-radius: 10px; background: none; color: var(--cream); cursor: pointer; font: inherit; white-space: nowrap;
+}
+.hero-lab-keys button b { color: var(--ginger); }
+.hero-lab-keys button:hover { background: rgb(255 255 255 / 0.1); }
+.hero-lab-keys button[aria-pressed='true'] { background: var(--ginger); color: #1a0d03; }
+.hero-lab-keys button[aria-pressed='true'] b { color: inherit; }
+/* Folded: a small tab on the bottom edge that says which variant is up. */
+.hero-lab:not([data-open]) { bottom: 0; }
+.hero-lab-handle {
+  min-width: 52px; min-height: 26px; padding: 0 12px; border: 1px solid rgb(255 255 255 / 0.24); border-bottom: 0;
+  border-radius: 10px 10px 0 0; pointer-events: auto; cursor: pointer;
+  background: #05060f; color: var(--ginger); font: 700 12px/1 var(--mono);
+}
+
+/* ------------------------------------------------------------------- phones */
+
+@media (max-width: 960px) {
+  /* The copy sits above the phone here, so sprites start a little down the handset's side and none climbs onto it. */
+  .hs-floater { margin-top: 30px; }
+  .ws { max-width: 640px; }
+}
+@media (max-width: 640px) {
+  /* The handset stands clear of the headline and fits under it, with the sky (and whatever
+   * the open app sends out) showing either side. Everything inside it is sized in cqw. */
+  .hs { gap: 0; margin-top: 24px; }
+  .hs-float { perspective: 1000px; }
+  .hs-phone {
+    --h: clamp(384px, calc(100svh - 284px), 540px);
+    height: var(--h); width: clamp(214px, calc(var(--h) * 9 / 18.5), calc(100vw - 136px)); min-width: 0; aspect-ratio: auto;
+    padding: 7px; border-radius: 40px;
+  }
+  .hs-screen { border-radius: 33px; }
+  .hs-key { width: 3px; }
+  /* The flashlight's flare stays small, so it does not reach the headline, and its beam goes out sideways. */
+  .hs-torch { right: -13%; top: -4%; width: 34%; }
+  .hs-spill { --spread: 0.6; --wmax: 56px; --deep: 26px; --bx: 84px; --by: -4px; --beam-turn: -2deg; }
+  /* The words run up and down the gaps either side of the handset, turned on their sides. */
+  .hs-word { top: calc(var(--y) * 0.82); font-size: 17px; transform-origin: 0 100%; rotate: 90deg; }
+  .hs-word[data-side='l'] { transform-origin: 100% 100%; rotate: -90deg; }
+  .hs-hint { display: none; }
+
+  .ws { height: 440px; border-radius: 22px; }
+  .ws-band { --head: 54px; }
+  .ws-head button { padding: 0 14px; gap: 10px; }
+  .ws-head img { width: 32px; height: 32px; }
+  .ws-name { font-size: 21px; }
+  .ws-band[data-open] .ws-name { font-size: 28px; }
+  .ws-band[data-world='kilopixel'] .ws-name { font-size: 17px; }
+  .ws-band[data-world='kilopixel'][data-open] .ws-name { font-size: 22px; }
+  .ws-status { font-size: 9px; max-width: 34%; }
+  .ws-band:not([data-open]) .ws-status { display: none; }
+  .ws-body { max-width: 64%; padding: 0 14px 14px; }
+  .ws-line { font-size: 14px; line-height: 1.4; }
+  .ws-actions { margin-top: 10px; gap: 8px 12px; }
+  .ws-art { width: 36%; }
+  .ws-tape { height: 44px; gap: 14px; }
+  .ws-tape i { width: 13px; height: 13px; }
+  .ws-tape i[data-mark='dash'] { width: 32px; }
+  .ws-phone { left: 10%; top: 30%; width: 76%; border-width: 4px; border-radius: 16px; }
+  .ws-beat { left: 0; right: 6%; gap: 3px; padding: 6px; border-radius: 10px; }
+  .ws-beat i { border-radius: 3px; }
+  .ws-bars { font-size: 15px; }
+  .ws-sprites { gap: 6px; }
+  .ws-sprites img { width: 28%; }
+  .ws-sprites img:nth-child(n + 7) { display: none; }
+
+  .hero-lab-title, .hero-lab-keys button:not([aria-pressed='true']) span { display: none; }
+  .hero-lab-keys button { min-height: 40px; padding: 0 12px; }
+  .hero-lab-handle { min-height: 22px; }
+}

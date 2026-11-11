@@ -1,10 +1,31 @@
 import { useEffect, useRef } from 'react';
 
 /* The hero's night sky, drawn live. One fragment shader paints a slow nebula
- * that lies in the plane of the orbit, pixel stars on three depths that shift
+ * gathered around the hero's stage, pixel stars on three depths that shift
  * with the pointer, and the odd shooting star. The whole sky takes on the
- * colour of whatever is picked in the orbit, and ripples once when the pick
- * changes. Without WebGL the CSS sky behind this canvas stays as it was. */
+ * colours of whatever is picked or open (`SkyLook`), ripples once when that
+ * changes, and can be restyled outright by what is open: cut into dithered
+ * pixels in a palette, laid out as a groovebox's step grid, ruled like a
+ * lyric sheet, or lit by a lamp. Those patterns keep clear of the copy.
+ * Without WebGL the CSS sky behind this canvas stays as it was. */
+
+/** How the sky is dressed for whatever is picked or open in the hero. */
+export interface SkyLook {
+  /** Changes when the pick changes; each change sends one ripple. */
+  id: string;
+  /** Hex colour of the pick. */
+  accent: string;
+  /** A second colour for the clouds (periwinkle when left out). */
+  second?: string;
+  /** Cut the sky into chunky dithered pixels: 0 to 1, how chunky. */
+  pixel?: number;
+  /** With `pixel`: the colours to cut it into (a Kilopixel look's palette). */
+  palette?: string[];
+  /** A step grid with a playhead running through it (BitBounce). */
+  grid?: boolean;
+  /** The ruled lines of a lyric sheet (RhymePage). */
+  lines?: boolean;
+}
 
 const VERT = 'attribute vec2 p; void main() { gl_Position = vec4(p, 0.0, 1.0); }';
 
@@ -18,6 +39,21 @@ uniform vec2 uFocus;
 uniform float uSpan;
 uniform float uPulse;
 uniform float uPx;
+uniform float uPixel;
+uniform float uGlow;
+uniform vec3 uSecond;
+uniform vec3 uPal0;
+uniform vec3 uPal1;
+uniform vec3 uPal2;
+uniform vec3 uPal3;
+uniform float uPalMix;
+uniform vec2 uLamp;
+uniform vec2 uBeam;
+uniform float uGrid;
+uniform float uStep;
+uniform float uLines;
+uniform float uWall;
+uniform float uCeil;
 
 const vec3 NIGHT = vec3(0.055, 0.067, 0.141);
 const vec3 PERI = vec3(0.56, 0.61, 1.0);
@@ -35,6 +71,9 @@ float noise(vec2 p) {
   return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
              mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
 }
+/* Ordered (Bayer 4x4) dither threshold for a cell, 0 to 1. */
+float bayer2(vec2 a) { a = floor(a); return fract(a.x / 2.0 + a.y * a.y * 0.75); }
+float bayer4(vec2 a) { return bayer2(0.5 * a) * 0.25 + bayer2(a); }
 float fbm(vec2 p) {
   float v = 0.0, a = 0.5;
   mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
@@ -72,6 +111,9 @@ float sparkles(vec2 px, float cell, float seed) {
 
 void main() {
   vec2 frag = gl_FragCoord.xy;
+  /* uPixel turns the sky into chunky pixels: every fragment samples the middle of its block. */
+  float block = floor(1.5 + uPixel * 7.0 * uPx);
+  if (uPixel > 0.01) frag = (floor(frag / block) + 0.5) * block;
   vec2 css = frag / uPx;
   vec2 uv = (frag - uFocus) / uSpan;
 
@@ -88,13 +130,22 @@ void main() {
   float n2 = fbm(q * 2.1 - warp * 1.2 + 9.0);
 
   vec3 col = NIGHT;
-  col += PERI * 0.03 * smoothstep(1.4, 0.0, wide);
+  col += uSecond * 0.03 * smoothstep(1.4, 0.0, wide);
   float cloud = smoothstep(1.05, 0.1, disc);
   float billow = smoothstep(0.34, 0.86, n);
   float wisp = smoothstep(0.42, 0.9, n2);
-  col += PERI * billow * (0.35 + 0.65 * billow) * 0.5 * cloud;
+  col += uSecond * billow * (0.35 + 0.65 * billow) * 0.5 * cloud;
   col += mix(GINGER, uAccent, 0.6) * wisp * (0.3 + 0.7 * billow) * 0.5 * cloud;
   col += uAccent * (exp(-disc * disc * 9.0) * 0.16 + exp(-wide * wide * 2.6) * 0.08);
+
+  /* A lamp held on at the focus: the whole cloud warms while it is lit. */
+  col += uAccent * uGlow * (exp(-wide * wide * 1.6) * 0.34 + 0.025);
+  /* ...and the lamp itself throws a shaft of light across the sky. */
+  vec2 lampAt = (frag - uLamp) / uSpan;
+  float along = dot(lampAt, uBeam);
+  float across = abs(dot(lampAt, vec2(-uBeam.y, uBeam.x)));
+  float shaft = (1.0 - smoothstep(0.0, 0.025 + max(along, 0.0) * 0.3, across)) * step(0.0, along) * exp(-along * 1.5);
+  col += mix(uAccent, CREAM, 0.35) * uGlow * (shaft * 0.36 * (0.7 + 0.6 * n2) + exp(-dot(lampAt, lampAt) * 90.0) * 0.45);
 
   /* A ripple along the orbit plane when the pick changes. */
   float front = (1.0 - uPulse) * 1.05;
@@ -103,6 +154,26 @@ void main() {
   /* A second, quieter ginger cloud low on the far side. */
   vec2 far = (frag - vec2(0.08, 0.1) * uRes) / uSpan;
   col += GINGER * 0.09 * exp(-dot(far, far) * 1.6) * (0.6 + 0.8 * n2);
+
+  /* What is open can lay a pattern over the sky. It is full around the stage and gone before the copy. */
+  float near = (1.0 - smoothstep(0.5, 1.3, wide)) * smoothstep(uWall - 0.02, uWall + 0.2, uv.x) * (1.0 - smoothstep(uCeil - 0.22, uCeil, uv.y));
+  if (uGrid > 0.01) {
+    /* A groovebox's steps: pads in rows, a playhead walking the columns, and the pads that are on flashing as it passes. */
+    vec2 cell = (frag - uFocus) / uPx / 46.0;
+    vec2 id = floor(cell);
+    vec2 f = fract(cell);
+    float pad = step(0.1, f.x) * step(f.x, 0.9) * step(0.1, f.y) * step(f.y, 0.9);
+    float on = step(0.68, hash(id + 3.0 + floor(uStep / 32.0)));
+    float behind = mod(floor(uStep) - id.x, 16.0);
+    float flash = exp(-behind * 0.7);
+    col += pad * near * uGrid * (vec3(0.028) + vec3(1.0, 0.77, 0.0) * 0.1 * step(behind, 0.5) + uAccent * on * (0.09 + 0.5 * flash));
+  }
+  if (uLines > 0.01) {
+    /* A lyric sheet's ruled lines, scrolling up the way the words do. */
+    float ly = css.y - uTime * 7.0;
+    float rule = 1.0 - smoothstep(0.5, 1.5, abs(mod(ly, 40.0) - 20.0));
+    col += uAccent * rule * 0.13 * near * uLines;
+  }
 
   /* Stars sit behind the copy too, but quieter there. */
   float calm = mix(0.55, 1.0, smoothstep(-0.9, -0.2, uv.x)) * (0.75 + 0.7 * cloud);
@@ -132,29 +203,81 @@ void main() {
   /* Settle into plain night at the bottom so the next world meets a clean edge. */
   col = mix(NIGHT, col, smoothstep(0.0, 0.16, frag.y / uRes.y));
   col += (hash(frag) - 0.5) / 160.0;
+  /* ...and each block is cut to a few levels through an ordered dither, the way a pixel camera would. */
+  if (uPixel > 0.01) {
+    float th = bayer4(floor(gl_FragCoord.xy / block));
+    vec3 cut = floor(col * 7.0 + th) / 7.0;
+    /* With a palette, brightness picks one of its four colours instead, dithered between neighbours. */
+    if (uPalMix > 0.01) {
+      float lum = dot(col, vec3(0.299, 0.587, 0.114));
+      float k = clamp(floor((lum - 0.08) * 7.0 + th), 0.0, 3.0);
+      vec3 inPal = mix(mix(uPal0, uPal1, step(0.5, k)), mix(uPal2, uPal3, step(2.5, k)), step(1.5, k));
+      cut = mix(cut, inPal, uPalMix);
+    }
+    col = mix(col, cut, min(1.0, uPixel * 1.6));
+  }
   gl_FragColor = vec4(col, 1.0);
 }`;
 
 function rgb(hex: string): [number, number, number] {
-  const n = parseInt(hex.replace('#', ''), 16);
+  const h = hex.replace('#', '');
+  const n = parseInt(h.length === 3 ? h.replace(/./g, '$&$&') : h.slice(0, 6), 16);
   return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
 }
 
-export function HeroSky({ accent, pick, still }: {
-  /** Hex colour of the item picked in the orbit. */
-  accent: string;
-  /** Changes when the pick changes; each change sends one ripple. */
-  pick: string;
+const PERI = '#8f9cff';
+const luma = (c: number[]) => 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2];
+/** How bright each of the four sky colours may be, so the sky stays a night sky under the copy. */
+const PAL_LUMA = [0.05, 0.15, 0.33, 0.62];
+
+/** Four colours from a palette, dark to light, each held to the brightness its place in the sky allows. */
+function skyPalette(palette: string[]): number[] {
+  const sorted = palette.map(rgb).sort((a, b) => luma(a) - luma(b));
+  return PAL_LUMA.flatMap((target, i) => {
+    const c = sorted[Math.round((i * (sorted.length - 1)) / 3)];
+    const l = luma(c);
+    if (l < 0.02) return [target, target, target * 1.15];
+    const k = target / l;
+    return c.map((v) => Math.min(1, v * k));
+  });
+}
+
+export function HeroSky({ look, still, beat = 0, glow = false }: {
+  /** Whatever is picked or open in the hero, and how the sky dresses for it. */
+  look: SkyLook;
   still: boolean;
+  /** Count it up to send another ripple without changing the pick. */
+  beat?: number;
+  /** A lamp held on (the hero marks where with `.hero-lamp`). */
+  glow?: boolean;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
-  const live = useRef({ accent: rgb(accent), pulse: 0, draw: () => {} });
+  const live = useRef({
+    accent: rgb(look.accent), second: rgb(look.second ?? PERI), pulse: 0, pixel: 0, glow: 0,
+    pal: skyPalette([PERI]), palMix: 0, grid: 0, lines: 0, restep: false, draw: () => {},
+  });
+  const { id, accent, second = PERI, pixel = 0, grid = false, lines = false } = look;
+  const palette = look.palette?.join(',') ?? '';
 
   useEffect(() => {
-    live.current.accent = rgb(accent);
-    live.current.pulse = 1;
-    live.current.draw();
-  }, [accent, pick]);
+    const state = live.current;
+    state.accent = rgb(accent);
+    state.second = rgb(second);
+    state.pulse = 1;
+    state.draw();
+  }, [id, accent, second, beat]);
+
+  useEffect(() => {
+    const state = live.current;
+    state.pixel = pixel;
+    if (palette) state.pal = skyPalette(palette.split(','));
+    state.palMix = palette ? 1 : 0;
+    state.restep = grid && !state.grid;
+    state.grid = grid ? 1 : 0;
+    state.lines = lines ? 1 : 0;
+    state.glow = glow ? 1 : 0;
+    state.draw();
+  }, [pixel, palette, grid, lines, glow]);
 
   useEffect(() => {
     const canvas = ref.current;
@@ -181,7 +304,10 @@ export function HeroSky({ accent, pick, still }: {
     gl.enableVertexAttribArray(loc);
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
     const u = Object.fromEntries(
-      ['uRes', 'uTime', 'uMouse', 'uAccent', 'uFocus', 'uSpan', 'uPulse', 'uPx'].map((n) => [n, gl.getUniformLocation(prog, n)]),
+      [
+        'uRes', 'uTime', 'uMouse', 'uAccent', 'uFocus', 'uSpan', 'uPulse', 'uPx', 'uPixel', 'uGlow', 'uSecond',
+        'uPal0', 'uPal1', 'uPal2', 'uPal3', 'uPalMix', 'uLamp', 'uBeam', 'uGrid', 'uStep', 'uLines', 'uWall', 'uCeil',
+      ].map((n) => [n, gl.getUniformLocation(prog, n)]),
     );
 
     const state = live.current;
@@ -189,9 +315,22 @@ export function HeroSky({ accent, pick, still }: {
     let scale = Math.min(window.devicePixelRatio || 1, coarse ? 1.25 : 1.5);
     let focus = [0, 0];
     let span = 600;
+    let lamp = [0, 0];
+    let beam = [0.8, 0.6];
+    /** Where the copy starts, in spans from the focus: to its left, or above it. Patterns stop short of it. */
+    let wall = -9;
+    let ceil = 9;
     const shown = [...state.accent];
+    const shown2 = [...state.second];
+    const pal = [...state.pal];
     const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
     let pulse = 0;
+    let pixel = 0;
+    let glow = 0;
+    let palMix = 0;
+    let grid = 0;
+    let lines = 0;
+    let step = 0;
     let time = 40;
 
     const measure = () => {
@@ -200,13 +339,32 @@ export function HeroSky({ accent, pick, still }: {
       const h = Math.max(1, Math.round(box.height * scale));
       if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
       gl.viewport(0, 0, w, h);
-      const orbit = hero.querySelector<HTMLElement>('.orbit');
-      const center = hero.querySelector<HTMLElement>('.orbit-center');
-      if (orbit && center) {
-        const c = center.getBoundingClientRect();
-        focus = [(c.left + c.width / 2 - box.left) * scale, (box.bottom - (c.top + c.height / 2)) * scale];
-        span = orbit.getBoundingClientRect().width * scale;
-      }
+      // The nebula gathers around the orbit's middle, or whatever a hero without an orbit marks as its focus.
+      const stage = hero.querySelector<HTMLElement>('.orbit, .hero-stage, .hero-focus');
+      const center = hero.querySelector<HTMLElement>('.orbit-center, .hero-focus');
+      if (!stage || !center) return;
+      const c = center.getBoundingClientRect();
+      const cx = c.left + c.width / 2;
+      const cy = c.top + c.height / 2;
+      focus = [(cx - box.left) * scale, (box.bottom - cy) * scale];
+      // A stage that is only a phone's width still gets a cloud wide enough to show around it.
+      const wide = Math.max(stage.getBoundingClientRect().width, stage === center ? 540 : 0);
+      span = wide * scale;
+      const copy = hero.querySelector<HTMLElement>('.hero-copy')?.getBoundingClientRect();
+      const stacked = !!copy && copy.bottom <= c.top + 40;
+      wall = copy && !stacked ? (copy.right - cx) / wide : -9;
+      ceil = copy && stacked ? (cy - copy.bottom) / wide : 9;
+      // On a narrow page the lamp shines out sideways, under the headline.
+      beam = stacked ? [0.999, 0.04] : [0.8, 0.6];
+      aim();
+    };
+    /** Find the lamp: the hero marks it, and it moves a little as the stage leans. */
+    const aim = () => {
+      const box = canvas.getBoundingClientRect();
+      const mark = hero.querySelector<HTMLElement>('.hero-lamp')?.getBoundingClientRect();
+      lamp = mark && mark.width
+        ? [(mark.left + mark.width / 2 - box.left) * scale, (box.bottom - (mark.top + mark.height / 2)) * scale]
+        : focus;
     };
 
     const paint = () => {
@@ -219,6 +377,21 @@ export function HeroSky({ accent, pick, still }: {
       gl.uniform1f(u.uSpan, span);
       gl.uniform1f(u.uPulse, pulse);
       gl.uniform1f(u.uPx, scale);
+      gl.uniform1f(u.uPixel, pixel);
+      gl.uniform1f(u.uGlow, glow);
+      gl.uniform3f(u.uSecond, shown2[0], shown2[1], shown2[2]);
+      gl.uniform3f(u.uPal0, pal[0], pal[1], pal[2]);
+      gl.uniform3f(u.uPal1, pal[3], pal[4], pal[5]);
+      gl.uniform3f(u.uPal2, pal[6], pal[7], pal[8]);
+      gl.uniform3f(u.uPal3, pal[9], pal[10], pal[11]);
+      gl.uniform1f(u.uPalMix, palMix);
+      gl.uniform2f(u.uLamp, lamp[0], lamp[1]);
+      gl.uniform2f(u.uBeam, beam[0], beam[1]);
+      gl.uniform1f(u.uGrid, grid);
+      gl.uniform1f(u.uStep, step);
+      gl.uniform1f(u.uLines, lines);
+      gl.uniform1f(u.uWall, wall);
+      gl.uniform1f(u.uCeil, ceil);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     };
 
@@ -229,7 +402,14 @@ export function HeroSky({ accent, pick, still }: {
 
     if (still) {
       // One still frame, repainted in the new colour when the pick changes.
-      state.draw = () => { shown.splice(0, 3, ...state.accent); paint(); };
+      state.draw = () => {
+        shown.splice(0, 3, ...state.accent);
+        shown2.splice(0, 3, ...state.second);
+        pal.splice(0, 12, ...state.pal);
+        pixel = state.pixel; glow = state.glow; palMix = state.palMix; grid = state.grid; lines = state.lines;
+        aim();
+        paint();
+      };
       state.draw();
       return () => { ro.disconnect(); state.draw = () => {}; hero.removeAttribute('data-sky'); };
     }
@@ -252,9 +432,25 @@ export function HeroSky({ accent, pick, still }: {
       const k = Math.min(1, dt * 3.5);
       mouse.x += (mouse.tx - mouse.x) * k;
       mouse.y += (mouse.ty - mouse.y) * k;
-      for (let i = 0; i < 3; i++) shown[i] += (state.accent[i] - shown[i]) * Math.min(1, dt * 4);
+      const ease = Math.min(1, dt * 4);
+      for (let i = 0; i < 3; i++) {
+        shown[i] += (state.accent[i] - shown[i]) * ease;
+        shown2[i] += (state.second[i] - shown2[i]) * ease;
+      }
+      // A new palette lands fast, the way a new look does in the app.
+      for (let i = 0; i < 12; i++) pal[i] += (state.pal[i] - pal[i]) * Math.min(1, dt * 9);
       if (state.pulse) { pulse = 1; state.pulse = 0; }
       pulse = Math.max(0, pulse - dt / 1.1);
+      pixel += (state.pixel - pixel) * Math.min(1, dt * 4.5);
+      palMix += (state.palMix - palMix) * Math.min(1, dt * 4.5);
+      grid += (state.grid - grid) * Math.min(1, dt * 3.5);
+      lines += (state.lines - lines) * Math.min(1, dt * 3.5);
+      // The playhead walks the grid in eighth notes at the demo's 118 BPM.
+      if (state.restep) { step = 0; state.restep = false; }
+      if (grid > 0.01) step += dt * (118 / 60) * 2;
+      // A lamp comes on at once and goes out a little slower, like a filament.
+      if (state.glow && glow < 0.02) aim();
+      glow += (state.glow - glow) * Math.min(1, dt * (state.glow > glow ? 40 : 12));
       paint();
       // Never trade smoothness for sharpness: if frames run long, draw fewer pixels.
       slow = dt > 0.024 ? slow + 1 : Math.max(0, slow - 1);
