@@ -94,10 +94,11 @@ h1, h2, h3, p { margin: 0; }
 /* ------------------------------------------------------------- top bar */
 
 /* When Safari on an iPhone tucks its toolbar away it draws the page up under the status bar,
- * so the bar keeps clear of the Dynamic Island by the safe-area inset (index.html asks for
- * `viewport-fit=cover`, which is what makes the inset available). */
+ * so the bar is placed by the safe-area inset (index.html asks for `viewport-fit=cover`, which
+ * is what makes the inset available). The inset is the whole status bar, about 11px taller than
+ * the Dynamic Island, so the bar sits 5px inside it: a gap of about 6px under the island. */
 .topbar {
-  position: fixed; z-index: 40; top: calc(12px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%);
+  position: fixed; z-index: 40; top: max(12px, calc(env(safe-area-inset-top, 0px) - 5px)); left: 50%; transform: translateX(-50%);
   width: min(var(--max), calc(100% - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
   transition: top 0.25s ease-out;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
