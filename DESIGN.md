@@ -63,6 +63,12 @@ typography:
     fontWeight: 400
     lineHeight: 1
     letterSpacing: "0.06em"
+  bitbounce-display:
+    fontFamily: "Chakra Petch, Barlow, system-ui, sans-serif"
+    fontSize: "clamp(42px, 5.4vw, 76px)"
+    fontWeight: 700
+    lineHeight: 0.98
+    letterSpacing: "-0.02em"
   carsdb-wordmark:
     fontFamily: "Martian Mono, ui-monospace, monospace"
     fontSize: "clamp(22px, 2.2vw, 30px)"
@@ -148,7 +154,9 @@ A product world uses its own site's colours and type. Do not let one product's p
 - **DM Sans** for body, buttons, and UI copy, 400–800.
 - **Spline Sans Mono** for kickers, statuses, and hints: uppercase, tracked 0.08em.
 - **Barlow** only inside the Morse demo phones, where the app's own stylesheet uses it.
-- **Saira Stencil One** only in the Morse world; **Pixelify Sans** and **Silkscreen** only in the Kilopixel world.
+- **Saira Stencil One** only in the Morse world; **Pixelify Sans** and **Silkscreen** only in the Kilopixel world (Silkscreen also names a game on its launch screen in the hero's phone).
+- **Chakra Petch** 700 only in the BitBounce world: its headline, keycaps and LCD labels, uppercase.
+- A world's typeface also appears in two places outside its section, because both stand for that world: its lit tab in the top bar, and its launch screen in the hero's phone.
 
 ## Components
 
