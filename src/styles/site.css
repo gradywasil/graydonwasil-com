@@ -63,6 +63,8 @@ body {
   font: 400 17px/1.55 var(--body);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  /* With `viewport-fit=cover` a phone on its side would run the page under its notch; keep the content clear of it. */
+  padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
 }
 /* Orbit labels and full-bleed backdrops can poke past the edge; never scroll sideways. */
 main { overflow-x: clip; }
@@ -91,9 +93,13 @@ h1, h2, h3, p { margin: 0; }
 
 /* ------------------------------------------------------------- top bar */
 
+/* When Safari on an iPhone tucks its toolbar away it draws the page up under the status bar,
+ * so the bar keeps clear of the Dynamic Island by the safe-area inset (index.html asks for
+ * `viewport-fit=cover`, which is what makes the inset available). */
 .topbar {
-  position: fixed; z-index: 40; top: 12px; left: 50%; transform: translateX(-50%);
-  width: min(var(--max), calc(100% - 24px));
+  position: fixed; z-index: 40; top: calc(12px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%);
+  width: min(var(--max), calc(100% - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+  transition: top 0.25s ease-out;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 8px 8px 8px 12px;
   background: color-mix(in srgb, var(--night) 86%, transparent);
