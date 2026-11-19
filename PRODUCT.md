@@ -30,12 +30,13 @@ Morse and Kilopixel are his first two apps. As of 10 November 2026 Kilopixel and
 
 ## Operating Context
 
-Visitors arrive on desktop or mobile and scroll one page with anchored sections (`#top`, `#morse`, `#kilopixel`, `#bitbounce`, `#rhymepage`, `#games`, `#more`, `#hello`). Old deck URLs (`/games`, `/projects/*`, `/experiments`, `/about`, `/contact`) redirect to the matching section.
+Visitors arrive on desktop or mobile and scroll one page with anchored sections (`#top`, `#morse`, `#kilopixel`, `#bitbounce`, `#rhymepage`, `#games`, `#more`, `#cartridges`, `#hello`). Old deck URLs (`/games`, `/projects/*`, `/experiments`, `/about`, `/contact`) redirect to the matching section.
 
 The site does not require an account. A visitor can contact Graydon through the contact form; when no form endpoint is configured, the site hands the prepared message to the visitor's email client instead of claiming it was delivered.
 
 ## Capabilities and Constraints
 
+- Cartridges (`#cartridges`, right after Games, before More): the Game Boy Color games Graydon makes for the ModRetro Chromatic, played from their real ROMs in a handheld. Keyboard on desktop, on-screen buttons on a phone. They are works in progress and the page says so. Sync them with `python scripts/sync-chromatic.py`.
 - Lead with apps and games. Morse comes first, then Kilopixel (with the fullest showcase: its real engine on sample photos or the visitor's own camera, its six app themes worn by the whole section, a GIF it made), then BitBounce (a playable one-bar groovebox with Dice, Swing, Tempo, Sound and Clear keys), then RhymePage, then the games (Brain Splitter spotlight, all eleven games on a spin reel, both game hubs).
 - Keep VOXCHAIN, CarsDB, Arranged Godly, and the 16 experiments in one compact section; do not bring back per-project story pages without a new decision.
 - App Store and Google Play buttons always appear as an equal pair, driven by the store states in `src/data/site.ts`. An app in review, or not yet submitted (`soon`), shows "Coming soon" and is not a link; a beta links to the tester opt-in. Do not use Apple's or Google's official badges until they link to a public listing.

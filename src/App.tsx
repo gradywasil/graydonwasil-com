@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
 import gurpySrc from './assets/fun/gurpy.png';
 import { BitBounceLaunch } from './components/BitBounceLaunch';
+import { Cartridges } from './components/Cartridges';
 import { GamesArcade } from './components/GamesArcade';
 import { GurpyPeek } from './components/GurpyPeek';
 import { Hello } from './components/Hello';
@@ -13,6 +14,7 @@ import { MoreWork } from './components/MoreWork';
 import { MorseLaunch } from './components/MorseLaunch';
 import { RhymePageCard } from './components/RhymePageCard';
 import { TopBar } from './components/TopBar';
+import { CARTRIDGES } from './data/cartridges';
 import { GITHUB, EMAIL } from './data/site';
 import { initJuice } from './lib/juice';
 import { usePrefersReducedMotion } from './lib/usePrefersReducedMotion';
@@ -53,6 +55,8 @@ function App() {
   const still = usePrefersReducedMotion();
   const drops = useGurpyRain(!still);
   const [gameId, setGameId] = useState('brain-splitter');
+  /** The cartridge in the console, which the top bar wears while you are there. */
+  const [cartId, setCartId] = useState(CARTRIDGES[0].id);
   const [watching, setWatching] = useState(false);
   const watch = () => setWatching(true);
 
@@ -83,7 +87,7 @@ function App() {
   return (
     <>
       <a className="skip" href="#morse">Skip to the apps</a>
-      <TopBar still={still} here={here} staged={hero === 'home' ? staged : null} gameId={gameId} />
+      <TopBar still={still} here={here} staged={hero === 'home' ? staged : null} gameId={gameId} cartId={cartId} />
 
       <main>
         <Hero still={still} variant={hero} onPickGame={setGameId} onWatch={watch} onStage={setStaged} />
@@ -94,6 +98,7 @@ function App() {
           <RhymePageCard />
         </section>
         <GamesArcade still={still} gameId={gameId} onPick={setGameId} />
+        <Cartridges id={cartId} onPick={setCartId} />
         <MoreWork />
         <Hello onWatch={watch} />
       </main>

@@ -112,60 +112,105 @@ h1, h2, h3, p { margin: 0; }
 .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 800 18px/1 var(--display-home); letter-spacing: -0.02em; }
 .gurpy-face { display: block; image-rendering: pixelated; }
 .brand .gurpy-face { width: 32px; height: 32px; }
+.brand { flex: none; }
 .toplinks { display: flex; align-items: center; gap: 4px; min-width: 0; }
-/* A tab is a project's icon and name (TopBar.tsx). The name sits in a column that can close
- * to nothing, which is how a phone shows icons alone and opens out only the lit tab. */
+/* (Only the group with a chip out may give way when the bar is short of room, and in it only the chip does.) */
+.top-group { display: flex; align-items: center; flex: none; }
+.top-group[data-open] { flex: 0 1 auto; min-width: 0; }
+
+/* Three tabs, however many projects there are: Apps, Games and Say hi (TopBar.tsx). A tab's
+ * name sits in a column that can close to nothing, which is how a phone makes room. */
 .top-tab {
-  --tab: var(--cream); --tab-bg: rgb(255 255 255 / 0.12); --spark: var(--tab);
-  position: relative; display: grid; grid-template-columns: auto 1fr; align-items: center;
-  height: 40px; min-width: 0; padding: 0 14px 0 7px; border-radius: 999px;
+  --spark: var(--cream);
+  position: relative; display: grid; grid-template-columns: auto 1fr; align-items: center; flex: none;
+  height: 40px; padding: 0 14px 0 6px; border-radius: 999px;
   text-decoration: none; color: var(--muted); font: 600 15px/1 var(--body); white-space: nowrap;
 }
+.top-name { min-width: 0; overflow: hidden; }
+.top-name > span { display: block; margin-left: 8px; }
+.top-tab:hover { color: var(--cream); background: rgb(255 255 255 / 0.07); }
+/* Apps and Games are folders, the way a phone keeps them: four of their icons, small. While
+ * one of them is out being viewed, it stays bright in the folder and the others stand back. */
+.top-stack {
+  display: grid; grid-template-columns: repeat(2, 10px); gap: 2px; place-content: center;
+  width: 28px; height: 28px; border-radius: 8px; background: rgb(255 255 255 / 0.13);
+}
+.top-stack img { width: 10px; height: 10px; border-radius: 26%; object-fit: cover; }
+.top-stack img[data-sprite] { border-radius: 0; object-fit: contain; }
+.top-folder[data-open] { color: var(--cream); }
+.top-folder[data-open] .top-stack img:not([data-lit]) { opacity: 0.4; }
+.top-tab:hover .top-stack { scale: 1.1; }
+
+/* What is being viewed comes out of its folder as a chip beside it: the project on screen, or
+ * the one open in the hero's phone. Every chip is always there, in a column that is closed
+ * (`0fr`) until it is the one, so one closes as the next opens. `.top-clip` hides a closed chip
+ * sideways only, which leaves an open one its shadow above and below. */
+.top-slot { display: grid; grid-template-columns: 0fr; min-width: 0; }
+.top-slot[data-on] { grid-template-columns: 1fr; }
+.top-clip { min-width: 0; overflow-x: clip; }
+/* A chip wears its project. From `--accent` alone (the project's own, set by TopBar) it gets a
+ * dark ground, a ring and its name in that colour; the worlds below go further. */
+.top-now {
+  --tab: var(--accent); --tab-bg: color-mix(in srgb, var(--accent) 14%, #0b0d1b); --spark: var(--accent);
+  display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center;
+  height: 40px; min-width: 0; max-width: 290px; margin: 0 4px; padding: 0 14px 0 7px; border-radius: 999px; overflow: hidden;
+  text-decoration: none; white-space: nowrap; color: var(--tab); background: var(--tab-bg);
+  font: 700 15px/1 var(--body);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+.top-now:focus-visible { outline-offset: 0; }
 .top-icon { width: 26px; height: 26px; border-radius: 26%; object-fit: cover; }
 .top-icon[data-sprite] { border-radius: 0; object-fit: contain; }
 .top-icon[data-px] { image-rendering: pixelated; }
-/* (The name's box is taller than its line, so a glow inside it is not cut off.) */
-.top-name { min-width: 0; overflow: hidden; padding-block: 9px; margin-block: -9px; }
-.top-name > span { display: block; margin-left: 8px; }
+.top-now:hover .top-icon { scale: 1.12; }
+.top-label { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; min-width: 0; margin-left: 8px; }
+/* The name. One that does not fit slides to its end and back, like the title of what is
+ * playing. (Its box is taller than its line, so a glow inside it is not cut off.) */
+.top-tick { min-width: 0; overflow: hidden; padding-block: 9px; margin-block: -9px; }
+.top-tick > span { display: inline-block; vertical-align: top; }
+.top-tick[data-over] {
+  padding-left: 7px; margin-left: -7px;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7px, #000 calc(100% - 12px), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7px, #000 calc(100% - 12px), transparent);
+}
 .top-lamp, .top-steps { display: none; }
-.top-tab:hover { color: var(--cream); background: rgb(255 255 255 / 0.07); }
-.top-tab:hover .top-icon { scale: 1.12; }
-/* The lit tab: the world on screen, or the app open in the hero's phone. It wears its project. */
-.top-tab[data-on] { color: var(--tab); background: var(--tab-bg); }
 
-.top-tab[data-world='morse'] { --tab: var(--m-amber); --tab-bg: #1d1409; }
-.top-tab[data-world='morse'][data-on] { padding-right: 7px; box-shadow: inset 0 0 0 1px rgb(247 178 76 / 0.5); }
-.top-tab[data-world='morse'][data-on] .top-name { font: 400 14px/1 var(--stencil); letter-spacing: 0.06em; text-transform: uppercase; }
-/* Its lamp, which sends M (two dashes) while the tab is lit. */
-.top-tab[data-world='morse'][data-on] .top-lamp {
-  display: inline-block; width: 6px; height: 6px; margin: 0 7px 0 8px; border-radius: 50%; vertical-align: 0.12em;
+.top-now[data-world='morse'] { --tab: var(--m-amber); --tab-bg: #1d1409; padding-right: 7px; box-shadow: inset 0 0 0 1px rgb(247 178 76 / 0.5); }
+.top-now[data-world='morse'] .top-label { grid-template-columns: minmax(0, 1fr) auto; }
+.top-now[data-world='morse'] .top-tick { font: 400 14px/1 var(--stencil); letter-spacing: 0.06em; text-transform: uppercase; }
+/* Its lamp, which sends M (two dashes). */
+.top-now[data-world='morse'] .top-lamp {
+  display: block; width: 6px; height: 6px; margin: 0 7px 0 8px; border-radius: 50%;
   background: #ffe9b8; box-shadow: 0 0 7px 2px rgb(247 178 76 / 0.9);
 }
 
-.top-tab[data-world='kilopixel'] { --tab: var(--kp-orange); --tab-bg: #070707; }
-.top-tab[data-world='kilopixel'][data-on] { border-radius: 4px; box-shadow: 3px 3px 0 var(--kp-orange); }
-.top-tab[data-world='kilopixel'][data-on] .top-icon { border-radius: 0; }
-.top-tab[data-world='kilopixel'][data-on] .top-name { font: 700 16px/1 var(--pixel); }
+.top-now[data-world='kilopixel'] { --tab: var(--kp-orange); --tab-bg: #070707; border-radius: 4px; box-shadow: 3px 3px 0 var(--kp-orange); }
+.top-now[data-world='kilopixel'] .top-icon { border-radius: 0; }
+.top-now[data-world='kilopixel'] .top-tick { font: 700 16px/1 var(--pixel); }
 
 /* BitBounce: one of its keycaps, with its four lanes stepping under the name. */
-.top-tab[data-world='bitbounce'] { --tab: #16161a; --tab-bg: #fbf9f4; --spark: #ff5a1f; }
-.top-tab[data-world='bitbounce'][data-on] { border-radius: 12px; box-shadow: 0 3px 0 #a9a290; translate: 0 -1.5px; }
-.top-tab[data-world='bitbounce'][data-on] .top-name { font: 700 14px/1 var(--chakra); letter-spacing: 0.02em; text-transform: uppercase; }
-.top-tab[data-world='bitbounce'][data-on] .top-steps { display: flex; gap: 3px; margin-top: 4px; }
+.top-now[data-world='bitbounce'] { --tab: #16161a; --tab-bg: #fbf9f4; --spark: #ff5a1f; border-radius: 12px; box-shadow: 0 3px 0 #a9a290; translate: 0 -1.5px; }
+.top-now[data-world='bitbounce'] .top-tick { font: 700 14px/1 var(--chakra); letter-spacing: 0.02em; text-transform: uppercase; }
+.top-now[data-world='bitbounce'] .top-steps { display: flex; gap: 3px; margin-top: 4px; }
 .top-steps i { flex: 1; height: 3px; border-radius: 2px; opacity: 0.35; }
 .top-steps i:nth-child(1) { background: #ff5a1f; }
 .top-steps i:nth-child(2) { background: #e0a800; }
 .top-steps i:nth-child(3) { background: #1f6bff; }
 .top-steps i:nth-child(4) { background: #ff3d8b; }
 
-/* Games: the colours and the sprite of whichever game is up (set by TopBar). */
-.top-tab[data-world='games'] { --tab: var(--orange); --tab-bg: #1d1030; }
-.top-tab[data-world='games'][data-on] { box-shadow: inset 0 0 0 1.5px var(--tab); }
-.top-tab[data-world='games'][data-on] .top-name { font: 400 13px/1 var(--display); letter-spacing: 0.02em; text-transform: uppercase; }
+/* RhymePage: the word it is on is lit, the way its lyric sheet lights the word being sung. */
+.top-now[data-world='rhymepage'] { --tab: #dcefe3; --tab-bg: var(--rp-bg); box-shadow: inset 0 0 0 1px rgb(75 227 143 / 0.45); }
+.top-now[data-world='rhymepage'] .top-tick { font: 800 15px/1 var(--body); letter-spacing: -0.02em; }
+.top-now[data-world='rhymepage'] b { font-weight: inherit; }
+.top-now[data-world='rhymepage'] b:first-child { color: var(--rp-green); }
+
+/* A game: its two colours and its sprite (set by TopBar), its name in the arcade's face. */
+.top-now[data-world='games'] { box-shadow: inset 0 0 0 1.5px var(--tab); }
+.top-now[data-world='games'] .top-tick { font: 400 13px/1 var(--display); letter-spacing: 0.02em; text-transform: uppercase; }
 
 .top-hi { display: inline-flex; padding: 0 15px; background: var(--ginger); color: #1a0d03; --spark: var(--ginger); }
 .top-hi:hover { background: #ffb873; color: #1a0d03; }
-.top-hi[data-on] { color: #1a0d03; background: var(--ginger); box-shadow: 0 0 0 2px var(--cream); }
+.top-hi[data-on] { box-shadow: 0 0 0 2px var(--cream); }
 .top-fold { display: inline-grid; grid-template-columns: 1fr; }
 .top-fold > span { min-width: 0; overflow: hidden; }
 
@@ -173,50 +218,68 @@ h1, h2, h3, p { margin: 0; }
   .top-tab {
     transition:
       grid-template-columns 0.38s cubic-bezier(0.2, 1.25, 0.3, 1), padding 0.38s cubic-bezier(0.2, 1.25, 0.3, 1),
-      color 0.15s, background-color 0.2s, box-shadow 0.2s, border-radius 0.2s, translate 0.2s;
+      color 0.15s, background-color 0.2s, box-shadow 0.2s;
   }
-  .top-icon { transition: scale 0.18s cubic-bezier(0.2, 1.6, 0.4, 1); }
+  .top-slot { transition: grid-template-columns 0.42s cubic-bezier(0.2, 1.25, 0.3, 1); }
+  .top-icon, .top-stack { transition: scale 0.18s cubic-bezier(0.2, 1.6, 0.4, 1); }
+  .top-stack img { transition: opacity 0.25s; }
   .top-fold { transition: grid-template-columns 0.3s cubic-bezier(0.2, 1.2, 0.3, 1); }
-  /* Lighting up: the icon hops, and each project does one thing of its own. */
-  .top-tab[data-on] .top-icon { animation: top-hop 0.45s cubic-bezier(0.2, 1.5, 0.4, 1); }
-  .top-tab[data-world='morse'][data-on] .top-lamp { animation: top-lamp 2.4s steps(1, end) infinite; }
-  .top-tab[data-world='kilopixel'][data-on] { animation: top-px 0.32s steps(5, end); }
-  .top-tab[data-world='bitbounce'][data-on] .top-steps i { animation: top-step 1017ms steps(1, end) infinite; }
-  .top-tab[data-world='bitbounce'][data-on] .top-steps i:nth-child(2) { animation-delay: 254ms; }
-  .top-tab[data-world='bitbounce'][data-on] .top-steps i:nth-child(3) { animation-delay: 508ms; }
-  .top-tab[data-world='bitbounce'][data-on] .top-steps i:nth-child(4) { animation-delay: 762ms; }
-  .top-tab[data-world='games'][data-on] .top-icon { animation: top-bob 0.7s steps(2, end) infinite; }
-  /* A new game in the Games tab lands with a spin. */
-  .top-icon[data-sprite] { animation: top-swap 0.4s cubic-bezier(0.2, 1.5, 0.4, 1); }
+  /* Coming out of the folder: its small icon there jumps, the chip's icon hops, and each
+   * project does one thing of its own. */
+  .top-stack img[data-lit] { animation: top-pick 0.5s cubic-bezier(0.2, 1.5, 0.4, 1); }
+  .top-slot[data-on] .top-icon { animation: top-hop 0.45s 0.08s cubic-bezier(0.2, 1.5, 0.4, 1); }
+  .top-slot[data-on] [data-world='morse'] .top-lamp { animation: top-lamp 2.4s steps(1, end) infinite; }
+  .top-slot[data-on] [data-world='kilopixel'] { animation: top-px 0.32s steps(5, end); }
+  .top-slot[data-on] .top-steps i { animation: top-step 1017ms steps(1, end) infinite; }
+  .top-slot[data-on] .top-steps i:nth-child(2) { animation-delay: 254ms; }
+  .top-slot[data-on] .top-steps i:nth-child(3) { animation-delay: 508ms; }
+  .top-slot[data-on] .top-steps i:nth-child(4) { animation-delay: 762ms; }
+  .top-slot[data-on] [data-world='rhymepage'] b { animation: top-word 1520ms steps(1, end) infinite; }
+  .top-slot[data-on] [data-world='rhymepage'] b + b { animation-delay: 760ms; }
+  /* The sprite of the game being viewed keeps bobbing, and a new game lands with a spin. */
+  .top-slot[data-on] [data-world='games'] .top-icon { animation: top-swap 0.4s cubic-bezier(0.2, 1.5, 0.4, 1), top-bob 0.7s 0.4s steps(2, end) infinite; }
+  .top-slot[data-on] .top-tick[data-over] > span { animation: top-tick 6.4s 1s ease-in-out infinite; }
+}
+/* Held still, a name that does not fit is cut short instead. */
+@media (prefers-reduced-motion: reduce) {
+  .top-tick { text-overflow: ellipsis; }
+  .top-tick > span { display: inline; }
+  .top-tick[data-over] { padding-left: 0; margin-left: 0; -webkit-mask-image: none; mask-image: none; }
 }
 @keyframes top-hop { 40% { translate: 0 -5px; scale: 1.18; } }
+@keyframes top-pick { 40% { scale: 1.7; } }
 @keyframes top-lamp { 0%, 33% { opacity: 1; } 25%, 58% { opacity: 0.15; } }
 @keyframes top-px { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(-4px); } }
 @keyframes top-step { 0% { opacity: 1; scale: 1 1.7; } 25%, 100% { opacity: 0.35; scale: 1; } }
+@keyframes top-word { 0% { color: var(--rp-green); text-shadow: 0 0 10px rgb(75 227 143 / 0.65); } 50%, 100% { color: #dcefe3; text-shadow: none; } }
 @keyframes top-bob { 50% { translate: 0 -3px; } }
 @keyframes top-swap { from { scale: 0.3; rotate: -90deg; } }
+@keyframes top-tick { 0%, 10% { translate: 0; } 45%, 60% { translate: calc(-12px - var(--over)); } 95%, 100% { translate: 0; } }
 
 @media (max-width: 640px) {
   .brand span { display: none; }
   .toplinks { gap: 2px; }
-  /* Icons alone. The lit tab opens out to show its name. */
-  .top-tab { grid-template-columns: auto 0fr; padding: 0 6px; font-size: 14px; }
-  .top-tab[data-on] { grid-template-columns: auto 1fr; padding: 0 12px 0 6px; }
-  .top-icon { width: 28px; height: 28px; }
+  .top-tab { padding: 0 12px 0 6px; font-size: 14px; }
   .top-name > span { margin-left: 7px; }
-  .top-hi, .top-hi[data-on] { padding: 0 13px; }
-  /* "Say hi" is said in full until another tab needs the room. */
-  .toplinks:has(.top-tab[data-on]:not(.top-hi)) .top-fold { grid-template-columns: 0fr; }
+  .top-hi { padding: 0 13px; }
+  /* While something is being viewed the tabs give it the room: Apps and Games are their
+   * folders alone, and Say hi is said as hi. */
+  .toplinks[data-viewing] .top-folder { grid-template-columns: auto 0fr; padding: 0 6px; }
+  .toplinks[data-viewing] .top-fold { grid-template-columns: 0fr; }
+  .top-now { margin: 0 3px; padding: 0 12px 0 6px; }
+  .top-now[data-world='morse'] { padding-right: 6px; }
+  .top-label { margin-left: 7px; }
 }
 @media (max-width: 380px) {
-  .top-tab { padding: 0 5px; }
-  .top-tab[data-on] { padding: 0 10px 0 5px; }
-  .top-icon { width: 26px; height: 26px; }
-  .top-name > span { margin-left: 6px; }
-  .top-tab[data-world='bitbounce'][data-on] .top-name { font-size: 12px; }
-  .top-tab[data-world='kilopixel'][data-on] .top-name { font-size: 15px; }
-  .top-tab[data-world='morse'][data-on] .top-name { font-size: 13px; }
-  .top-hi, .top-hi[data-on] { padding: 0 11px; }
+  .top-tab { padding: 0 10px 0 5px; }
+  .toplinks[data-viewing] .top-folder { padding: 0 5px; }
+  .top-hi { padding: 0 11px; }
+  .top-now { padding: 0 10px 0 5px; }
+  .top-label { margin-left: 6px; }
+  .top-now[data-world='bitbounce'] .top-tick { font-size: 12px; }
+  .top-now[data-world='kilopixel'] .top-tick { font-size: 15px; }
+  .top-now[data-world='morse'] .top-tick { font-size: 13px; }
+  .top-now[data-world='rhymepage'] .top-tick { font-size: 14px; }
 }
 
 /* -------------------------------------------------------------- buttons */

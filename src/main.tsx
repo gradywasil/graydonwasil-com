@@ -2,6 +2,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles/site.css';
 import './styles/hero-variants.css';
+import './styles/cartridges.css';
+import './styles/topbar-games.css';
 import App from './App.tsx';
 
 /* The old site was a deck with one URL per slide. Those links still exist

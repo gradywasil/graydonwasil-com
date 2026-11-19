@@ -1,0 +1,439 @@
+/* ------------------------------------------------------------ cartridges
+ * The last world: Game Boy Color games, run from their real ROMs in a handheld.
+ * Ground is a violet graphite; the accents are the console's own pink buttons
+ * and the gold fingers of a cartridge's edge, which is also this world's top
+ * edge. The selected cartridge's own colour (--cart, set on the section) tints
+ * the light behind the console and the card, the way an open app dresses the
+ * hero. Type stays home-base (Bricolage and Spline Sans Mono): the console and
+ * the labels carry the world. */
+
+.world-cart {
+  --ct-bg: #17141f;
+  --ct-panel: #211c2d;
+  --ct-line: rgb(255 255 255 / 0.1);
+  --ct-hot: #ff5b8a;
+  --ct-hot-deep: #b3214f;
+  --ct-gold: #e8c46a;
+  --cart: #5fdc7a;
+  --cart-ink: #082414;
+  --spark: var(--ct-hot);
+  background:
+    radial-gradient(46% 52% at 24% 58%, color-mix(in srgb, var(--cart) 17%, transparent), transparent 72%),
+    repeating-linear-gradient(0deg, rgb(255 255 255 / 0.022) 0 1px, transparent 1px 4px),
+    var(--ct-bg);
+  color: var(--cream);
+}
+
+/* The top edge: the gold fingers of a cartridge, going into the page above. */
+.world-cart::before {
+  content: ''; position: absolute; z-index: 1; left: 0; right: 0; top: -18px; height: 19px;
+  background: linear-gradient(90deg, var(--ct-gold) 0 9px, transparent 9px) 0 0 / 15px 100% repeat-x;
+}
+.world-cart::after {
+  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+  background: linear-gradient(180deg, rgb(0 0 0 / 0.45), transparent);
+}
+
+/* The headline and its one line sit side by side on a desktop, so the console is not pushed
+ * down the page; they stack on a phone. */
+.ct-head { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.ct-title {
+  max-width: 15ch;
+  font: 800 clamp(38px, 5vw, 70px)/0.98 var(--display-home); letter-spacing: -0.035em;
+}
+.ct-title .ch { display: inline-block; }
+.ct-title > [aria-hidden] .sw:nth-last-child(-n + 2) { color: var(--ct-gold); }
+.ct-lede { max-width: 40ch; font-size: 19px; color: var(--muted); }
+
+/* The console on the left; on the right the shelf, then a card that runs down to the console's
+ * own bottom edge, so the two columns end together. */
+.ct-grid {
+  display: grid; margin-top: clamp(28px, 3.4vw, 44px);
+  grid-template-columns: minmax(0, 421px) minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas: 'console shelf' 'console card';
+  gap: 22px clamp(32px, 5vw, 76px); align-items: start;
+}
+.ct-shelf-wrap { grid-area: shelf; min-width: 0; }
+.ct-console { grid-area: console; min-width: 0; }
+.ct-card { grid-area: card; align-self: stretch; }
+
+@media (min-width: 861px) {
+  .ct-head { grid-template-columns: minmax(0, 1fr) minmax(0, 400px); align-items: end; gap: 18px clamp(32px, 5vw, 76px); }
+  .ct-lede { padding-bottom: 8px; }
+}
+
+/* ---------------------------------------------------------------- shelf */
+
+.ct-shelf {
+  display: flex; gap: 14px; overflow-x: auto; padding: 18px 6px 20px; margin: 0 -6px;
+  scroll-snap-type: x proximity; scrollbar-width: none;
+}
+.ct-shelf::-webkit-scrollbar { display: none; }
+/* With room, the four cartridges fill the column, side by side, nothing to scroll. */
+@media (min-width: 861px) {
+  .ct-shelf { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; overflow: visible; padding: 16px 6px 18px; }
+  .ct-shelf .ct-cart { width: auto; }
+  .ct-shelf .ct-cart-name { font-size: 15px; }
+}
+
+.ct-cart {
+  flex: none; width: 118px; display: grid; align-content: start; padding: 0; border: 0; cursor: pointer;
+  position: relative; scroll-snap-align: center; text-align: center; font: inherit; color: var(--cream);
+  background: linear-gradient(180deg, #373442, #25222e);
+  border-radius: 11px 11px 5px 5px;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2), 0 8px 16px rgb(0 0 0 / 0.38);
+  transition: transform 0.2s cubic-bezier(0.2, 1.5, 0.4, 1), box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.ct-cart:hover { transform: translateY(-4px); }
+.ct-cart[data-on] {
+  transform: translateY(-9px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.25), 0 0 0 2px var(--cart),
+    0 16px 26px rgb(0 0 0 / 0.5), 0 0 26px color-mix(in srgb, var(--cart) 42%, transparent);
+}
+.ct-cart-grip {
+  height: 11px; margin: 7px 12px 6px; border-radius: 2px;
+  background: repeating-linear-gradient(90deg, rgb(0 0 0 / 0.4) 0 2px, transparent 2px 6px);
+}
+.ct-cart-label { margin: 0 8px; padding: 5px; background: var(--cart); border-radius: 5px; }
+.ct-cart-label img { display: block; width: 100%; height: auto; image-rendering: pixelated; border-radius: 2px; }
+.ct-cart-name { padding: 9px 6px 7px; font: 800 14px/1.1 var(--display-home); letter-spacing: -0.01em; }
+.ct-cart-pins {
+  height: 8px; margin: 0 11px 5px;
+  background: linear-gradient(90deg, var(--ct-gold) 0 4px, transparent 4px) 0 0 / 7px 100% repeat-x;
+  opacity: 0.85;
+}
+
+/* ----------------------------------------------------------------- card */
+
+.ct-card {
+  position: relative; display: flex; flex-direction: column; padding: 30px 32px 20px; border-radius: 22px;
+  background: var(--ct-panel); border: 1px solid var(--ct-line);
+}
+/* The cartridge's colour, as a tab hanging from the top edge rather than a thick border into the corners. */
+.ct-card::before {
+  content: ''; position: absolute; left: 32px; top: -1px; width: 52px; height: 5px;
+  background: var(--cart); border-radius: 0 0 4px 4px;
+}
+.ct-genre { font: 600 12.5px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--cart); }
+.ct-card h3 { margin-top: 12px; font: 800 clamp(30px, 3.2vw, 44px)/1 var(--display-home); letter-spacing: -0.03em; }
+.ct-line { margin-top: 12px; font-size: 20px; font-weight: 500; line-height: 1.35; }
+.ct-about { margin-top: 12px; margin-bottom: 30px; max-width: 54ch; color: var(--muted); }
+
+/* What each button does, for a thumb: the console's own button beside its job. */
+.ct-controls {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 22px;
+  margin: 20px 0 0; padding: 0; list-style: none;
+}
+.ct-controls li { display: flex; align-items: center; gap: 11px; min-height: 34px; font-size: 15px; line-height: 1.25; }
+.ct-glyph {
+  flex: none; display: inline-grid; place-items: center; min-width: 30px; height: 30px; font: 800 13px/1 var(--display-home);
+  color: #2a0612; background: var(--ct-hot); border-radius: 50%; box-shadow: 0 2px 0 var(--ct-hot-deep);
+}
+.ct-glyph[data-b='pill'] {
+  height: 22px; padding: 0 10px; border-radius: 99px; background: #46435a; color: var(--cream);
+  font: 600 10.5px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; box-shadow: 0 2px 0 #1b1926;
+}
+.ct-glyph[data-b='dpad'] {
+  background: #46435a; border-radius: 6px; box-shadow: 0 2px 0 #1b1926;
+  background-image: linear-gradient(var(--cream), var(--cream)), linear-gradient(var(--cream), var(--cream));
+  background-size: 16px 5px, 5px 16px; background-position: center; background-repeat: no-repeat;
+  background-color: #46435a;
+}
+
+/* For a keyboard: each key drawn as a cap, with the console button it works printed on it and its
+ * job beneath, in a row that sits on the card's floor. The caps press down as the real keys do. */
+.ct-keymap, .ct-esc { display: none; }
+.ct-keymap { list-style: none; margin: auto 0 0; padding: 26px 0 0; gap: 14px; border-top: 1px solid var(--ct-line); }
+.ct-key { flex: 1 1 0; min-width: 0; display: grid; justify-items: center; align-content: start; gap: 16px; text-align: center; }
+.ct-key[data-b='dpad'] { flex-grow: 1.6; }
+.ct-key-caps { display: grid; place-items: center; height: 92px; }
+.ct-key-does { max-width: 15ch; font: 600 14.5px/1.3 var(--body); color: var(--cream); text-wrap: balance; }
+
+.kc {
+  display: inline-grid; place-items: center; align-content: center; gap: 6px; min-width: 68px; height: 68px; padding: 0 14px;
+  font: 800 24px/1 var(--display-home); color: var(--cream);
+  background: linear-gradient(180deg, #423e55, #2c293a); border: 1px solid rgb(255 255 255 / 0.16); border-radius: 13px;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 5px 0 #15121d, 0 10px 14px rgb(0 0 0 / 0.32);
+  transition: translate 0.06s, box-shadow 0.06s, background 0.06s, border-color 0.06s;
+}
+.kc[data-wide] { min-width: 104px; font-size: 19px; }
+.kc small { font: 600 9.5px/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ct-hot); }
+.kc[data-held] {
+  translate: 0 4px; color: #fff; border-color: color-mix(in srgb, var(--ct-hot) 75%, transparent);
+  background: linear-gradient(180deg, #7b2d4c, #4b1d31);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 1px 0 #15121d, 0 3px 8px rgb(0 0 0 / 0.4);
+}
+.kc[data-held] small { color: #ffd0de; }
+
+/* The four direction keys, in the shape of a keyboard's: W over A S D. */
+.kc-pad { display: grid; grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(2, 40px); gap: 9px 6px; }
+.kc-pad .kc { min-width: 0; height: 40px; padding: 0; border-radius: 9px; font-size: 16px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 4px 0 #15121d, 0 7px 10px rgb(0 0 0 / 0.3); }
+.kc-pad .kc[data-held] { box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 1px 0 #15121d; }
+.kc-pad .kc:nth-child(1) { grid-column: 2; grid-row: 1; }
+.kc-pad .kc:nth-child(2) { grid-column: 1; grid-row: 2; }
+.kc-pad .kc:nth-child(3) { grid-column: 2; grid-row: 2; }
+.kc-pad .kc:nth-child(4) { grid-column: 3; grid-row: 2; }
+.kc-sm { min-width: 40px; height: 26px; padding: 0 8px; border-radius: 7px; font: 600 11px/1 var(--mono); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 3px 0 #15121d; }
+
+.ct-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px 18px; margin-top: 18px; min-height: 40px; }
+.ct-esc { align-items: center; gap: 12px; font: 500 12.5px/1 var(--mono); letter-spacing: 0.02em; color: var(--muted); }
+.ct-erase-link, .ct-erase { margin-left: auto; }
+.ct-erase-link, .ct-erase button {
+  min-height: 40px; padding: 0 4px; font: 600 12.5px/1 var(--mono); letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--muted); background: none; border: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+}
+.ct-erase { display: inline-flex; align-items: center; gap: 12px; font: 500 13px/1 var(--mono); color: var(--cream); }
+.ct-erase button:first-of-type { color: var(--ct-hot); }
+.ct-erase-link:hover, .ct-erase button:hover { color: var(--cream); }
+
+/* ---------------------------------------------------------------- tools */
+
+.ct-tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; width: min(100%, 421px); margin: 22px auto 0; }
+.ct-tool {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 15px;
+  font: 600 12px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--cream);
+  background: var(--ct-panel); border: 1px solid var(--ct-line); border-radius: 99px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; transition: border-color 0.15s, transform 0.12s;
+}
+.ct-tool:hover:not(:disabled) { border-color: rgb(255 255 255 / 0.35); }
+.ct-tool:active:not(:disabled) { transform: translateY(1px); }
+.ct-tool:disabled { opacity: 0.4; cursor: default; }
+.ct-tool[aria-pressed='true'] { border-color: color-mix(in srgb, var(--ct-hot) 60%, transparent); }
+.ct-tool-ico, .hh-power-icon {
+  width: 15px; height: 15px; flex: none; background: currentColor;
+  -webkit-mask: var(--ico) center / contain no-repeat; mask: var(--ico) center / contain no-repeat;
+}
+.ct-tool-ico[data-ico='sound'] { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 6h3l4-3v10l-4-3H2z'/%3E%3Cpath d='M11.2 5.4a3.6 3.6 0 0 1 0 5.2' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E"); }
+.ct-tool-ico[data-ico='mute'] { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 6h3l4-3v10l-4-3H2z'/%3E%3Cpath d='M11 6l4 4M15 6l-4 4' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E"); }
+.ct-tool-ico[data-ico='restart'] { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13 8a5 5 0 1 1-1.6-3.7' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round'/%3E%3Cpath d='M13.4 1.8v3.6H9.8z'/%3E%3C/svg%3E"); }
+.ct-tool-ico[data-ico='power'], .hh-power-icon { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1.8v5.6M4.4 4.4a5.2 5.2 0 1 0 7.2 0' fill='none' stroke='%23000' stroke-width='1.9' stroke-linecap='round'/%3E%3C/svg%3E"); }
+
+/* -------------------------------------------------------------- handheld */
+
+.hh {
+  container-type: inline-size; position: relative; width: min(100%, 421px); margin: 0 auto;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+}
+.hh-slot { position: relative; z-index: 0; height: 12cqw; }
+.hh-cart {
+  position: absolute; left: 50%; bottom: 0; translate: -50% 0; width: 62cqw; height: 13cqw;
+  display: grid; align-items: start; justify-items: center; padding-top: 2.4cqw;
+  background: linear-gradient(180deg, #3d3a49, #26232f); border-radius: 2.2cqw 2.2cqw 0 0;
+  box-shadow: inset 0 0.3cqw 0 rgb(255 255 255 / 0.2), 0 0 0 0.3cqw #0c0b11;
+}
+.hh-cart span {
+  display: block; width: 84%; padding: 1.2cqw 1cqw; text-align: center; border-radius: 1cqw;
+  font: 800 3.4cqw/1 var(--display-home); letter-spacing: 0.02em; text-transform: uppercase;
+  color: var(--cart-ink); background: var(--cart); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.hh-shell {
+  position: relative; z-index: 1; margin-top: -2.5cqw; padding: 6.5cqw 6.5cqw 0;
+  background: linear-gradient(165deg, #424050 0%, #2b2a35 40%, #1d1c26 100%);
+  border-radius: 6cqw 6cqw 16cqw 6cqw;
+  box-shadow:
+    inset 0 0.4cqw 0 rgb(255 255 255 / 0.22), inset 0 -1.6cqw 3cqw rgb(0 0 0 / 0.4),
+    0 0 0 0.35cqw #0c0b11, 0 4cqw 10cqw rgb(0 0 0 / 0.55);
+}
+.hh-bezel {
+  padding: 2.2cqw 5.5cqw 5.5cqw; background: #0a0a0f; border-radius: 3cqw 3cqw 10cqw 3cqw;
+  box-shadow: inset 0 0 0 0.3cqw rgb(255 255 255 / 0.05), 0 0.4cqw 0 rgb(255 255 255 / 0.1);
+}
+.hh-bezel-top {
+  display: flex; align-items: center; justify-content: space-between; padding-bottom: 1.8cqw;
+  font: 600 2.2cqw/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: #6f6d82;
+}
+.hh-led { width: 1.8cqw; height: 1.8cqw; border-radius: 50%; background: #3a2a30; box-shadow: inset 0 0.2cqw 0.2cqw rgb(0 0 0 / 0.5); }
+.hh-led[data-on] { background: #7dffb0; box-shadow: 0 0 1.6cqw #7dffb0, 0 0 0.4cqw #fff; }
+
+.hh-lcd { position: relative; aspect-ratio: 160 / 144; background: #000; overflow: hidden; border-radius: 0.8cqw; }
+.hh-lcd::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.07), transparent 38%);
+}
+.hh-canvas, .hh-still {
+  position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+  image-rendering: pixelated;
+}
+.hh-overlay { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; }
+.hh-overlay:not([data-kind='on']) { background: rgb(8 6 14 / 0.42); }
+.hh-overlay[data-kind='on'] { pointer-events: none; }
+.hh-power {
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 1cqw;
+  min-height: 11cqw; padding: 2.4cqw 5cqw; cursor: pointer;
+  font: 800 4.4cqw/1 var(--display-home); letter-spacing: -0.01em; color: #2a0612;
+  background: var(--ct-hot); border: 0.7cqw solid #12060b; border-radius: 3cqw; box-shadow: 0 1.2cqw 0 #12060b;
+  transition: transform 0.12s, box-shadow 0.12s, filter 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.hh-power:not(.hh-resume) { flex-direction: row; gap: 2cqw; }
+.hh-power:hover { transform: translateY(-0.4cqw); box-shadow: 0 1.6cqw 0 #12060b; filter: brightness(1.06); }
+.hh-power:active { transform: translateY(0.8cqw); box-shadow: 0 0.3cqw 0 #12060b; }
+.hh-power-icon { width: 4.6cqw; height: 4.6cqw; }
+.hh-power small { font: 600 2.4cqw/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.8; }
+.hh-say {
+  padding: 1.6cqw 3.2cqw; border-radius: 1.4cqw; background: rgb(8 6 14 / 0.75);
+  font: 600 3cqw/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--cream);
+}
+.hh-dots::after { content: ''; animation: hh-dots 1.2s steps(4) infinite; }
+@keyframes hh-dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75%, 100% { content: '...'; } }
+.hh-fail { display: grid; justify-items: center; gap: 3cqw; padding: 0 8cqw; text-align: center; }
+.hh-fail p { font: 500 3.2cqw/1.4 var(--body); color: var(--cream); }
+
+/* The buttons. */
+.hh-pad { position: relative; height: 68cqw; }
+.hh-btn {
+  -webkit-appearance: none; appearance: none; padding: 0; border: 0; cursor: pointer; touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hh-dpad {
+  position: absolute; left: 2cqw; top: 7cqw; width: 33cqw; height: 33cqw; touch-action: none; cursor: pointer;
+  filter: drop-shadow(0 0.8cqw 0 #0d0c12) drop-shadow(0 1.6cqw 1.4cqw rgb(0 0 0 / 0.5));
+  -webkit-tap-highlight-color: transparent;
+}
+.hh-dpad::before {
+  content: ''; position: absolute; inset: 0; background: linear-gradient(160deg, #3b3a47, #1f1e28);
+  clip-path: polygon(33.3% 0, 66.7% 0, 66.7% 33.3%, 100% 33.3%, 100% 66.7%, 66.7% 66.7%, 66.7% 100%, 33.3% 100%, 33.3% 66.7%, 0 66.7%, 0 33.3%, 33.3% 33.3%);
+}
+.hh-dpad::after {
+  content: ''; position: absolute; left: 38%; top: 38%; width: 24%; height: 24%; border-radius: 50%;
+  background: radial-gradient(circle at 50% 35%, #15141b, #25242e); box-shadow: inset 0 0.3cqw 0.4cqw rgb(0 0 0 / 0.5);
+}
+.hh-arrow { position: absolute; z-index: 1; width: 8%; height: 6%; background: rgb(255 255 255 / 0.2); transition: background 0.06s; }
+.hh-arrow[data-held] { background: var(--ct-hot); filter: drop-shadow(0 0 0.8cqw var(--ct-hot)); }
+.hh-up { left: 46%; top: 8%; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.hh-down { left: 46%; bottom: 8%; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.hh-left { left: 8%; top: 47%; width: 6%; height: 8%; clip-path: polygon(0 50%, 100% 0, 100% 100%); }
+.hh-right { right: 8%; top: 47%; width: 6%; height: 8%; clip-path: polygon(0 0, 100% 50%, 0 100%); }
+
+.hh-ab { position: absolute; right: 4cqw; top: 9cqw; width: 40cqw; height: 28cqw; }
+.hh-ab-set { position: relative; width: 100%; height: 100%; rotate: -24deg; }
+.hh-a, .hh-b {
+  position: absolute; top: 5cqw; width: 15.5cqw; height: 15.5cqw; border-radius: 50%;
+  background: radial-gradient(circle at 35% 28%, #ff9bb8, var(--ct-hot) 46%, var(--ct-hot-deep));
+  box-shadow: inset 0 0.4cqw 0.3cqw rgb(255 255 255 / 0.35), 0 1cqw 0 #5e0f2a, 0 1.8cqw 2cqw rgb(0 0 0 / 0.45);
+  transition: translate 0.05s, box-shadow 0.05s, filter 0.05s;
+}
+.hh-b { left: 1cqw; }
+.hh-a { left: 23.5cqw; }
+.hh-a[data-held], .hh-b[data-held] {
+  translate: 0 0.8cqw; filter: brightness(1.15);
+  box-shadow: inset 0 0.4cqw 0.3cqw rgb(255 255 255 / 0.3), 0 0.2cqw 0 #5e0f2a, 0 0.6cqw 0.8cqw rgb(0 0 0 / 0.4);
+}
+.hh-cap {
+  position: absolute; width: 15.5cqw; text-align: center; pointer-events: none;
+  font: 600 2.6cqw/1.25 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: #8b899e;
+}
+.hh-cap-b { top: 22.5cqw; left: 1cqw; }
+.hh-cap-a { top: 22.5cqw; left: 23.5cqw; }
+.hh-key { display: none; font-size: 2.1cqw; letter-spacing: 0.04em; color: var(--ct-gold); text-transform: none; }
+
+.hh-ss { position: absolute; left: 24cqw; top: 46cqw; width: 38cqw; height: 12cqw; rotate: -24deg; }
+.hh-select, .hh-start { position: absolute; top: 0; width: 17cqw; height: 6cqw; background: none; }
+.hh-select { left: 0; }
+.hh-start { left: 20cqw; }
+/* The pill is drawn small; the press area around it is not. */
+.hh-select::before, .hh-start::before {
+  content: ''; position: absolute; inset: 0.4cqw 1.2cqw; border-radius: 99px;
+  background: linear-gradient(180deg, #4a4858, #2c2b37); box-shadow: inset 0 0.3cqw 0 rgb(255 255 255 / 0.18), 0 0.7cqw 0 #0d0c12;
+  transition: translate 0.05s, box-shadow 0.05s, background 0.05s;
+}
+.hh-select::after, .hh-start::after { content: ''; position: absolute; inset: -2.5cqw -1cqw -4cqw; }
+.hh-select[data-held]::before, .hh-start[data-held]::before { translate: 0 0.5cqw; background: var(--ct-hot); box-shadow: 0 0.2cqw 0 #0d0c12; }
+.hh-cap-select, .hh-cap-start { top: 7cqw; width: 17cqw; font-size: 2.2cqw; }
+.hh-cap-select { left: 0; }
+.hh-cap-start { left: 20cqw; }
+.hh-key-pad { position: absolute; left: 50%; bottom: -5cqw; translate: -50% 0; font-size: 2.1cqw; font-family: var(--mono); font-weight: 600; letter-spacing: 0.06em; }
+
+.hh-grille {
+  position: absolute; right: 6.5cqw; bottom: 4cqw; width: 15cqw; height: 13cqw; border-radius: 1cqw;
+  background: repeating-linear-gradient(-58deg, #0b0a10 0 1.1cqw, transparent 1.1cqw 3cqw);
+  opacity: 0.8;
+}
+
+/* A keyboard, a mouse and a fine pointer: show the keys. A thumb: show the buttons. */
+@media (hover: hover) and (pointer: fine) {
+  .ct-esc { display: flex; }
+  .hh-key { display: block; }
+  .hh-cap-b, .hh-cap-a { line-height: 1.5; }
+}
+/* The keycap row needs the room of the two-column layout; a narrow window gets the plain list. */
+@media (hover: hover) and (pointer: fine) and (min-width: 861px) {
+  .ct-controls { display: none; }
+  .ct-keymap { display: flex; }
+}
+
+/* ------------------------------------------------------------- motion */
+
+@media (prefers-reduced-motion: no-preference) {
+  .ct-title[data-in] .ch { animation: ct-slot 0.5s calc(var(--i) * 22ms) cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+  .hh-cart { animation: ct-insert 0.45s cubic-bezier(0.2, 1.3, 0.4, 1) both; }
+  .hh-led[data-on] { animation: hh-glow 2.4s ease-in-out infinite; }
+
+  @supports (animation-timeline: view()) {
+    .world-cart::before { animation: ct-pins linear both; animation-timeline: view(); animation-range: cover; }
+    .ct-console { animation: ct-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
+  }
+}
+@keyframes ct-slot { from { opacity: 0; translate: 0 -0.7em; } }
+@keyframes ct-insert { from { translate: -50% -55%; } }
+@keyframes hh-glow { 50% { box-shadow: 0 0 0.8cqw #7dffb0, 0 0 0.3cqw #fff; } }
+@keyframes ct-pins { from { background-position-x: 0; } to { background-position-x: 90px; } }
+@keyframes ct-rise { from { opacity: 0; transform: translateY(46px) scale(0.97); } }
+
+/* --------------------------------------------------------------- narrow */
+
+@media (max-width: 860px) {
+  .ct-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'shelf' 'console' 'card'; gap: 22px; }
+  .ct-shelf { margin: 0 -16px; padding: 18px 16px 18px; }
+}
+
+@media (max-width: 640px) {
+  .ct-title { max-width: none; font-size: clamp(32px, 9.4vw, 40px); }
+  .ct-head { gap: 8px; }
+  .ct-lede { font-size: 15px; line-height: 1.45; }
+  .ct-grid { margin-top: 16px; gap: 14px; }
+  .ct-cart { width: 104px; }
+  .ct-cart-name { font-size: 13px; }
+  .ct-tools { margin-top: 18px; gap: 6px; }
+  .ct-tool { padding: 0 12px; }
+  .ct-card { padding: 20px 18px 12px; border-radius: 18px; }
+  .ct-card::before { left: 18px; }
+  .ct-card h3 { margin-top: 8px; font-size: 28px; }
+  .ct-line { margin-top: 6px; font-size: 16px; }
+  .ct-controls { margin-top: 14px; gap: 10px 14px; }
+  .ct-controls li { font-size: 14px; gap: 9px; }
+  .ct-foot { margin-top: 4px; min-height: 0; }
+}
+
+/* ------------------------------------------------------------- top bar
+ * The Games tab covers the cartridges too: below the arcade, the cartridge in the console comes
+ * out of the folder as a chip (TopBar.tsx, CartChip). It wears the cartridge: its title screen
+ * as the label in its colour, its name, and gold pins crawling underneath like a cartridge going
+ * into a slot. Switching cartridges plugs the new one in. */
+
+.top-stack img[data-px] { image-rendering: pixelated; }
+.top-now[data-world='carts'] {
+  --tab: var(--cream); --tab-bg: #1b1626;
+  border-radius: 10px 10px 5px 5px; padding-right: 13px;
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+.top-now[data-world='carts'] .top-icon {
+  box-sizing: border-box; width: 32px; height: 28px; padding: 2px; border-radius: 3px; background: var(--accent);
+}
+.top-now[data-world='carts'] .top-tick { font: 800 14px/1 var(--display-home); letter-spacing: -0.005em; text-transform: uppercase; }
+.top-pins {
+  display: block; height: 4px; margin-top: 5px; opacity: 0.9;
+  background: linear-gradient(90deg, #e8c46a 0 3px, transparent 3px) 0 0 / 6px 100% repeat-x;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .top-slot[data-on] [data-world='carts'] .top-icon { animation: top-plug 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+  .top-slot[data-on] [data-world='carts'] .top-pins { animation: top-crawl 0.72s steps(6) infinite; }
+}
+@keyframes top-plug { 0% { translate: 0 -14px; clip-path: inset(0 0 100% 0); } 55% { translate: 0 2px; clip-path: inset(0); } 100% { translate: 0 0; } }
+@keyframes top-crawl { to { background-position-x: 6px; } }
