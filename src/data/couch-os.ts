@@ -2,10 +2,14 @@ import icon from '../assets/couch-os/icon.svg';
 
 /* COUCH·OS, the living-room arcade console (couch-os.arrangedgodly.com). The titles are its
  * game library in the console's own order, with its own words and colours; each cover is the
- * console's own library art, captured from the live site into src/assets/couch-os/. */
+ * console's own library art, captured from the live site into src/assets/couch-os/ as a still
+ * (.webp) and a few seconds of it animating (.mp4, recorded from the console's canvas). */
 
 const covers = import.meta.glob<string>('../assets/couch-os/*.webp', { eager: true, import: 'default' });
 const cover = (id: string) => covers[`../assets/couch-os/${id}.webp`];
+/* And a few seconds of each cover moving, recorded from the console's own animated library art. */
+const previews = import.meta.glob<string>('../assets/couch-os/*.mp4', { eager: true, import: 'default', query: '?url' });
+const preview = (id: string) => previews[`../assets/couch-os/${id}.mp4`];
 
 export const COUCH = {
   name: 'COUCH·OS',
@@ -25,10 +29,12 @@ export interface CouchTitle {
   /** The title's colour in the console's library. */
   colour: string;
   cover: string;
+  /** The cover moving: a short loop, muted. */
+  preview: string;
 }
 
 const t = (id: string, name: string, kind: CouchTitle['kind'], players: string, colour: string, blurb: string): CouchTitle =>
-  ({ id, name, kind, players, colour, blurb, cover: cover(id) });
+  ({ id, name, kind, players, colour, blurb, cover: cover(id), preview: preview(id) });
 
 export const COUCH_TITLES: CouchTitle[] = [
   t('channel-surf', 'Channel Surf', 'Party', '1–4 players', '#f2375b',

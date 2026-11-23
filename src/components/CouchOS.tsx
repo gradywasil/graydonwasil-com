@@ -39,6 +39,11 @@ export function CouchOS({ still }: { still: boolean }) {
   const [toasts, setToasts] = useState<number[]>([]);
   /** The pad's light flashes with each press, as the real one answers a button. */
   const [blink, setBlink] = useState(0);
+  /** On screen: only then does the TV's picture move (and fetch its loop). */
+  const [onScreen, setOnScreen] = useState(false);
+  /** Which title's loop is playing on the TV, so it can cover the still. */
+  const [moving, setMoving] = useState<string | null>(null);
+  const video = useRef<HTMLVideoElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const screen = useRef<HTMLDivElement>(null);
   const timers = useRef<number[]>([]);
@@ -60,6 +65,21 @@ export function CouchOS({ still }: { still: boolean }) {
     io.observe(el);
     return () => { io.disconnect(); window.clearInterval(timer); };
   }, [still, touched]);
+
+  useEffect(() => {
+    const el = stage.current;
+    if (still || !el) return;
+    const io = new IntersectionObserver((entries) => setOnScreen(entries[entries.length - 1].isIntersecting), { threshold: 0.2 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [still]);
+  // The loop plays while the TV is on screen and rests when it is not.
+  useEffect(() => {
+    const v = video.current;
+    if (!v) return;
+    if (onScreen) void v.play().catch(() => { /* not allowed (Low Power Mode): the still stays */ });
+    else v.pause();
+  }, [onScreen, at, spinning]);
 
   // Players join when the console first comes on screen: one phone at a time.
   useEffect(() => {
@@ -173,8 +193,22 @@ export function CouchOS({ still }: { still: boolean }) {
           </div>
 
           <div className="couch-screen" ref={screen}>
-            <div className="couch-picture" key={game.id}>
+            <div className="couch-picture" key={game.id} data-moving={moving === game.id ? '' : undefined}>
               <img src={game.cover} alt={`${game.name}, from the COUCH·OS library`} width="560" height="323" />
+              {/* The cover moving, over the still once it plays. Not while spinning: the channels go by too fast to load. */}
+              {!still && !spinning && onScreen && (
+                <video
+                  ref={video}
+                  src={game.preview}
+                  muted
+                  loop
+                  playsInline
+                  autoPlay
+                  preload="auto"
+                  aria-hidden="true"
+                  onPlaying={() => setMoving(game.id)}
+                />
+              )}
             </div>
             <span className="couch-osd" key={`osd-${at}`} aria-hidden="true">{spinning ? '✦ SPIN' : `CH ${ch(at)}`}</span>
             <p className="couch-press" aria-hidden="true"><span className="couch-a">A</span>Press to play</p>
