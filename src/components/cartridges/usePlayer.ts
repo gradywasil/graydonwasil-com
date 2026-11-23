@@ -49,6 +49,9 @@ export function usePlayer(stage: RefObject<HTMLElement | null>) {
   const ticket = useRef(0);
 
   const [phase, setPhase] = useState<Phase>('off');
+  /** Counts machines put in the console. Two swaps can finish inside one render, leaving the phase
+   *  'on' as it was; this still changes, so the new machine is started. */
+  const [loaded, setLoaded] = useState(0);
   const [message, setMessage] = useState('');
   const [muted, setMuted] = useState(false);
   const [held, setHeld] = useState<ReadonlySet<PadButton>>(new Set());
@@ -73,6 +76,7 @@ export function usePlayer(stage: RefObject<HTMLElement | null>) {
     setMessage('');
     setPhase('loading');
     wakeAudio(); // from the press that got us here, or the browser keeps the sound off
+    const stale = () => mine !== ticket.current;
     try {
       const next = await boot(id, {
         canvas: canvasRef.current!,
@@ -84,16 +88,26 @@ export function usePlayer(stage: RefObject<HTMLElement | null>) {
             setSaved((s) => (s[id] ? s : { ...s, [id]: true }));
           } catch { /* storage full or blocked: the game still plays */ }
         },
-      });
-      if (mine !== ticket.current) { next.destroy(); return; }
+        onCrash: () => {
+          if (stale()) return;
+          core.current = null;
+          clearHeld();
+          setMessage('The cartridge stopped. Power it on again to restart it.');
+          setPhase('error');
+        },
+      }, stale);
+      // A newer press took over while this one loaded (rapid swapping): it never made a machine.
+      if (!next) return;
+      if (stale()) { next.destroy(); return; }
       core.current = next;
+      setLoaded((n) => n + 1);
       setPhase('on');
     } catch (error) {
-      if (mine !== ticket.current) return;
+      if (stale()) return;
       setMessage(error instanceof Error ? error.message : 'The cartridge would not start.');
       setPhase('error');
     }
-  }, [release]);
+  }, [release, clearHeld]);
 
   const powerOff = useCallback(() => {
     ticket.current++;
@@ -138,12 +152,14 @@ export function usePlayer(stage: RefObject<HTMLElement | null>) {
     const c = core.current;
     if (!c) return;
     if (going) c.start(); else c.pause();
-  }, [going, phase]);
+  }, [going, phase, loaded]);
 
   useEffect(() => {
     const el = stage.current;
     if (!el) return;
-    const io = new IntersectionObserver(([e]) => {
+    // (The last entry is the current one: a jump down the page as it loads can deliver two at once.)
+    const io = new IntersectionObserver((entries) => {
+      const e = entries[entries.length - 1];
       setInView(e.isIntersecting);
       if (!e.isIntersecting) clearHeld();
     }, { threshold: 0.35 });

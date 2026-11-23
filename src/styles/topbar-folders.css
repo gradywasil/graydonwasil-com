@@ -1,0 +1,171 @@
+/* ------------------------------------------------- top bar: open folders
+ * Apps and Games open the way a phone opens a folder: the panel grows out of the tab, frosted
+ * over whatever is under it, and its icons land one after another. Each icon goes straight to
+ * its thing (TopBar.tsx). The Games folder is in three parts: COUCH·OS, in its own colours, then
+ * the browser games, then the cartridges, each part's heading a link to its own section. */
+
+/* A blur inside a blur sees only the bar, so while a folder is open the bar lets the panel do it. */
+.topbar[data-folder] { backdrop-filter: none; -webkit-backdrop-filter: none; background: color-mix(in srgb, var(--night) 96%, transparent); }
+
+/* The folder's tab is a button that opens it. */
+button.top-tab { border: 0; background: none; cursor: pointer; font: 600 15px/1 var(--body); }
+.top-folder[data-expanded] { color: var(--cream); background: rgb(255 255 255 / 0.11); }
+.top-folder[data-expanded] .top-stack { scale: 1.12; background: rgb(255 255 255 / 0.2); }
+
+.top-panel {
+  position: absolute; z-index: 2; top: calc(100% + 10px); right: 8px;
+  width: min(540px, calc(100vw - 40px)); max-height: calc(100dvh - 110px); overflow-y: auto; overscroll-behavior: contain;
+  padding: 16px 18px 18px; border-radius: 28px;
+  background: color-mix(in srgb, var(--night) 80%, transparent);
+  backdrop-filter: blur(22px) saturate(1.4); -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  border: 1px solid rgb(255 255 255 / 0.12);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.08);
+  scrollbar-width: thin;
+  transform-origin: 72% 0;
+}
+.top-panel[data-for='apps'] { width: min(380px, calc(100vw - 40px)); transform-origin: 30% 0; }
+.top-panel:not([data-open]) { visibility: hidden; opacity: 0; scale: 0.9; translate: 0 -10px; pointer-events: none; }
+
+.top-panel-head, .top-panel-sub {
+  display: flex; align-items: baseline; gap: 8px; width: fit-content; text-decoration: none; color: var(--cream);
+}
+.top-panel-head { margin: 2px 4px 14px; font: 800 22px/1 var(--display-home); letter-spacing: -0.02em; }
+.top-panel-sub {
+  margin: 20px 4px 10px; color: var(--muted);
+  font: 600 12px/1 var(--mono, 'Spline Sans Mono', ui-monospace, monospace); letter-spacing: 0.1em; text-transform: uppercase;
+}
+.top-panel-sub small { font: inherit; letter-spacing: 0.04em; text-transform: none; opacity: 0.7; }
+.top-panel-head span, .top-panel-sub span { color: var(--ginger); transition: translate 0.2s; }
+.top-panel-head:hover span, .top-panel-sub:hover span { translate: 0 3px; }
+.top-panel-sub:hover { color: var(--cream); }
+
+/* The icons, with their names under them. */
+.top-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 6px; margin: 0; padding: 0; list-style: none; }
+.top-grid[data-kind='games'] { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.top-grid[data-kind='carts'] { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.top-app {
+  --spark: var(--accent, var(--cream));
+  display: grid; justify-items: center; gap: 7px; padding: 6px 2px; border-radius: 14px;
+  text-decoration: none; color: var(--cream);
+}
+.top-app-tile {
+  display: grid; place-items: center; width: 54px; height: 54px; border-radius: 26%; overflow: hidden;
+  background: rgb(255 255 255 / 0.08);
+  box-shadow: 0 6px 14px rgb(0 0 0 / 0.35);
+  transition: scale 0.2s cubic-bezier(0.2, 1.6, 0.4, 1), box-shadow 0.2s;
+}
+.top-app-tile img { width: 100%; height: 100%; object-fit: cover; }
+.top-app-tile img[data-px] { image-rendering: pixelated; }
+/* A game's sprite stands on a tile of its own colour, as on the hero's phone. */
+.top-app-tile[data-sprite] {
+  background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--accent) 38%, #171b36), #10132a);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent), 0 6px 14px rgb(0 0 0 / 0.35);
+}
+.top-app-tile[data-sprite] img { width: 76%; height: 76%; object-fit: contain; }
+/* A cartridge: its title screen, in a shell of its own colour, the top corners rounded. */
+.top-app[data-art] .top-app-tile {
+  width: 58px; height: 56px; padding: 4px 4px 6px; border-radius: 9px 9px 4px 4px;
+  background: linear-gradient(180deg, #3a3646, #24212d);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 70%, transparent), 0 6px 14px rgb(0 0 0 / 0.35);
+}
+.top-app[data-art] .top-app-tile img { border-radius: 3px; object-fit: cover; }
+.top-app-name {
+  max-width: 100%; text-align: center; font: 600 12px/1.2 var(--body);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.top-app:hover .top-app-tile { scale: 1.08; }
+.top-app:active .top-app-tile { scale: 0.94; }
+.top-app[aria-current] .top-app-tile { box-shadow: 0 0 0 2.5px var(--night), 0 0 0 4.5px var(--accent, var(--cream)), 0 6px 14px rgb(0 0 0 / 0.35); }
+.top-app[aria-current] .top-app-name { color: var(--accent, var(--cream)); }
+
+/* COUCH·OS, at the top of the Games folder in its own colours. */
+.top-feature {
+  --spark: #b5ff2a;
+  position: relative; display: flex; align-items: center; gap: 14px; overflow: hidden;
+  padding: 12px 16px 15px 12px; border-radius: 18px; text-decoration: none; color: #f5f4f0;
+  background: radial-gradient(70% 140% at 100% 0%, rgb(255 59 92 / 0.22), transparent 70%), #07060b;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  transition: box-shadow 0.2s, translate 0.2s;
+}
+.top-feature img { width: 44px; height: 44px; border-radius: 11px; flex: none; transition: scale 0.2s cubic-bezier(0.2, 1.6, 0.4, 1); }
+.top-feature-text { display: grid; gap: 6px; }
+.top-feature b { font: 800 19px/1 'Syne', var(--display-home); letter-spacing: 0.04em; }
+.top-feature b i { font-style: normal; color: #b5ff2a; }
+.top-feature small { font: 400 17px/1 'Jersey 10', var(--micro); letter-spacing: 0.04em; color: rgb(245 244 240 / 0.62); text-transform: uppercase; }
+.top-feature-bar {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+  background: linear-gradient(90deg, #ff3b5c, #ffb800 33%, #b5ff2a 66%, #22d3ee, #ff3b5c) 0 0 / 200% 100%;
+}
+.top-feature:hover { box-shadow: inset 0 0 0 1.5px #ff3b5c; }
+.top-feature:hover img { scale: 1.08; }
+.top-feature[aria-current] { box-shadow: inset 0 0 0 2px #b5ff2a; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .top-panel {
+    transition: opacity 0.18s, scale 0.42s cubic-bezier(0.2, 1.3, 0.3, 1), translate 0.42s cubic-bezier(0.2, 1.3, 0.3, 1), visibility 0s;
+  }
+  .top-panel:not([data-open]) {
+    transition: opacity 0.14s, scale 0.18s ease-in, translate 0.18s ease-in, visibility 0s 0.18s;
+  }
+  /* The icons land one after another, as a phone's do when a folder opens. */
+  .top-panel[data-open] li, .top-panel[data-open] .top-feature {
+    animation: top-land 0.46s calc(var(--i, 0) * 16ms + 60ms) cubic-bezier(0.2, 1.5, 0.4, 1) backwards;
+  }
+  .top-panel[data-open] .top-feature-bar { animation: top-sweep-bar 3s linear infinite; }
+}
+@keyframes top-land { from { opacity: 0; scale: 0.4; translate: 0 10px; } }
+@keyframes top-sweep-bar { to { background-position-x: -200%; } }
+
+@media (max-width: 640px) {
+  button.top-tab { font-size: 14px; }
+  /* On a phone the open folder is as wide as the bar. */
+  .top-panel, .top-panel[data-for='apps'] { left: 0; right: 0; width: auto; padding: 14px 12px 16px; border-radius: 24px; }
+  .top-grid[data-kind='games'] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .top-app-tile { width: 52px; height: 52px; }
+  .top-app[data-art] .top-app-tile { width: 54px; height: 52px; }
+  .top-app-name { font-size: 11.5px; }
+  .top-grid[data-kind='carts'] .top-app-name { font-size: 11px; }
+}
+
+/* --------------------------------------------- the chips the new things wear */
+
+/* COUCH·OS: its icon on its own night, its wordmark, and the four-colour bar from under its icon
+ * running beneath the name; now and then it changes channel. */
+.top-now[data-world='couch'] {
+  --tab: #f5f4f0; --tab-bg: #07060b; --spark: #b5ff2a;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
+}
+.top-now[data-world='couch'] .top-icon { border-radius: 7px; }
+.top-now[data-world='couch'] .top-tick { font: 800 13.5px/1 'Syne', var(--display-home); letter-spacing: 0.05em; }
+.top-now[data-world='couch'] .top-tick b { color: #b5ff2a; }
+.top-bar-bar { display: none; }
+.top-now[data-world='couch'] .top-bar-bar {
+  display: block; height: 3px; margin-top: 4px; border-radius: 2px;
+  background: linear-gradient(90deg, #ff3b5c, #ffb800 33%, #b5ff2a 66%, #22d3ee, #ff3b5c) 0 0 / 200% 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .top-slot[data-on] [data-world='couch'] .top-bar-bar { animation: top-sweep-bar 2.4s linear infinite; }
+  .top-slot[data-on] [data-world='couch'] .top-icon { animation: top-hop 0.45s 0.08s cubic-bezier(0.2, 1.5, 0.4, 1), top-channel 4.2s 1s steps(1, end) infinite; }
+
+  /* Magic Gunden: a trail of gems snakes along under the name, a tile at a time, the way the
+   * gems you pick up follow you. */
+  .top-slot[data-on] .top-now[data-game='magic-gunden']::before {
+    bottom: 4px; left: 0; width: 5px; height: 5px; border-radius: 1px; background: #3fd17a;
+    box-shadow: -7px 0 0 #e8364f, -14px 0 0 var(--accent), -21px 0 0 #4aa3ff;
+    animation: top-trail 3.2s steps(20, end) infinite;
+  }
+  .top-slot[data-on] .top-now[data-game='magic-gunden'] .top-icon { animation: top-swap 0.4s cubic-bezier(0.2, 1.5, 0.4, 1), top-glint 2.4s 0.4s ease-in-out infinite; }
+
+  /* Storybox: the label bounces in like a wooden block, and the song birds' notes float up. */
+  .top-slot[data-on] [data-game='storybox'] .top-icon { animation: top-plug 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both, top-clack 1.6s 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) infinite; }
+  .top-slot[data-on] .top-now[data-game='storybox']::after {
+    content: '♪'; right: 14px; bottom: 6px; font: 700 12px/1 var(--body); color: var(--b);
+    animation: top-note 2.2s ease-out infinite;
+  }
+}
+@keyframes top-channel { 0%, 88% { filter: none; translate: 0 0; } 90% { filter: brightness(2.4) saturate(0) contrast(1.6); translate: 0 -2px; } 94% { filter: hue-rotate(140deg); translate: 0 1px; } 97% { filter: none; translate: 0 0; } }
+@keyframes top-trail { from { left: -4px; } to { left: calc(100% + 26px); } }
+@keyframes top-glint { 50% { filter: brightness(1.35) drop-shadow(0 0 4px var(--accent)); } }
+@keyframes top-clack { 0%, 100% { translate: 0 0; rotate: 0deg; } 12% { translate: 0 -3px; rotate: -6deg; } 24% { translate: 0 0; rotate: 0deg; } }
+@keyframes top-note { 0% { translate: 0 4px; opacity: 0; } 20% { opacity: 1; } 100% { translate: -8px -22px; opacity: 0; rotate: -14deg; } }

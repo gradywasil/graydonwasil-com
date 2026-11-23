@@ -112,7 +112,7 @@ export function GamesArcade({ still, gameId, onPick }: {
           <span aria-hidden="true"><Split text="Weird games for curious thumbs." /></span>
         </h2>
         <p className="games-lede">
-          Eleven browser games and counting, all free to play right now.
+          Twelve browser games and counting, all free to play right now.
           <span className="only-wide"> Pick one below and it takes over the stage.</span>
         </p>
       </div>

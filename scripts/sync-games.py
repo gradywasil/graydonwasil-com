@@ -6,6 +6,11 @@ Reads arcade-ad/research/games.json (the same data that builds
 gg.arrangedgodly.com), resizes each game's logo, screenshot, thumbnail,
 floating sprites and orbit icon to WebP under src/assets/games/<id>/, and
 writes src/data/games.json for the site to import. Needs Pillow.
+
+Games that are not in the Gurpy Games catalog live here instead, one folder
+each under scripts/local-games/<id>/: a game.json in the same shape as a
+catalog entry (image paths relative to that folder, plus `orbit` for its
+icon) and its images. They come after the catalog's games.
 """
 import json
 import shutil
@@ -19,6 +24,7 @@ SRC = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT.parent / 'arcade-ad'
 PUBLIC = SRC / 'public'
 OUT = ROOT / 'src' / 'assets' / 'games'
 DATA = ROOT / 'src' / 'data' / 'games.json'
+LOCAL = ROOT / 'scripts' / 'local-games'
 
 # One character per game to fly around Gurpy in the hero.
 ORBIT = {
@@ -37,8 +43,8 @@ ORBIT = {
 MAX_FLOATERS = 7
 
 
-def save(src: str, dest: Path, width: int, pixel: bool = False) -> dict:
-    im = Image.open(PUBLIC / src.lstrip('/'))
+def save(src: str, dest: Path, width: int, pixel: bool = False, base: Path = PUBLIC) -> dict:
+    im = Image.open(base / src.lstrip('/'))
     im = im.convert('RGBA') if im.mode in ('RGBA', 'LA', 'P') else im.convert('RGB')
     small = max(im.size) <= 160
     if not small and im.width > width:
@@ -53,12 +59,17 @@ def save(src: str, dest: Path, width: int, pixel: bool = False) -> dict:
 
 def main() -> None:
     games = [g for g in json.loads((SRC / 'research' / 'games.json').read_text('utf8')) if g.get('kind') != 'experiment']
+    for folder in sorted(LOCAL.iterdir()) if LOCAL.exists() else []:
+        local = json.loads((folder / 'game.json').read_text('utf8'))
+        games.append(local | {'base': folder})
     if OUT.exists():
         shutil.rmtree(OUT)
     out = []
     for g in games:
         gid = g['id']
         d = OUT / gid
+        base = g.get('base', PUBLIC)
+        orbit = g.get('orbit') or ORBIT.get(gid)
         phone = g['frame'] == 'phone'
         rec = {
             'id': gid,
@@ -75,15 +86,15 @@ def main() -> None:
             'chips': g.get('chips') or [],
             'comment': g.get('comment'),
             'shotAlt': g['shotAlt'],
-            'shot': save(g['shot'], d / 'shot.webp', 420 if phone else 960),
-            'thumb': save(g['thumb'], d / 'thumb.webp', 480),
-            'logo': save(g['logo'], d / 'logo.webp', 640) | {'alt': g.get('logoAlt') or g['title']} if g.get('logo') else None,
-            'orbit': save(ORBIT[gid], d / 'orbit.webp', 200) if gid in ORBIT else None,
+            'shot': save(g['shot'], d / 'shot.webp', 420 if phone else 960, base=base),
+            'thumb': save(g['thumb'], d / 'thumb.webp', 480, base=base),
+            'logo': save(g['logo'], d / 'logo.webp', 640, base=base) | {'alt': g.get('logoAlt') or g['title']} if g.get('logo') else None,
+            'orbit': save(orbit, d / 'orbit.webp', 200, base=base) if orbit else None,
             'floaters': [],
         }
         for i, f in enumerate(g.get('floaters', [])[:MAX_FLOATERS]):
             px = max(240, round(f['w'] * 14))
-            info = save(f['src'], d / f'f{i}.webp', px, f.get('pixel', False))
+            info = save(f['src'], d / f'f{i}.webp', px, f.get('pixel', False), base=base)
             # `size` is the floater's width as a percent of the stage.
             rec['floaters'].append(info | {'size': f.get('w', 10)} | {k: f.get(k, dflt) for k, dflt in
                                            (('x', 0), ('y', 0), ('r', 0), ('depth', 1), ('speed', 7), ('kind', 'sprite'))})

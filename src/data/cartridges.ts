@@ -2,6 +2,7 @@ import mimicArt from '../assets/carts/mimic.png';
 import numdropArt from '../assets/carts/numdrop.png';
 import pocketTypistArt from '../assets/carts/pocket-typist.png';
 import runForeverArt from '../assets/carts/run-forever.png';
+import storyboxArt from '../assets/carts/storybox.png';
 import type { PadButton } from '../lib/gb/core';
 
 /* The Game Boy Color games made for the ModRetro Chromatic, from the chromatic
@@ -86,6 +87,20 @@ export const CARTRIDGES: Cartridge[] = [
       { button: 'start', does: 'Pause' },
     ],
     colour: '#ffb347', ink: '#1c1000', alt: '#4ecdc4', art: numdropArt,
+  },
+  {
+    id: 'storybox',
+    title: 'Storybox',
+    genre: 'Learning and Brain Age',
+    line: 'A first video game for kids, and a brain check-up for their parents.',
+    about: 'Nine minigames in an oak treehouse run by Ollie the Owl: letters, rhymes, songs, sums, clocks, mazes and counting critters. Four tiers go from Sprout, with no timers and nothing to fail, up to a timed Brain Age score for adults. Three save slots keep the family apart.',
+    controls: [
+      { button: 'dpad', does: 'Walk, aim and pick' },
+      { button: 'a', does: 'Choose, hop' },
+      { button: 'b', does: 'Back, or hear the tune again' },
+      { button: 'start', does: 'Pause, and sound settings' },
+    ],
+    colour: '#d09020', ink: '#2a1606', alt: '#489040', art: storyboxArt,
   },
 ];
 

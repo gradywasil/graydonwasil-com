@@ -14,7 +14,9 @@ export function useReveal<T extends HTMLElement>() {
     if (!el || !('IntersectionObserver' in window)) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     el.setAttribute('data-armed', '');
-    const io = new IntersectionObserver(([e]) => {
+    const io = new IntersectionObserver((es) => {
+      // (The newest entry is the one that counts: a jump down the page can deliver two at once.)
+      const e = es[es.length - 1];
       if (e.intersectionRatio >= 0.6) el.setAttribute('data-in', '');
       else if (!e.isIntersecting) el.removeAttribute('data-in');
     }, { threshold: [0, 0.6] });

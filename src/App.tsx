@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useState } from 'react';
 import gurpySrc from './assets/fun/gurpy.png';
 import { BitBounceLaunch } from './components/BitBounceLaunch';
 import { Cartridges } from './components/Cartridges';
+import { CouchOS } from './components/CouchOS';
 import { GamesArcade } from './components/GamesArcade';
 import { GurpyPeek } from './components/GurpyPeek';
 import { Hello } from './components/Hello';
@@ -15,6 +16,7 @@ import { MorseLaunch } from './components/MorseLaunch';
 import { RhymePageCard } from './components/RhymePageCard';
 import { TopBar } from './components/TopBar';
 import { CARTRIDGES } from './data/cartridges';
+import { GAMES } from './data/games';
 import { GITHUB, EMAIL } from './data/site';
 import { initJuice } from './lib/juice';
 import { usePrefersReducedMotion } from './lib/usePrefersReducedMotion';
@@ -51,6 +53,18 @@ function useGurpyRain(enabled: boolean) {
   return drops;
 }
 
+/** Where a link points: a section, and sometimes one thing in it (`#games/numdrop`, `#carts/storybox`).
+ *  `#cartridges`, the old name of the cartridges section, still works. */
+function readHash() {
+  const [section = '', id] = decodeURIComponent(window.location.hash.slice(1)).split('/');
+  return { section: section === 'cartridges' ? 'carts' : section, id };
+}
+
+/** Say where the page is (`#games/numdrop`) without going there again or adding to the history. */
+function mark(hash: string) {
+  if (window.location.hash !== hash) history.replaceState(history.state, '', hash);
+}
+
 function App() {
   const still = usePrefersReducedMotion();
   const drops = useGurpyRain(!still);
@@ -58,6 +72,32 @@ function App() {
   /** The cartridge in the console, which the top bar wears while you are there. */
   const [cartId, setCartId] = useState(CARTRIDGES[0].id);
   const [watching, setWatching] = useState(false);
+
+  // Links into the page: a section, a game up in the arcade, a cartridge in the console.
+  useEffect(() => {
+    const follow = (smooth: boolean) => {
+      const { section, id } = readHash();
+      if (!section) return;
+      if (section === 'games' && GAMES.some((g) => g.id === id)) setGameId(id);
+      if (section === 'carts' && CARTRIDGES.some((c) => c.id === id)) setCartId(id);
+      if (window.location.hash.startsWith('#cartridges')) mark(`#carts${id ? `/${id}` : ''}`);
+      // (Hash targets render after React mounts, so the first jump waits for them.)
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const el = document.getElementById(section);
+        if (!el) return;
+        el.scrollIntoView({ behavior: smooth ? 'smooth' : 'instant' });
+        // Art loading in along a long way can move the section while the page glides to it; land on it anyway.
+        if (smooth) window.addEventListener('scrollend', () => el.scrollIntoView({ behavior: 'instant' }), { once: true });
+      }));
+    };
+    follow(false);
+    const onHash = () => follow(true);
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+  /** Picking a game or a cartridge puts it in the address, so the link can be passed on. */
+  const pickGame = (id: string) => { setGameId(id); mark(`#games/${id}`); };
+  const pickCart = (id: string) => { setCartId(id); mark(`#carts/${id}`); };
   const watch = () => setWatching(true);
 
   // The hero stage is being tried several ways; `?hero=2` opens one directly.
@@ -97,8 +137,9 @@ function App() {
         <section className="world world-rp" id="rhymepage" aria-labelledby="rp-title">
           <RhymePageCard />
         </section>
-        <GamesArcade still={still} gameId={gameId} onPick={setGameId} />
-        <Cartridges id={cartId} onPick={setCartId} />
+        <CouchOS still={still} />
+        <GamesArcade still={still} gameId={gameId} onPick={pickGame} />
+        <Cartridges id={cartId} onPick={pickCart} />
         <MoreWork />
         <Hello onWatch={watch} />
       </main>

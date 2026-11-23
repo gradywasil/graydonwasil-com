@@ -2,8 +2,10 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles/site.css';
 import './styles/hero-variants.css';
+import './styles/couch-os.css';
 import './styles/cartridges.css';
 import './styles/topbar-games.css';
+import './styles/topbar-folders.css';
 import App from './App.tsx';
 
 /* The old site was a deck with one URL per slide. Those links still exist
@@ -25,9 +27,4 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 );
 
-// Hash targets render after React mounts, so jump once they exist.
-if (window.location.hash) {
-  const id = window.location.hash.slice(1);
-  requestAnimationFrame(() => requestAnimationFrame(() =>
-    document.getElementById(id)?.scrollIntoView({ behavior: 'instant' })));
-}
+// Links into the page (#games/numdrop and the like) are followed by App, once the sections exist.

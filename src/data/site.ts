@@ -132,7 +132,7 @@ const APP_ITEMS: OrbitItem[] = [
 ];
 
 // Every game, ordered so neighbouring sprites look different from each other.
-const ORBIT_GAMES = ['brain-splitter', 'imu', 'numdrop', 'imi', 'dungeon-groove', 'imw', 'imt', 'im-merger', 'im-shred', 'ims', 'imv'];
+const ORBIT_GAMES = ['brain-splitter', 'imu', 'numdrop', 'magic-gunden', 'imi', 'dungeon-groove', 'imw', 'imt', 'im-merger', 'im-shred', 'ims', 'imv'];
 
 const GAME_ITEMS: OrbitItem[] = ORBIT_GAMES.map((id) => {
   const g = GAMES.find((x) => x.id === id)!;

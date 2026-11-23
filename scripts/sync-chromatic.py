@@ -33,6 +33,7 @@ GAMES = {
     'run-forever': 'run-forever',
     'pocket-typist': 'pocket-typist',
     'numdrop': 'numdrop',
+    'storybox': 'storybox',
 }
 
 LICENSE = """binjgb: a Game Boy emulator built as WebAssembly.

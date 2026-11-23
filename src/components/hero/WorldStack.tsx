@@ -15,7 +15,7 @@ const SPRITES = ORBIT_ITEMS.filter((i) => i.ring === 'games');
 interface World { id: string; name: string; status: string; line: string; accent: string; item?: OrbitItem }
 const WORLDS: World[] = [
   ...APPS.map((a) => ({ id: a.id, name: a.name, status: a.status, line: a.line, accent: a.accent, item: a })),
-  { id: 'games', name: 'Games', status: 'Eleven, free, in the browser', line: 'Weird games for curious thumbs.', accent: '#ff6b2c' },
+  { id: 'games', name: 'Games', status: 'Twelve, free, in the browser', line: 'Weird games for curious thumbs.', accent: '#ff6b2c' },
 ];
 
 // "MORSE", as the app would punch it.

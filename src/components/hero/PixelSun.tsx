@@ -113,7 +113,7 @@ export function PixelSun({ accent, pick, still }: { accent: string; pick: string
     let visible = true;
     const run = () => { if (!timer && visible && !document.hidden) timer = window.setInterval(tick, 1000 / FPS); };
     const halt = () => { clearInterval(timer); timer = 0; };
-    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) run(); else halt(); });
+    const io = new IntersectionObserver((es) => { visible = es[es.length - 1].isIntersecting; if (visible) run(); else halt(); });
     io.observe(canvas);
     const onVis = () => (document.hidden ? halt() : run());
     document.addEventListener('visibilitychange', onVis);

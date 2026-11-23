@@ -1,3 +1,18 @@
 {
-  "buildPath": "comp"
+  "buildPath": "comp",
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "src/styles/couch-os.css"
+        ],
+        "createdAt": "2026-11-23T20:51:16.061Z",
+        "reason": "Claude: L31 is the full-width top edge of the COUCH·OS world (its icon's four-colour bar), the site's documented 'each world's top edge is made of that world' pattern in DESIGN.md, not a one-sided card border"
+      }
+    ]
+  }
 }

@@ -222,7 +222,7 @@ export function Orbit({ items, selected, onSelect, still, centre, ringY = 0.5, f
     };
     const run = () => { if (!raf && visible && !document.hidden) { last = performance.now(); raf = requestAnimationFrame(frame); } };
     const halt = () => { cancelAnimationFrame(raf); raf = 0; };
-    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) run(); else halt(); });
+    const io = new IntersectionObserver((es) => { visible = es[es.length - 1].isIntersecting; if (visible) run(); else halt(); });
     io.observe(box);
     const onVis = () => (document.hidden ? halt() : run());
     document.addEventListener('visibilitychange', onVis);

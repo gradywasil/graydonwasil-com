@@ -459,7 +459,7 @@ export function HeroSky({ look, still, beat = 0, glow = false }: {
     };
     const run = () => { if (!raf && visible && !document.hidden) { last = performance.now(); raf = requestAnimationFrame(frame); } };
     const halt = () => { cancelAnimationFrame(raf); raf = 0; };
-    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) run(); else halt(); });
+    const io = new IntersectionObserver((es) => { visible = es[es.length - 1].isIntersecting; if (visible) run(); else halt(); });
     io.observe(hero);
     const onVis = () => (document.hidden ? halt() : run());
     document.addEventListener('visibilitychange', onVis);

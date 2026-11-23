@@ -70,11 +70,11 @@
   scroll-snap-type: x proximity; scrollbar-width: none;
 }
 .ct-shelf::-webkit-scrollbar { display: none; }
-/* With room, the four cartridges fill the column, side by side, nothing to scroll. */
+/* With room, the cartridges fill the column, side by side, nothing to scroll. */
 @media (min-width: 861px) {
-  .ct-shelf { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; overflow: visible; padding: 16px 6px 18px; }
+  .ct-shelf { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 14px; overflow: visible; padding: 16px 6px 18px; }
   .ct-shelf .ct-cart { width: auto; }
-  .ct-shelf .ct-cart-name { font-size: 15px; }
+  .ct-shelf .ct-cart-name { font-size: 14px; }
 }
 
 .ct-cart {
@@ -411,8 +411,8 @@
 }
 
 /* ------------------------------------------------------------- top bar
- * The Games tab covers the cartridges too: below the arcade, the cartridge in the console comes
- * out of the folder as a chip (TopBar.tsx, CartChip). It wears the cartridge: its title screen
+ * The Games tab covers the cartridges too (the last part of its folder): in #carts, the cartridge
+ * in the console comes out of the folder as a chip (TopBar.tsx, CartChip). It wears the cartridge: its title screen
  * as the label in its colour, its name, and gold pins crawling underneath like a cartridge going
  * into a slot. Switching cartridges plugs the new one in. */
 

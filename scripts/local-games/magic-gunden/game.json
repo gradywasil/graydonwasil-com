@@ -1,0 +1,112 @@
+{
+ "id": "magic-gunden",
+ "title": "Magic Gunden",
+ "url": "https://mg.arrangedgodly.com/",
+ "kicker": "New from Gurpy",
+ "tag": "Dungeon snake",
+ "tagline": [
+  "Grab the gems.",
+  "Mind the trail."
+ ],
+ "description": "You never stop moving. Run over gems and they follow you in a trail; lead it onto the glowing pressure plates and drop them to load your ammo. Any gem left off a plate hatches into a slime, and every colour fights differently. Five zones, from the Verdant Ruins to the Sandstone Tomb.",
+ "cta": "Play Magic Gunden",
+ "theme": {
+  "bg": "#1a1326",
+  "a": "#f2b33d",
+  "b": "#3fd17a"
+ },
+ "frame": "browser",
+ "stats": [
+  [
+   "5",
+   "zones"
+  ],
+  [
+   "5",
+   "gem colours"
+  ],
+  [
+   "0",
+   "U-turns"
+  ]
+ ],
+ "comment": "Longer trail, bigger haul, worse turns.",
+ "shotAlt": "Magic Gunden in the Verdant Ruins: the explorer on a mossy dungeon floor between emerald gems and a row of gold pressure plates",
+ "shot": "shot.png",
+ "thumb": "shot.png",
+ "logo": "logo.png",
+ "logoAlt": "Magic Gunden",
+ "orbit": "gem-ruby.png",
+ "floaters": [
+  {
+   "src": "player-idle.png",
+   "x": 3,
+   "y": -4,
+   "w": 9,
+   "r": -4,
+   "depth": 1.4,
+   "pixel": true,
+   "speed": 6
+  },
+  {
+   "src": "gem-emerald.png",
+   "x": 17,
+   "y": -2,
+   "w": 5,
+   "r": 6,
+   "depth": 1.8,
+   "pixel": true,
+   "speed": 5
+  },
+  {
+   "src": "gem-ruby.png",
+   "x": 64,
+   "y": -3,
+   "w": 5,
+   "r": -8,
+   "depth": 1.6,
+   "pixel": true,
+   "speed": 6
+  },
+  {
+   "src": "slime-ruby.png",
+   "x": 80,
+   "y": -4,
+   "w": 9,
+   "r": 4,
+   "depth": 1.4,
+   "pixel": true,
+   "speed": 7
+  },
+  {
+   "src": "slime-emerald.png",
+   "x": -3,
+   "y": 56,
+   "w": 9,
+   "r": -3,
+   "depth": 1.3,
+   "pixel": true,
+   "speed": 7
+  },
+  {
+   "src": "chest.png",
+   "x": 84,
+   "y": 60,
+   "w": 10,
+   "r": 3,
+   "depth": 1.3,
+   "pixel": true,
+   "speed": 8
+  },
+  {
+   "src": "gem-topaz.png",
+   "x": 6,
+   "y": 82,
+   "w": 5,
+   "r": 8,
+   "depth": 1.7,
+   "pixel": true,
+   "speed": 6
+  }
+ ]
+}

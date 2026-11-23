@@ -9,7 +9,7 @@ import { Split } from './Split';
 
 /* The cartridges section: the Game Boy Color games made for the ModRetro
  * Chromatic, running from their real ROMs in a handheld you can play with the
- * keyboard or with your thumbs. The shelf is the four cartridges; picking one
+ * keyboard or with your thumbs. The shelf is the cartridges; picking one
  * stands it in the console. The emulator is only fetched when someone presses
  * power. Which cartridge is in the console lives in App, so the top bar can wear it.
  *
@@ -66,7 +66,7 @@ export function Cartridges({ id, onPick }: {
   };
 
   return (
-    <section className="world world-cart" id="cartridges" aria-labelledby="ct-title" style={THEME(cart)}>
+    <section className="world world-cart" id="carts" aria-labelledby="ct-title" style={THEME(cart)}>
       <div className="ct-head">
         <h2 className="ct-title" id="ct-title" ref={title}>
           <span className="sr-only">Cartridges you can play right here.</span>

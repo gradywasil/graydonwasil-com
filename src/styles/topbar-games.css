@@ -1,7 +1,7 @@
 /* ---------------------------------------------------- top bar: each game
  * Every project's chip does one small thing of its own (Morse's lamp, Kilopixel's hard steps,
- * BitBounce's lanes, RhymePage's words). The games get the same: each of the arcade's eleven
- * games and the four cartridges does one thing that is that game, in its own two colours
+ * BitBounce's lanes, RhymePage's words). The games get the same: each of the arcade's twelve
+ * games and the five cartridges does one thing that is that game, in its own two colours
  * (--accent and --b, set by TopBar) and drawn behind the chip's text.
  *
  * TopBar marks the chip with data-game (the game's id). The effects are bits of the chip itself

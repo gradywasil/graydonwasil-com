@@ -94,7 +94,7 @@ function useInView<T extends Element>(margin: string) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { rootMargin: margin });
+    const io = new IntersectionObserver((es) => setInView(es[es.length - 1].isIntersecting), { rootMargin: margin });
     io.observe(el);
     return () => io.disconnect();
   }, [margin]);
@@ -276,7 +276,7 @@ export function KilopixelLaunch({ still }: { still: boolean }) {
     if (scene !== 'camera') return;
     const studio = studioRef.current;
     const off = () => { closeCamera(); setScene('flower'); };
-    const io = new IntersectionObserver(([e]) => { if (!e.isIntersecting) off(); });
+    const io = new IntersectionObserver((es) => { if (!es[es.length - 1].isIntersecting) off(); });
     if (studio) io.observe(studio);
     window.addEventListener('pagehide', off);
     return () => { io.disconnect(); window.removeEventListener('pagehide', off); };

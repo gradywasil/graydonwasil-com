@@ -7,7 +7,15 @@
  * What this file does: load the module, unpack a gzipped ROM, run the machine
  * against the display clock, draw each frame to a canvas, play the sound,
  * take button presses, and hand the cartridge's battery RAM back so a save can
- * outlive the tab. It knows nothing about React or this page's design. */
+ * outlive the tab. It knows nothing about React or this page's design.
+ *
+ * A machine is an instance of the compiled emulator with its own memory, a
+ * fixed 16 MB that cannot grow (two of the ROMs are 4 MB each). Once a machine
+ * has failed (out of memory, or a trap such as "memory access out of bounds"),
+ * it stays broken, and when one machine served every cartridge, nothing loaded
+ * again until the page was reloaded. So a machine is only reused when its last
+ * cartridge was switched off cleanly and emptied. One that failed is dropped,
+ * and the next cartridge gets a fresh one. Normally a visit makes one machine. */
 
 export const SCREEN_W = 160;
 export const SCREEN_H = 144;
@@ -60,9 +68,16 @@ interface Binjgb {
   _set_joyp_select(e: number, down: boolean): void;
 }
 
+interface BinjgbOptions {
+  /** Emscripten's hook for supplying the instance ourselves: here, from the module compiled once. */
+  instantiateWasm?: (imports: WebAssembly.Imports, done: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void) => object;
+}
+
+type BinjgbFactory = (options?: BinjgbOptions) => Promise<Binjgb>;
+
 declare global {
   interface Window {
-    Binjgb?: (options?: { locateFile?: (file: string) => string }) => Promise<Binjgb>;
+    Binjgb?: BinjgbFactory;
     webkitAudioContext?: typeof AudioContext;
     /** The emulator calls this global when a game writes to the link-cable port. We have no cable. */
     emulator?: { serialCallback(byte: number): void };
@@ -71,34 +86,79 @@ declare global {
 
 const BASE = `${import.meta.env.BASE_URL}gb/`;
 
-let modulePromise: Promise<Binjgb> | null = null;
+/** The emulator's glue and its compiled code, fetched once. Each machine is a new instance of them. */
+interface Emulator { factory: BinjgbFactory; wasm: WebAssembly.Module }
 
-/** Load the emulator once, on first use. */
-export function loadEmulator(): Promise<Binjgb> {
-  modulePromise ??= new Promise<Binjgb>((resolve, reject) => {
+let emulatorPromise: Promise<Emulator> | null = null;
+
+function loadGlue(): Promise<BinjgbFactory> {
+  return new Promise<BinjgbFactory>((resolve, reject) => {
+    if (window.Binjgb) { resolve(window.Binjgb); return; }
     const script = document.createElement('script');
     script.src = `${BASE}binjgb.js`;
     script.onload = () => {
-      if (!window.Binjgb) { reject(new Error('The emulator did not start.')); return; }
-      window.emulator ??= { serialCallback() { /* nothing is plugged in */ } };
-      window.Binjgb({ locateFile: (file) => `${BASE}${file}` }).then(resolve, reject);
+      if (window.Binjgb) resolve(window.Binjgb); else reject(new Error('The emulator did not start.'));
     };
-    script.onerror = () => reject(new Error('The emulator could not be loaded.'));
+    script.onerror = () => { script.remove(); reject(new Error('The emulator could not be loaded.')); };
     document.head.append(script);
-  }).catch((error) => { modulePromise = null; throw error; });
-  return modulePromise;
+  });
 }
 
+async function compileWasm(): Promise<WebAssembly.Module> {
+  const res = await fetch(`${BASE}binjgb.wasm`);
+  if (!res.ok) throw new Error(`The emulator could not be loaded (${res.status}).`);
+  return WebAssembly.compile(await res.arrayBuffer());
+}
+
+/** Load the emulator once, on first use. */
+export function loadEmulator(): Promise<Emulator> {
+  emulatorPromise ??= Promise.all([loadGlue(), compileWasm()])
+    .then(([factory, wasm]) => {
+      window.emulator ??= { serialCallback() { /* nothing is plugged in */ } };
+      return { factory, wasm };
+    })
+    .catch((error) => { emulatorPromise = null; throw error; });
+  return emulatorPromise;
+}
+
+/** A machine of its own: a fresh instance of the emulator, with its own memory. */
+function newMachine({ factory, wasm }: Emulator): Promise<Binjgb> {
+  // Emscripten never hears about a failed instantiateWasm, so a failure is raced in beside it.
+  let fail: (error: unknown) => void = () => {};
+  const failed = new Promise<never>((_, reject) => { fail = reject; });
+  const made = factory({
+    instantiateWasm(imports, done) {
+      WebAssembly.instantiate(wasm, imports).then((instance) => done(instance, wasm), fail);
+      return {};
+    },
+  });
+  return Promise.race([made, failed]);
+}
+
+/** A machine whose last cartridge was switched off cleanly and emptied out, ready for the next. */
+let spare: Binjgb | null = null;
+
+/** Unpacked ROMs, kept for the visit: switching back to a cartridge does not fetch or unpack it again. */
+const roms = new Map<string, Promise<Uint8Array>>();
+
 /** Fetch a ROM. They are stored gzipped; a server that unpacks them on the way is fine too. */
-export async function fetchRom(name: string): Promise<Uint8Array> {
-  const res = await fetch(`${BASE}roms/${name}.gbc.gz`);
-  if (!res.ok) throw new Error(`The cartridge could not be loaded (${res.status}).`);
-  const bytes = new Uint8Array(await res.arrayBuffer());
-  const gzipped = bytes[0] === 0x1f && bytes[1] === 0x8b;
-  if (!gzipped) return bytes;
-  if (typeof DecompressionStream === 'undefined') throw new Error('This browser is too old to unpack the cartridge.');
-  const unpacked = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
-  return new Uint8Array(await new Response(unpacked).arrayBuffer());
+export function fetchRom(name: string): Promise<Uint8Array> {
+  let rom = roms.get(name);
+  if (!rom) {
+    rom = (async () => {
+      const res = await fetch(`${BASE}roms/${name}.gbc.gz`);
+      if (!res.ok) throw new Error(`The cartridge could not be loaded (${res.status}).`);
+      const bytes = new Uint8Array(await res.arrayBuffer());
+      const gzipped = bytes[0] === 0x1f && bytes[1] === 0x8b;
+      if (!gzipped) return bytes;
+      if (typeof DecompressionStream === 'undefined') throw new Error('This browser is too old to unpack the cartridge.');
+      const unpacked = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+      return new Uint8Array(await new Response(unpacked).arrayBuffer());
+    })();
+    rom.catch(() => roms.delete(name));
+    roms.set(name, rom);
+  }
+  return rom;
 }
 
 let audio: AudioContext | null = null;
@@ -122,6 +182,8 @@ export interface CoreOptions {
   save?: Uint8Array | null;
   /** Called with the battery RAM a moment after the game changes it, and when the core stops. */
   onSave?: (ram: Uint8Array) => void;
+  /** Called once if the machine fails while running. It has stopped itself by then. */
+  onCrash?: (error: unknown) => void;
   muted?: boolean;
 }
 
@@ -136,6 +198,7 @@ export class GbCore {
   private readonly image = new ImageData(SCREEN_W, SCREEN_H);
   private readonly sampleRate: number;
   private readonly onSave?: (ram: Uint8Array) => void;
+  private readonly onCrash?: (error: unknown) => void;
   private readonly down = new Set<PadButton>();
 
   private raf = 0;
@@ -148,10 +211,13 @@ export class GbCore {
   private saveDirty = false;
   private savedAt = 0;
   private gone = false;
+  /** It failed: it is never emptied out or reused. */
+  private broken = false;
 
   constructor(m: Binjgb, rom: Uint8Array, opts: CoreOptions) {
     this.m = m;
     this.onSave = opts.onSave;
+    this.onCrash = opts.onCrash;
     this.muted = opts.muted ?? false;
     const ctx = opts.canvas.getContext('2d');
     if (!ctx) throw new Error('This browser cannot draw the screen.');
@@ -161,10 +227,7 @@ export class GbCore {
     this.romPtr = m._malloc(rom.byteLength);
     new Uint8Array(m.HEAP8.buffer, this.romPtr, rom.byteLength).set(rom);
     this.e = m._emulator_new_simple(this.romPtr, rom.byteLength, this.sampleRate, AUDIO_FRAMES, COLOR_CORRECTION);
-    if (this.e === 0) {
-      m._free(this.romPtr);
-      throw new Error('That does not look like a Game Boy ROM.');
-    }
+    if (this.e === 0) throw new Error('That does not look like a Game Boy ROM.');
     this.joypad = m._joypad_new();
     m._emulator_set_default_joypad_callback(this.e, this.joypad);
     if (opts.save) this.loadRam(opts.save);
@@ -216,16 +279,32 @@ export class GbCore {
     for (const b of [...this.down]) this.press(b, false);
   }
 
-  /** Switch off: save (unless told not to), stop, and give the machine's memory back. */
+  /** Switch off: save (unless told not to), stop, and empty the machine out for the next
+   *  cartridge. A machine that failed on the way is dropped instead. */
   destroy(keepSave = true) {
     if (this.gone) return;
     if (!keepSave) this.saveDirty = false;
-    this.pause();
-    this.flushSave();
+    try {
+      this.pause();
+      this.flushSave();
+    } catch {
+      this.broken = true;
+    }
+    this.stopLoop();
     this.gone = true;
-    this.m._emulator_delete(this.e);
-    this.m._joypad_delete(this.joypad);
-    this.m._free(this.romPtr);
+    if (this.broken) return;
+    const { m } = this;
+    try {
+      m._emulator_delete(this.e);
+      m._joypad_delete(this.joypad);
+      m._free(this.romPtr);
+      spare ??= m;
+    } catch { /* not fit to reuse; dropping it gives its memory back */ }
+  }
+
+  private stopLoop() {
+    if (this.raf) cancelAnimationFrame(this.raf);
+    this.raf = 0;
   }
 
   /** The battery RAM as it is now (empty for a cartridge without any). */
@@ -262,6 +341,19 @@ export class GbCore {
 
   private frame = (nowMs: number) => {
     this.raf = requestAnimationFrame(this.frame);
+    try {
+      this.step(nowMs);
+    } catch (error) {
+      // Stop here rather than throw again on every frame; the page offers a fresh machine.
+      this.stopLoop();
+      this.gone = true;
+      this.broken = true;
+      void audio?.suspend();
+      this.onCrash?.(error);
+    }
+  };
+
+  private step(nowMs: number) {
     const { m, e } = this;
     const nowSec = nowMs / 1000;
     const deltaSec = Math.max(nowSec - (this.lastSec || nowSec), 0);
@@ -285,7 +377,7 @@ export class GbCore {
 
     if (m._emulator_was_ext_ram_updated(e)) this.saveDirty = true;
     if (this.saveDirty && performance.now() - this.savedAt > SAVE_EVERY_MS) this.flushSave();
-  };
+  }
 
   private pushAudio() {
     const { m, e } = this;
@@ -318,8 +410,19 @@ export class GbCore {
   }
 }
 
-/** Boot a cartridge: the emulator, the ROM and the last save, together. */
-export async function boot(romName: string, opts: CoreOptions): Promise<GbCore> {
-  const [m, rom] = await Promise.all([loadEmulator(), fetchRom(romName)]);
+/** Boot a cartridge: the emulator, the ROM and the last save, together. `stale` is asked
+ *  between steps; once it says yes, nothing more is started and this gives null. */
+export async function boot(romName: string, opts: CoreOptions, stale: () => boolean = () => false): Promise<GbCore | null> {
+  const [emulator, rom] = await Promise.all([loadEmulator(), fetchRom(romName)]);
+  if (stale()) return null;
+  const reused = spare;
+  spare = null;
+  if (reused) {
+    try {
+      return new GbCore(reused, rom, opts);
+    } catch { /* that machine was not fit to reuse after all: a fresh one below */ }
+  }
+  const m = await newMachine(emulator);
+  if (stale()) { spare ??= m; return null; }
   return new GbCore(m, rom, opts);
 }
