@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { gameById } from '../../data/games';
 import gurpySrc from '../../assets/fun/gurpy.png';
+import mimicArt from '../../assets/carts/mimic.png';
+import { COUCH } from '../../data/couch-os';
 import { GAME_HUBS, ORBIT_ITEMS, type OrbitItem } from '../../data/site';
 import type { SkyLook } from '../HeroSky';
 import { ItemActions } from './ItemActions';
@@ -27,6 +29,18 @@ import { BARS } from './lyrics';
 const APPS = ORBIT_ITEMS.filter((i) => i.ring === 'apps');
 const GAMES = ORBIT_ITEMS.filter((i) => i.ring === 'games');
 const HUB = GAME_HUBS[0];
+
+/** A home screen page holds twelve icons, four rows of three, as a phone's does; the rest go on the next page. */
+const PER_PAGE = 12;
+/** Ways out of the phone on the last page: the game hub, and the sections below that hold more to play. */
+const SHORTCUTS: Array<{ id: string; name: string; label: string; href: string; icon: string; external?: boolean; px?: boolean; tile: string }> = [
+  { id: 'hub', name: HUB.title, label: `${HUB.title}: ${HUB.line} (opens in a new tab)`, href: HUB.url, icon: gurpySrc, external: true, px: true, tile: 'hub' },
+  { id: 'couch', name: 'COUCH·OS', label: 'COUCH·OS, my living-room console: see it below', href: '#couch-os', icon: COUCH.icon, tile: 'couch' },
+  { id: 'carts', name: 'Cartridges', label: 'Game Boy Color cartridges: play them below', href: '#carts', icon: mimicArt, px: true, tile: 'cart' },
+];
+type Slot = { kind: 'game'; item: OrbitItem } | { kind: 'link'; link: (typeof SHORTCUTS)[number] };
+const SLOTS: Slot[] = [...GAMES.map((item) => ({ kind: 'game' as const, item })), ...SHORTCUTS.map((link) => ({ kind: 'link' as const, link }))];
+const PAGES: Slot[][] = Array.from({ length: Math.ceil(SLOTS.length / PER_PAGE) }, (_, p) => SLOTS.slice(p * PER_PAGE, (p + 1) * PER_PAGE));
 
 /* Where things sit around the handset: which side, how far off its edge and
  * how far down, both in percent of the handset. */
@@ -134,6 +148,17 @@ export function HomeScreen({ still, onPickGame, onLook, onGlow, onBeat }: {
   const phoneRef = useRef<HTMLDivElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
   const homeRef = useRef<HTMLDivElement>(null);
+  /** The home screen's pages of games, swiped sideways, and the one showing. */
+  const pagerRef = useRef<HTMLDivElement>(null);
+  const [page, setPage] = useState(0);
+  const onPages = () => {
+    const el = pagerRef.current;
+    if (el) setPage(Math.round(el.scrollLeft / Math.max(1, el.clientWidth)));
+  };
+  const toPage = (p: number) => {
+    const el = pagerRef.current;
+    el?.scrollTo({ left: p * el.clientWidth, behavior: still ? 'instant' : 'smooth' });
+  };
   const appRef = useRef<HTMLDivElement>(null);
   const backRef = useRef<HTMLButtonElement>(null);
   /** The transform that puts the full-screen app back on the icon it came from. */
@@ -367,15 +392,41 @@ export function HomeScreen({ still, onPickGame, onLook, onGlow, onBeat }: {
               </div>
 
               <div className="hs-home" ref={homeRef} inert={!!open}>
-                <ul className="hs-grid" aria-label="Games">
-                  {GAMES.map((item, i) => <Icon key={item.id} item={item} index={i} onOpen={launch} />)}
-                  <li style={{ ['--i' as string]: GAMES.length } as CSSProperties}>
-                    <a className="hs-icon" href={HUB.url} target="_blank" rel="noopener noreferrer" aria-label={`${HUB.title}: ${HUB.line} (opens in a new tab)`}>
-                      <span className="hs-tile hs-tile-hub"><img src={gurpySrc} alt="" draggable={false} data-px="" /></span>
-                      <span className="hs-name" aria-hidden="true">{HUB.title}</span>
-                    </a>
-                  </li>
-                </ul>
+                <div className="hs-pages" ref={pagerRef} onScroll={onPages} aria-label="Games">
+                  {PAGES.map((page, p) => (
+                    <ul key={p} className="hs-grid" aria-label={`Page ${p + 1} of ${PAGES.length}`}>
+                      {page.map((slot, i) => slot.kind === 'game' ? (
+                        <Icon key={slot.item.id} item={slot.item} index={i} onOpen={launch} />
+                      ) : (
+                        <li key={slot.link.id} style={{ ['--i' as string]: i } as CSSProperties}>
+                          <a
+                            className="hs-icon"
+                            href={slot.link.href}
+                            aria-label={slot.link.label}
+                            {...(slot.link.external && { target: '_blank', rel: 'noopener noreferrer' })}
+                          >
+                            <span className={`hs-tile hs-tile-${slot.link.tile}`}><img src={slot.link.icon} alt="" draggable={false} data-px={slot.link.px || undefined} /></span>
+                            <span className="hs-name" aria-hidden="true">{slot.link.name}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  ))}
+                </div>
+                {PAGES.length > 1 && (
+                  <div className="hs-dots">
+                    {PAGES.map((_, p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        className="hs-page-dot"
+                        aria-label={`Page ${p + 1} of the games`}
+                        aria-current={p === page ? 'true' : undefined}
+                        onClick={() => toPage(p)}
+                      />
+                    ))}
+                  </div>
+                )}
                 <ul className="hs-dock" aria-label="Apps">
                   {APPS.map((item, i) => <Icon key={item.id} item={item} index={i} onOpen={launch} />)}
                 </ul>

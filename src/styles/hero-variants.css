@@ -83,13 +83,29 @@
 
 /* Opening an app dives into its icon: home grows toward it (HomeScreen sets the origin) and clears. */
 .hs-home {
-  display: grid; grid-template-rows: minmax(0, 1fr) auto; padding: 4cqw 4.5cqw 4.5cqw; transform-origin: 50% 42%;
+  display: grid; grid-template-rows: minmax(0, 1fr) auto auto; padding: 4cqw 0 4.5cqw; transform-origin: 50% 42%;
   scale: calc(1 + 0.9 * var(--away, 0)); opacity: calc(1 - var(--away, 0));
   transition: scale 0.5s cubic-bezier(0.3, 0, 0.2, 1), opacity 0.3s;
 }
 .hs-grid, .hs-dock { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; }
-/* Games get three to a row, so they are big enough to read and to hit. */
-.hs-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-content: space-evenly; row-gap: 2cqw; }
+/* The games are pages, swiped sideways the way a phone's home screen is, with dots to say which.
+ * Every page keeps the same four rows of three, so the icons sit in the same places on each,
+ * big enough to read and to hit; a page that is not full leaves its last rows empty. */
+.hs-pages {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 100%; min-height: 0;
+  overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+  scrollbar-width: none; touch-action: pan-x pan-y;
+}
+.hs-pages::-webkit-scrollbar { display: none; }
+.hs-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(4, minmax(0, 1fr));
+  align-items: center; row-gap: 1.2cqw; min-height: 0; padding: 0 4.5cqw; scroll-snap-align: start; scroll-snap-stop: always;
+}
+.hs-dots { display: flex; justify-content: center; gap: 0.4cqw; padding: 1.6cqw 0 2.4cqw; }
+.hs-page-dot { width: 6cqw; height: 6cqw; padding: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
+.hs-page-dot::before { content: ''; width: 1.9cqw; height: 1.9cqw; border-radius: 50%; background: rgb(255 255 255 / 0.32); transition: background-color 0.2s, scale 0.2s; }
+.hs-page-dot[aria-current]::before { background: #fff; scale: 1.15; }
+.hs-dock { margin: 0 4.5cqw; }
 .hs-grid .hs-tile { width: 22cqw; }
 .hs-dock {
   padding: 3.6cqw 0 3cqw; border-radius: 9cqw;
@@ -110,6 +126,11 @@
 .hs-tile[data-ring='games'] img, .hs-tile-hub img { width: 80%; height: 80%; object-fit: contain; }
 .hs-tile img[data-px] { image-rendering: pixelated; }
 .hs-tile-hub { background: var(--cream); }
+/* The shortcuts on the last page wear the things they go to. */
+.hs-tile-couch { background: #07060b; }
+.hs-tile-couch img { width: 100%; height: 100%; }
+.hs-tile-cart { background: linear-gradient(180deg, #3a3646, #24212d); padding: 12% 12% 16%; box-shadow: inset 0 0 0 0.6cqw #5fdc7a, 0 1.4cqw 2.6cqw rgb(0 0 0 / 0.38); }
+.hs-tile-cart img { border-radius: 6%; object-fit: cover; }
 .hs-name {
   max-width: 100%; padding: 0 0.6cqw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   font: 600 clamp(10px, 3.5cqw, 12px)/1.1 var(--body);
