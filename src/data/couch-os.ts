@@ -3,7 +3,8 @@ import icon from '../assets/couch-os/icon.svg';
 /* COUCH·OS, the living-room arcade console (couch-os.arrangedgodly.com). The titles are its
  * game library in the console's own order, with its own words and colours; each cover is the
  * console's own library art, captured from the live site into src/assets/couch-os/ as a still
- * (.webp) and a few seconds of it animating (.mp4, recorded from the console's canvas). */
+ * (.webp) and six seconds of it animating (.mp4, a seamless 60 fps loop rendered frame by frame from
+ * the console's canvas by scripts/capture-couch-previews.py; rerun it when the library art changes). */
 
 const covers = import.meta.glob<string>('../assets/couch-os/*.webp', { eager: true, import: 'default' });
 const cover = (id: string) => covers[`../assets/couch-os/${id}.webp`];

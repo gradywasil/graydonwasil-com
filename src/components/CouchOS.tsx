@@ -21,7 +21,7 @@ import { Split } from './Split';
 const N = COUCH_TITLES.length;
 const ch = (i: number) => String(i + 1).padStart(2, '0');
 /** How long attract mode stays on a channel. */
-const SURF_MS = 3600;
+const SURF_MS = 5000;
 /** The console's controller lights, player one to eight (from its pairing screen). */
 const PLAYERS = ['#3ba6d4', '#e0647a', '#3fbf6a', '#e0b62a', '#8a7cf0', '#e08a42', '#aab3bb', '#c46be0'];
 /** How many phones join while the section is on screen (you are player one). */
@@ -43,6 +43,9 @@ export function CouchOS({ still }: { still: boolean }) {
   const [onScreen, setOnScreen] = useState(false);
   /** Which title's loop is playing on the TV, so it can cover the still. */
   const [moving, setMoving] = useState<string | null>(null);
+  /** The rail thumbnail under the mouse, which plays its own loop. */
+  const [peek, setPeek] = useState<string | null>(null);
+  const warmed = useRef(new Set<string>());
   const video = useRef<HTMLVideoElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const screen = useRef<HTMLDivElement>(null);
@@ -80,6 +83,15 @@ export function CouchOS({ still }: { still: boolean }) {
     if (onScreen) void v.play().catch(() => { /* not allowed (Low Power Mode): the still stays */ });
     else v.pause();
   }, [onScreen, at, spinning]);
+
+  // Once a loop plays, fetch the next channel's quietly, so surfing lands straight on motion.
+  useEffect(() => {
+    if (moving !== game.id) return;
+    const next = COUCH_TITLES[(at + 1) % N].preview;
+    if (warmed.current.has(next)) return;
+    warmed.current.add(next);
+    void fetch(next, { priority: 'low' } as RequestInit).catch(() => warmed.current.delete(next));
+  }, [moving, game.id, at]);
 
   // Players join when the console first comes on screen: one phone at a time.
   useEffect(() => {
@@ -278,8 +290,13 @@ export function CouchOS({ still }: { still: boolean }) {
                 aria-current={i === at ? 'true' : undefined}
                 style={{ '--c': g.colour } as CSSProperties}
                 onClick={() => tune(i)}
+                onPointerEnter={(e) => e.pointerType === 'mouse' && setPeek(g.id)}
+                onPointerLeave={() => setPeek((p) => (p === g.id ? null : p))}
               >
                 <img src={g.cover} alt="" width="112" height="65" loading="lazy" />
+                {peek === g.id && !still && (
+                  <video src={g.preview} muted loop playsInline autoPlay aria-hidden="true" onPlaying={(e) => e.currentTarget.setAttribute('data-on', '')} />
+                )}
               </button>
             </li>
           ))}
